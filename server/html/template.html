@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"/>
+		<title><%section name="pagetitle"%></title>
+		<link rel="stylesheet" type="text/css" media="Screen" href="html/yacrs.css" />
+    </head>
+	<body>
+		<div id="outerContainer">
+			<div id="innerContainer">
+				<div id="pageHeader">
+					<div id="branding">
+						<img src="html/logo_med.png" alt="Logo" id="logo"/>
+					</div>
+					<%section name="modechoice" div_id="modechoice"%>
+				</div>
+				<div id="main">
+					<%section name="breadcrumb" div_id="breadcrumb"%>
+					<%section name="sideLinks" div_id="links"%>
+                    <div id="content">
+						<%section name="headings"%>
+	          			<%section name="loginBox" div_id="loginBox"%>
+	                    <%section name="coursesBlock" div_id="coursesBlock"%>
+	                    <%section name="sideInfo" div_id="linksArea"%>
+			  			<%section name="mainBody"%>
+                    </div>
+                    <%section name="logoutLink" div_id="logoutLink"%>
+				</div>
+				<!-- navigation object : 0k Generic Footer addres -->
+				
+ <div class="footer" id="pageFooter">
+
+			</div>
+			</div>
+		</div>
+  <%section name="afterContent"%>
+	</body>
+</html>

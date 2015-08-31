@@ -1,0 +1,98 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Name>yacrs</Name>
+    <ProjectGuid>{7c791b1a-59cb-4be7-85fb-6cfe7f513260}</ProjectGuid>
+    <RootNamespace>yacrs</RootNamespace>
+    <OutputType>Library</OutputType>
+    <ProjectTypeGuids>{A0786B88-2ADB-4C21-ABE8-AA2D79766269}</ProjectTypeGuids>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <IncludeDebugInformation>true</IncludeDebugInformation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <IncludeDebugInformation>false</IncludeDebugInformation>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="corelib\basicpage.php" />
+    <Compile Include="corelib\dataaccess.php" />
+    <Compile Include="corelib\dataaccess_lite.php" />
+    <Compile Include="corelib\force_ssl.php" />
+    <Compile Include="corelib\form_lib2.php" />
+    <Compile Include="corelib\ldap_login.php" />
+    <Compile Include="corelib\mobile.php" />
+    <Compile Include="corelib\Mobile_Detect.php" />
+    <Compile Include="corelib\safeRequestFunctions.php" />
+    <Compile Include="corelib\templateMerge.php" />
+    <Compile Include="html\logo_large.png" />
+    <Compile Include="html\logo_med.png" />
+    <Compile Include="html\mtemplate.html" />
+    <Compile Include="html\template.html" />
+    <Compile Include="html\yacrs.css" />
+    <Compile Include="html\yacrs1.css" />
+    <Compile Include="html\yacrsmobile.css" />
+    <Compile Include="lib\PHP_Word_Cloud-master\meta\LICENSE" />
+    <Compile Include="lib\PHP_Word_Cloud-master\box.php" />
+    <Compile Include="lib\PHP_Word_Cloud-master\frequency_table.php" />
+    <Compile Include="lib\PHP_Word_Cloud-master\index.php" />
+    <Compile Include="lib\PHP_Word_Cloud-master\LiberationSans-Regular.ttf" />
+    <Compile Include="lib\PHP_Word_Cloud-master\LiberationSerif-Italic.ttf" />
+    <Compile Include="lib\PHP_Word_Cloud-master\mask.php" />
+    <Compile Include="lib\PHP_Word_Cloud-master\palette.php" />
+    <Compile Include="lib\PHP_Word_Cloud-master\README.md" />
+    <Compile Include="lib\PHP_Word_Cloud-master\tagcloud.php" />
+    <Compile Include="lib\PHP_Word_Cloud-master\word_cloud.php" />
+    <Compile Include="lib\ajax.php" />
+    <Compile Include="lib\basicquestion.php" />
+    <Compile Include="lib\database.php" />
+    <Compile Include="lib\forms.php" />
+    <Compile Include="lib\login.php" />
+    <Compile Include="lib\multipartquestion.php" />
+    <Compile Include="lib\questionBase.php" />
+    <Compile Include="lib\questionTypes.php" />
+    <Compile Include="lib\shared_funcs.php" />
+    <Compile Include="lib\textthenchoicequestion.php" />
+    <Compile Include="phpqrcode\LICENSE" />
+    <Compile Include="phpqrcode\phpqrcode.php" />
+    <Compile Include="phpqrcode\README" />
+    <Compile Include="phpqrcode\VERSION" />
+    <Compile Include="admin.php" />
+    <Compile Include="chart.php" />
+    <Compile Include="chat.php" />
+    <Compile Include="chatlisting.php" />
+    <Compile Include="chatviewer.php" />
+    <Compile Include="config.php" />
+    <Compile Include="config_mysql.php" />
+    <Compile Include="editquestion.php" />
+    <Compile Include="editsession.php" />
+    <Compile Include="export.php" />
+    <Compile Include="getposts.php" />
+    <Compile Include="index.php" />
+    <Compile Include="initialise.php" />
+    <Compile Include="join.php" />
+    <Compile Include="LicenceEtc.txt" />
+    <Compile Include="message.php" />
+    <Compile Include="qrimg.php" />
+    <Compile Include="responseCounter.php" />
+    <Compile Include="responses.php" />
+    <Compile Include="runsession.php" />
+    <Compile Include="runsession_partmultiq.php" />
+    <Compile Include="services.php" />
+    <Compile Include="sessionmembers.php" />
+    <Compile Include="smsin.php" />
+    <Compile Include="updateControlQus.php" />
+    <Compile Include="updateTitle.php" />
+    <Compile Include="vote.php" />
+    <Compile Include="wordwall.php" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="corelib" />
+    <Folder Include="html" />
+    <Folder Include="lib\PHP_Word_Cloud-master\meta" />
+    <Folder Include="lib\PHP_Word_Cloud-master" />
+    <Folder Include="lib" />
+    <Folder Include="locallib" />
+    <Folder Include="phpqrcode" />
+    <Folder Include="userimages" />
+  </ItemGroup>
+</Project>
