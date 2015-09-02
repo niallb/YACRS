@@ -2,12 +2,15 @@
 
 date_default_timezone_set('UTC');
 include_once('corelib/force_ssl.php');  // To allow non-SSL use, comment out this line
-//require_once('corelib/safeRequestFunctions.php');
 require_once('corelib/safeRequestFunctions.php');
 require_once('corelib/templateMerge.php');
 include('lib/login.php');
 //include_once('lib/libfuncs.php');
 
+//Get most configuration info from a file outside the web server directory - paranoid security
+include_once('../../config.php');
+// alternatively, comment that out, uncomment the following and fill in the details below
+/*
 $TEMPLATE = 'html/template.html';
 $MOBILETEMPLATE = 'html/mtemplate.html';
 $CFG['appname'] = 'yacrs';  //Used for cookie name, so no spaces etc.
@@ -54,5 +57,5 @@ $CFG['adminname'] = 'admin';
 //Ideally don't set this field - rely on LDAP. If you're not using LDAP you'll need to set
 //a password here. It can be plain text, or (prefereably) the value returned by md5($CFG['cookiehash'].'your_password');
 //$CFG['adminpwd'] = '';
-
+//*/
 ?>

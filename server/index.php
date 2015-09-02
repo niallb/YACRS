@@ -40,7 +40,10 @@ $template->pageData['breadcrumb'] .= '| YACRS';
 if($uinfo==false)
 {
 	$template->pageData['headings'] = "<h1  style='text-align:center; padding:10px;'>Login</h1>";
-	$template->pageData['loginBox'] = loginBox($uinfo, $loginError);//."<p style='text-align:right;'><a href='join.php'>Or click here for guest/anonymous access</a></p>";
+    if((isset($CFG['ldaphost']))&&($CFG['ldaphost']!=''))
+    {
+        $template->pageData['loginBox'] = loginBox($uinfo, $loginError);//."<p style='text-align:right;'><a href='join.php'>Or click here for guest/anonymous access</a></p>";
+    }
     if(file_exists('logininfo.htm'))
 	    $template->pageData['mainBody'] = file_get_contents('logininfo.htm').'<br/>';
     $template->pageData['logoutLink'] = "<p style='text-align:right;'><a href='join.php'>Or click here for guest/anonymous access</a></p>";

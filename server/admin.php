@@ -39,7 +39,12 @@ $template->pageData['breadcrumb'] = $CFG['breadCrumb'];
 $template->pageData['breadcrumb'] .= '| <a href="index.php">YACRS</a>';
 $template->pageData['breadcrumb'] .= '| Administration';
 
-if(($uinfo==false)||(!$uinfo['isAdmin']))
+if($uinfo==false)
+{
+	$template->pageData['headings'] = "<h1  style='text-align:center; padding:10px;'>Login</h1>";
+    $template->pageData['loginBox'] = loginBox($uinfo, $loginError);//."<p style='text-align:right;'><a href='join.php'>Or click here for guest/anonymous access</a></p>";
+}
+elseif(!$uinfo['isAdmin'])
 {
     header("Location: index.php");
 }
@@ -70,7 +75,6 @@ else
         $template->pageData['mainBody'] .= '<li><b>'.adminLink('Sessions', array('disp'=>'sessions'), true).'</b> ('.session::count().')</li>';
     if($disp == 'users')
     {
-        $template->pageData['mainBody'] .=  "<h1>$searchval</h1>";
         update_from_userSearch($searchval);
         if(($id==0)&&(strlen($searchval)))
         {
@@ -119,9 +123,22 @@ else
     if($disp == 'lti')
     {
         $template->pageData['mainBody'] .= '<li><b>LTI Consumers</b> ('.lticonsumer::count().')</li>';
+        $add = requestInt('add', 0);
+        if($add>0)
+        {
+        }
+        else
+        {
+             $template->pageData['mainBody'] .= '<ul>';
+             //# links to existing consumers
+             $template->pageData['mainBody'] .= '<li><b>'.adminLink('Add new LTI consumer details', array('disp'=>'lti', 'add'=>'1'), true).'</b></li>';
+             $template->pageData['mainBody'] .= '</ul>';
+        }
     }
     else
+    {
         $template->pageData['mainBody'] .= '<li><b>'.adminLink('LTI Consumers', array('disp'=>'lti'), true).'</b> ('.lticonsumer::count().')</li>';
+    }
     $template->pageData['mainBody'] .= '</ul>';
     $template->pageData['mainBody'] .= "<p>Student responses in last hour: ".response::countAllInLastHour().'</p>';
 	$template->pageData['logoutLink'] = loginBox($uinfo);
@@ -176,7 +193,7 @@ function displayUser($id)
 
 function adminLink($text, $params, $reset=false)
 {
-    $basicparams = array('disp', 'page', 'id', 'searchval');
+    $basicparams = array('disp', 'page', 'id', 'searchval', 'add');
     $out = '<a href="admin.php?';
     foreach($basicparams as $p)
     {
