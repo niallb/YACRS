@@ -385,6 +385,26 @@ class lticonsumer
 	}
 	//[[USERCODE_lticonsumer]] Put code for custom class members in this block.
 
+	static function retrieve_all_lticonsumer($from=0, $count=-1, $sort=null)
+	{
+ 	    $query = "SELECT * FROM yacrs_lticonsumer ";
+	    if($sort !== null)
+	        $query .= " ORDER BY ".$sort;
+	    if(($count != -1)&&(is_int($count))&&(is_int($from)))
+	        $query .= " LIMIT ".$count." OFFSET ".$from;
+	    $query .= ';';
+	    $result = dataConnection::runQuery($query);
+	    if(sizeof($result)!=0)
+	    {
+	        $output = array();
+	        foreach($result as $r)
+	            $output[] = new lticonsumer($r);
+	        return $output;
+	    }
+	    else
+	        return false;
+	}
+
 	//[[USERCODE_lticonsumer]] WEnd of custom class members.
 }
 

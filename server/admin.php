@@ -124,12 +124,61 @@ else
     {
         $template->pageData['mainBody'] .= '<li><b>LTI Consumers</b> ('.lticonsumer::count().')</li>';
         $add = requestInt('add', 0);
+        $name = '';
+        $consumer_key = '';
+        $secret = md5(uniqid());
+        if(($add > 0)&&($id > 0))
+        {
+            $ltiinf = lticonsumer::retrieve_lticonsumer($id);
+	        $name = $ltiinf->name;
+	        $consumer_key = $ltiinf->consumer_key;
+            $secret = $ltiinf->secret;
+        }
+        if(update_from_ltiConsumerInfo($name, $consumer_key, $secret))
+        {
+            if(strlen($name) < 1)
+            {
+                $add = 1;
+                $template->pageData['mainBody'] .= "A name is required.<br/>";
+            }
+            if(strlen($consumer_key) < 1)
+            {
+                $add = 1;
+                $template->pageData['mainBody'] .= "A Consumer key is required.<br/>";
+            }
+            if(strlen($secret) < 8)
+            {
+                $add = 1;
+                $template->pageData['mainBody'] .= "Secret must be at least 8 characters - this is basically a password.<br/>";
+            }
+            if($add==0)
+            {
+                if($id == 0)
+                    $ltiinf = new lticonsumer();
+                else
+                	$ltiinf = lticonsumer::retrieve_lticonsumer($id);
+                $ltiinf->name = $name;
+                $ltiinf->consumer_key = $consumer_key;
+                $ltiinf->secret = $secret;
+                if($id == 0)
+                    $ltiinf->insert();
+                else
+                	$ltiinf->update();
+            }
+        }
         if($add>0)
         {
+             $template->pageData['mainBody'] .= show_ltiConsumerInfo($disp, $id, $name, $consumer_key, $secret);
         }
         else
         {
              $template->pageData['mainBody'] .= '<ul>';
+             $ltics = lticonsumer::retrieve_all_lticonsumer(0, -1, "name ASC");
+             if($ltics)
+             {
+                 foreach($ltics as $l)
+                     $template->pageData['mainBody'] .= "<li>".adminLink($l->name, array('disp'=>'lti', 'id'=>$l->id, 'add'=>'1'), true)."</li>";
+             }
              //# links to existing consumers
              $template->pageData['mainBody'] .= '<li><b>'.adminLink('Add new LTI consumer details', array('disp'=>'lti', 'add'=>'1'), true).'</b></li>';
              $template->pageData['mainBody'] .= '</ul>';
@@ -215,6 +264,7 @@ function adminLink($text, $params, $reset=false)
 
 define('userInfo_magic', md5('userInfo'));
 define('userSearch_magic', md5('userSearch'));
+define('ltiConsumerInfo_magic', md5('ltiConsumerInfo'));
 
 function show_userInfo($disp, $page, $id, $username, $name, $email, $nickname, $phone, $sessionCreator, $isAdmin)
 {
@@ -339,4 +389,60 @@ function update_from_userSearch(&$searchval)
         return false;
     }
 }
+
+function show_ltiConsumerInfo($disp, $id, $name, $consumer_key, $secret)
+{
+    $out = '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">';
+    $out .= '<input type="hidden" name="ltiConsumerInfo_code" value="'.ltiConsumerInfo_magic.'"/>';
+
+    $out .= '<input type="hidden" name="disp" value="'.$disp.'"';
+    $out .= "/>\n";
+
+    $out .= '<input type="hidden" name="id" value="'.$id.'"';
+    $out .= "/>\n";
+
+    $out .= '<div class="formfield">';
+    $out .= '<label for="name">Name, typically an institution:';
+    $out .= '</label>';
+    $out .= '<br/><span class="forminput"><input type="text" name="name" value="'.$name.'" size="80"';
+    $out .= "/></span></div>\n";
+
+    $out .= '<div class="formfield">';
+    $out .= '<label for="consumer_key">Key, typicaly a server name:';
+    $out .= '</label>';
+    $out .= '<br/><span class="forminput"><input type="text" name="consumer_key" value="'.$consumer_key.'" size="80"';
+    $out .= "/></span></div>\n";
+
+    $out .= '<div class="formfield">';
+    $out .= '<label for="secret">Shared secret:';
+    $out .= '</label>';
+    $out .= '<br/><span class="forminput"><input type="text" name="secret" value="'.$secret.'" size="80"';
+    $out .= "/></span></div>\n";
+
+    $out .= '<div class="formfield">';
+    $out .= '<input class="submit" name="ltiConsumerInfo_submit" type="submit" value="Update" />';
+    $out .= '<input class="submit" name="ltiConsumerInfo_cancel" type="submit" value="Cancel" />';
+    $out .= "</div>";
+
+    $out .= '<form>';
+    return $out;
+}
+
+function update_from_ltiConsumerInfo(&$name, &$consumer_key, &$secret)
+{
+    if((isset($_REQUEST['ltiConsumerInfo_code']))&&($_REQUEST['ltiConsumerInfo_code']==ltiConsumerInfo_magic))
+    {
+        if(isset($_REQUEST['ltiConsumerInfo_cancel']))
+            return false;
+        $name = strval($_REQUEST['name']);
+        $consumer_key = strval($_REQUEST['consumer_key']);
+        $secret = strval($_REQUEST['secret']);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 ?>
