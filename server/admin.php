@@ -149,7 +149,7 @@ else
             if(strlen($secret) < 8)
             {
                 $add = 1;
-                $template->pageData['mainBody'] .= "Secret must be at least 8 characters - this is basically a password.<br/>";
+                $template->pageData['mainBody'] .= "Secret must be at least 8 characters.<br/>";
             }
             if($add==0)
             {
@@ -159,6 +159,7 @@ else
                 	$ltiinf = lticonsumer::retrieve_lticonsumer($id);
                 $ltiinf->name = $name;
                 $ltiinf->consumer_key = $consumer_key;
+                $ltiinf->keyHash = md5($consumer_key);
                 $ltiinf->secret = $secret;
                 if($id == 0)
                     $ltiinf->insert();
