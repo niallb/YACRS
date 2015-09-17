@@ -39,7 +39,7 @@ $template->pageData['mainBody'] = '';
 
 $thisSession = isset($_REQUEST['sessionID'])? session::retrieve_session($_REQUEST['sessionID']):false;
 
-echo "<pre>".print_r($thisSession,1).'</pre>';
+//echo "<pre>".print_r($thisSession,1).'</pre>';
 
 if(($uinfo==false)&&($thisSession==false))
 {

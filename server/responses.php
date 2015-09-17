@@ -56,7 +56,8 @@ else
 	//$template->pageData['mainBody'] .= '<pre>'.print_r($qu->definition,1).'</pre>';
     if((strlen($qi->screenshot))&&(file_exists($qi->screenshot)))
     {
-        $template->pageData['mainBody'] .= "<img src='$qi->screenshot' style='float:right;'/>";
+        $template->pageData['mainBody'] .= "<img id='image' src='$qi->screenshot' style='float:right;'/>";
+        $template->pageData['afterContent'] = getImageScript();
     }
     $template->pageData['mainBody'] .= $qu->definition->report($thisSession, $qi, (isset($_REQUEST['display']))&&($_REQUEST['display']=='detail'));
     $template->pageData['mainBody'] .= $PrevNextLinks.'<br/>';
@@ -66,5 +67,16 @@ else
 
 echo $template->render();
 
+function getImageScript()
+{
+return '<script lang="JavaScript">
+        var shrunkWidth = 350;
+        var img = document.getElementById("image");
+        var oldWidth = img.width;
+        img.width = shrunkWidth;
+        img.onmouseenter = function () { img.width = oldWidth; }
+        img.onmouseleave = function () { img.width = shrunkWidth; }
+        </script>';
+}
 
 ?>

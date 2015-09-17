@@ -32,6 +32,8 @@ if(!checkPermission($uinfo, $thisSession))
 }
 else
 {
+    session_start();
+    CheckDaySelect();
     $template->pageData['afterContent'] = getAJAXScript();
 	//$template->pageData['mainBody'] = '<pre>'.print_r($uinfo,1).'</pre>';
     if(isset($_REQUEST['activate']))
@@ -82,6 +84,7 @@ else
     $userCount = sessionMember::count("session_id", $thisSession->id);
     $activeCount = sessionMember::countActive($thisSession->id);
     $template->pageData['mainBody'] .= "<p><a href='sessionmembers.php?sessionID={$thisSession->id}'>Active users (total users): $activeCount ($userCount)</a></p>";
+    $template->pageData['mainBody'] .= DaySelectForm($thisSession->id);
     $template->pageData['mainBody'] .= "<h2>Session Questions</h2>";
     if(isset($_REQUEST['moveitem']))
     {
@@ -96,11 +99,11 @@ else
     {
         if($thisSession->questionMode == 0)
         {
-            $template->pageData['mainBody'] .= getQuestionTableSingleQu($thisSession, $quTitles);
+            $template->pageData['mainBody'] .= getQuestionTableSingleQu($thisSession, $quTitles, $_SESSION['showday']);
         }
         else
         {
-            $template->pageData['mainBody'] .= getQuestionTableMultipleQu($thisSession, $quTitles);
+            $template->pageData['mainBody'] .= getQuestionTableMultipleQu($thisSession, $quTitles, $_SESSION['showday']);
         }
     }
     else
@@ -254,7 +257,7 @@ function activateSingleQu(&$thisSession, $activate)
     $thisSession->update();
 }
 
-function getQuestionTableMultipleQu($thisSession, &$quTitles)
+function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
 {
     $out .= "<form method='POST' action='{$_SERVER['PHP_SELF']}'>";
     $out .= "<input type='hidden' name='sessionID' value='{$thisSession->id}'/>";
@@ -271,6 +274,8 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles)
         {
             $qunum++;
             $qi = questionInstance::retrieve_questionInstance($qiID);
+            if(($showday == 0)||(($qi->endtime >= $showday)&&($qi->endtime < $showday+3600*24)))
+            {
             $quTitles[] = array('id'=>$qi->id, 'title'=>$qi->title);
             $qu = question::retrieve_question($qi->theQuestion_id);
             if($qu)
@@ -323,6 +328,7 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles)
 	            $out .= "</tr>";
             }
         }
+        }
         $out .= "<tr><td colspan='3'><a href='#' OnClick='toggle(1);'>Select all</a> <a href='#' OnClick='toggle(0);'>Select none</a></td><td colspan='3'><input type='submit' name='activate' value='Update active questions'/>";
         if(sizeof($thisSession->extras[currentQuestions])>0)
         {
@@ -334,7 +340,7 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles)
 }
 
 
-function getQuestionTableSingleQu($thisSession, &$quTitles)
+function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
 {
         $out = '<table border="1"><thead><tr><th>#</th><th>Question</th><th>Used</th><th>Control</th><th>Responses</th><th>Actions</th></tr></thead><tbody>';
 
@@ -353,6 +359,8 @@ function getQuestionTableSingleQu($thisSession, &$quTitles)
         {
             $qunum++;
             $qi = questionInstance::retrieve_questionInstance($qiID);
+            if(($showday == 0)||(($qi->endtime >= $showday)&&($qi->endtime < $showday+3600*24)))
+            {
             $quTitles[] = array('id'=>$qi->id, 'title'=>$qi->title);
             $qu = question::retrieve_question($qi->theQuestion_id);
             if($qu)
@@ -383,7 +391,7 @@ function getQuestionTableSingleQu($thisSession, &$quTitles)
 	            	$out .= "<td>&nbsp;</td>";
                 }
                 //DEBUG
-                $out.="<td>{$qi->id}</td>";
+	                //$out.="<td>{$qi->id}</td>";
                 $count = response::countCompleted($qi->id);
                 if(($count == 0)&&($thisSession->currentQuestion != $qiID))
 	            	$out .= "<td>No responses</td>";
@@ -409,8 +417,61 @@ function getQuestionTableSingleQu($thisSession, &$quTitles)
 	            $out .= "</tr>";
             }
         }
+        }
         $out .= "</table>";
         return $out;
+}
+
+function CheckDaySelect()
+{
+    if(requestSet('UpdateDay'))
+    {
+        $_SESSION['showday'] = requestInt('day', 0);
+    }
+    else
+    {
+        $_SESSION['showday'] = 0;
+    }
+}
+
+function DaySelectForm($sessionID)
+{
+    $days = getSessionDates($sessionID);
+    if(sizeof($days) <= 1)
+        return '';
+    $out = "<div style='float:right;'><form>Display day: <select name='day'>";
+    foreach($days as $day)
+    {
+        $selected = $_SESSION['showday']==$day ? "selected='selected'":'';
+        $out .= "<option value='$day'{$selected}>".strftime("%a %d %b %Y", $day).'</option>';
+    }
+    $selected = $_SESSION['showday']==0 ? "selected='selected'":'';
+    $out .= "<option value='0'{$selected}>All days</option>";
+    $out .= "</select>";
+    $out .= "<input type='hidden' name='sessionID' value='$sessionID'/>";
+    $out .= "<input type='submit' name='UpdateDay' value='Update'/>";
+    $out .= "</form></div>";
+    return $out;
+}
+
+function getSessionDates($sessionID)
+{
+    $qis = questionInstance::retrieve_questionInstance_matching('inSession_id', $sessionID);
+    $days = array();
+    if($qis !== false)
+    {
+	    foreach($qis as $i)
+	    {
+	    	$day = intval($i->endtime / (24*3600)) * 24 * 3600;
+	        if(!in_array($day, $days))
+	           $days[] = $day;
+	    }
+    }
+	$day = intval(time() / (24*3600)) * 24 * 3600;
+    if(!in_array($day, $days))
+       $days[] = $day;
+    asort($days);
+    return $days;
 }
 
 

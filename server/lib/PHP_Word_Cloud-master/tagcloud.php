@@ -12,5 +12,3 @@ require dirname(__FILE__).'/mask.php';
 require dirname(__FILE__).'/frequency_table.php';
 require dirname(__FILE__).'/palette.php';
 require dirname(__FILE__).'/word_cloud.php';
-
-?>
