@@ -430,6 +430,7 @@ function CheckDaySelect()
     }
     else
     {
+        if(!isset($_SESSION['showday']))
         $_SESSION['showday'] = 0;
     }
 }
@@ -471,6 +472,8 @@ function getSessionDates($sessionID)
     if(!in_array($day, $days))
        $days[] = $day;
     asort($days);
+    if((isset($_SESSION['showday']))&&(!in_array($_SESSION['showday'], $days)))
+        $_SESSION['showday'] = 0;
     return $days;
 }
 
