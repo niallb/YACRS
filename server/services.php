@@ -364,7 +364,7 @@ function sendResponse($messageName, $errors, $data)
 {
  	header ("Content-Type:text/xml");
 	echo "<?xml version=\"1.0\"?>\n";
-	echo "<YACRSResponse version=\"0.4.4\"";
+	echo "<YACRSResponse version=\"0.4.7\"";
     if($messageName)
     {
     	echo " messageName='$messageName'";

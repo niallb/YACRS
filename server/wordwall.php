@@ -31,7 +31,7 @@ if($qu !== false)
 	}
 	$font = 'lib/PHP_Word_Cloud-master/LiberationSerif-Italic.ttf';
 	$cloud = new WordCloud(IMGWIDTH, IMGHEIGHT, $font, $full_text);
-	$palette = Palette::get_palette_from_hex($cloud->get_image(), array('FFA700', 'FFDF00', 'FF4F00', 'FFEE73'));
+	$palette = Palette::get_palette_from_hex($cloud->get_image(), array('0000A7', '0000DF', '33004F', '4473cc'));
 	$cloud->render($palette);
    	header("Content-type: image/png");
 	imagepng($cloud->get_image());

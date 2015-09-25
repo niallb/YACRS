@@ -653,7 +653,7 @@ class session
 
     private function clearSessionMembers()
     {
-		$query = "DELETE FROM yacrs_sessionmember WHERE session_id='{$this->id}';";
+		$query = "DELETE FROM yacrs_sessionMember WHERE session_id='{$this->id}';";
 		dataConnection::runQuery($query);
     }
 
