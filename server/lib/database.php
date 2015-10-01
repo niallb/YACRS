@@ -944,7 +944,19 @@ class ltisessionlink
 		$out .= "</ltisessionlink>\n";
 		return $out;
 	}
+
 	//[[USERCODE_ltisessionlink]] Put code for custom class members in this block.
+	static function retrieve_session_id($client_id, $resource_link_id)
+	{
+		$query = "SELECT * FROM yacrs_ltisessionlink WHERE client_id='".dataConnection::safe($client_id)."' AND resource_link_id='".dataConnection::safe($resource_link_id)."';";
+		$result = dataConnection::runQuery($query);
+		if(sizeof($result)!=0)
+		{
+			return $result[0]['session_id'];
+		}
+		else
+			return false;
+	}
 
 	//[[USERCODE_ltisessionlink]] WEnd of custom class members.
 }

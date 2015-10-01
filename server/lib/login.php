@@ -4,7 +4,7 @@ require_once('corelib/ldap_login.php');
 function checkLoggedInUser($allowLogin = true, &$error = false)
 {
 /*# In future I think the cookie should just contain a user ID, and the rest of uinfo
-    should be replaced by the userInfo class... Maybe this is quicker for students though... 
+    should be replaced by the userInfo class... Maybe this is quicker for students though...
 */
 	global $CFG;
     $uinfo = false;
