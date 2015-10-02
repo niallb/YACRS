@@ -65,7 +65,15 @@ else
 
 }
 
-echo $template->render();
+if((isset($_REQUEST['updateAnotation']))&&(strpos($_REQUEST['updateAnotation'],' ')))
+{
+    if($pos < sizeof($qiIDs)-1)
+    {
+        header("Location: responses.php?sessionID={$thisSession->id}&qiID={$qiIDs[$pos+1]}");
+    }
+}
+else
+    echo $template->render();
 
 function getImageScript()
 {

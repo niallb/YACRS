@@ -4,12 +4,14 @@ require_once('corelib/ldap_login.php');
 function checkLoggedInUser($allowLogin = true, &$error = false)
 {
 /*# In future I think the cookie should just contain a user ID, and the rest of uinfo
-    should be replaced by the userInfo class... Maybe this is quicker for students though... 
+    should be replaced by the userInfo class... Maybe this is quicker for students though...
 */
 	global $CFG;
     $uinfo = false;
 	if(($allowLogin )&&(isset($_REQUEST['uname']))&&(isset($_REQUEST['pwd'])))
     {
+        if(session_id()!=='')
+   	        session_destroy(); // Just to clear out old LTI info.
         if((isset($CFG['adminname']))&&($CFG['adminname']==$_REQUEST['uname'])&&(isset($CFG['adminpwd']))&&($CFG['adminpwd']!=''))
             $uinfo = checkSuperLogin($_REQUEST['uname'], $_REQUEST['pwd']);
         else
@@ -53,6 +55,9 @@ function checkLoggedInUser($allowLogin = true, &$error = false)
                 elseif((isset($CFG['adminname']))&&($CFG['adminname']==$user->username))
                     $uinfo['isAdmin'] = true;
             }
+        }
+        elseif($uinfo = checkLTISessionUser($_REQUEST['uname'], $_REQUEST['pwd']))
+        {
         }
         else
         {
@@ -156,6 +161,20 @@ function checkSuperLogin($username, $password, &$error=false)
         $error = 'Incorrect username or password';
         return false; //Incorrect username
     }
+}
+
+function checkLTISessionUser($username, $password)
+{
+    if(preg_match('/\A[1-9][0-9]*\z/s', $username))
+    {
+        $s = session::retrieve_session($username);
+        if(($s !== false)&&($password == substr($s->ownerID, 0, 8)))
+        {
+            $uinfo = array('uname'=>$s->ownerID, 'gn'=>'', 'sn'=>'(LTI)', 'email'=>'', 'isAdmin'=>false, 'sessionCreator'=>true);
+            return $uinfo;
+        }
+    }
+    return false;
 }
 
 ?>

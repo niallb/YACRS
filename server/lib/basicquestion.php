@@ -355,7 +355,7 @@ class basicQuestion extends questionBase
                     $out .= ">$cat</option>";
                 }
             }
-            $out .= "</select> or new category: <input type='text' name='newcat'/><input type='submit' name='updateAnotation' value='Update'/></form>";
+            $out .= "</select> or new category: <input type='text' name='newcat'/><input type='submit' name='updateAnotation' value='Update'/><input type='submit' name='updateAnotation' value='Update and Next'/></form>";
 
             //$out .= '<pre>'.print_r($this,1).'</pre>';
             $out .= "<p><a href='{$_SERVER['PHP_SELF']}?sessionID={$thisSession->id}&qiID={$qi->id}&cdc=1'>Create a duplicate comparison question.</a></p>";

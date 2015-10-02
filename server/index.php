@@ -23,6 +23,7 @@ require_once('lib/database.php');
 require_once('lib/forms.php');
 require_once('lib/shared_funcs.php');
 include_once('corelib/mobile.php');
+include_once('lib/lti_funcs.php');
 $template = new templateMerge($TEMPLATE);
 if($deviceType=='mobile')
     $template->pageData['modechoice'] = "<a href='{$_SERVER['PHP_SELF']}?mode=computer'>Use computer mode</a>";
@@ -63,6 +64,31 @@ else
             $template->pageData['mainBody'] .= "<a href='chat.php?sessionID={$thisSession->id}'>Join session</a>";
             header("Location: chat.php?sessionID={$thisSession->id}");
         }
+        else
+        {
+            $template->pageData['mainBody'] .= "<a href='vote.php?sessionID={$thisSession->id}'>Join session</a>";
+            header("Location: vote.php?sessionID={$thisSession->id}");
+        }
+    }
+    elseif($ltiSessionID = getLTISessionID())
+    {
+        if(isLTIStaff())
+	    {
+	        $template->pageData['mainBody'] .= '<ul>';
+            $s = session::retrieve_session($ltiSessionID);
+            if($s !== false)
+            {
+	            $ctime = strftime("%Y-%m-%d %H:%M", $s->created);
+	            $template->pageData['mainBody'] .= "<li>Session number: <b>{$s->id}</b> <a href='runsession.php?sessionID={$s->id}'>{$s->title}</a> (Created $ctime) <a href='editsession.php?sessionID={$s->id}'>Edit</a> <a href='confirmdelete.php?sessionID={$s->id}'>Delete</a></li>";
+                $template->pageData['mainBody'] .= "<li>To use the teacher control app for this session login with username: <b>{$s->id}</b> and password <b>".substr($s->ownerID, 0, 8)."</b></li>";
+
+            }
+            else
+            {
+                $template->pageData['mainBody'] .= "<li>No session found for this LTI link. To create a new session return to the VLE/LMS and click the link again.</li>";
+            }
+	        $template->pageData['mainBody'] .= '</ul>';
+	    }
         else
         {
             $template->pageData['mainBody'] .= "<a href='vote.php?sessionID={$thisSession->id}'>Join session</a>";
@@ -142,6 +168,6 @@ else
 		$template->pageData['logoutLink'] = loginBox($uinfo);
     }
 }
-echo $template->render();    
+echo $template->render();
 
 ?>
