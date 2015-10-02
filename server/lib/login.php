@@ -168,7 +168,8 @@ function checkLTISessionUser($username, $password)
     if(preg_match('/\A[1-9][0-9]*\z/s', $username))
     {
         $s = session::retrieve_session($username);
-        if(($s !== false)&&($password == substr($s->ownerID, 0, 8)))
+        $lnk = retrieve_ltisessionlink_matching('session_id', $username);
+        if(($lnk !== false)&&($s !== false)&&($password == substr($s->ownerID, 0, 8)))
         {
             $uinfo = array('uname'=>$s->ownerID, 'gn'=>'', 'sn'=>'(LTI)', 'email'=>'', 'isAdmin'=>false, 'sessionCreator'=>true);
             return $uinfo;
