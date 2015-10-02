@@ -24,16 +24,16 @@ if($consumer != false)
              $user = $user[0];
     }
     if((strpos($userinfo->params['roles'], 'Instructor')!==false)||(strpos($userinfo->params['roles'], 'Administrator')!==false))
-        $sessionMemberUserID = $userinfo->params['resource_link_id'];  // All LTI teachers are the same, and are a special user who owns the session but has no other existance
+        $sessionMemberUserID = md5($userinfo->params['resource_link_id'].$userinfo->params['oauth_consumer_key']);  // All LTI teachers are the same, and are a special user who owns the session but has no other existance
     elseif($user == false)
         $sessionMemberUserID = $userinfo->params['user_id'];
     else
         $sessionMemberUserID = $user->username;
 
     $gn = isset($userinfo->params['lis_person_name_given']) ? $userinfo->params['lis_person_name_given'] : '';
-    $sn = isset($userinfo->params['lis_person_name_family']) ? $userinfo->params['lis_person_name_family'] : '(LTI)';
+    $sn = isset($userinfo->params['lis_person_name_family']) ? $userinfo->params['lis_person_name_family'] : '';
     $email = isset($userinfo->params['lis_person_contact_email_primary']) ? $userinfo->params['lis_person_contact_email_primary'] : '';
-    $uinfo = array('uname'=>$sessionMemberUserID, 'gn'=>$smemb->name, 'sn'=>'(Guest)', 'email'=>'', 'isAdmin'=>false, 'sessionCreator'=>false);
+    $uinfo = array('uname'=>$sessionMemberUserID, 'gn'=>$gn, 'sn'=>$sn.' (LTI)', 'email'=>$email, 'isAdmin'=>false, 'sessionCreator'=>false);
     setcookie($CFG['appname'].'_login',CreateLoginCookie($uinfo));
 
 

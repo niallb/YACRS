@@ -646,6 +646,9 @@ class session
         $s->clearSessionMembers();
         //Delete any blog posts
         $s->clearSessionMessages();
+        //Delete any LTI link
+        $query = "DELETE FROM yacrs_ltisessionlink WHERE session_id='{$id}';";
+		dataConnection::runQuery($query);
         //Delete the session.
 		$query = "DELETE FROM yacrs_session WHERE id='{$id}';";
 		dataConnection::runQuery($query);
@@ -952,7 +955,15 @@ class ltisessionlink
 		$result = dataConnection::runQuery($query);
 		if(sizeof($result)!=0)
 		{
-			return $result[0]['session_id'];
+            $sessionID = $result[0]['session_id'];
+            if(session::retrieve_session($sessionID)==false)
+            {
+		        $query = "DELETE FROM yacrs_ltisessionlink WHERE id='{$result[0]['id']}';";
+		        dataConnection::runQuery($query);
+                return false;
+            }
+            else
+			    return $sessionID;
 		}
 		else
 			return false;
