@@ -15,6 +15,19 @@ abstract class questionBase
         return false;
     }
 
+    function getCorrectForDisplay($qi)
+    {
+        return '';
+    }
+
+    function getResponseForDisplay($resp)
+    {
+        if($resp==false)
+            return '(none)';
+        else
+        	return $resp->value;
+    }
+
     abstract function report($thisSession, $qi, $detailed = false);
     abstract static function getEditForm();
 }

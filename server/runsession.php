@@ -422,60 +422,6 @@ function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
         return $out;
 }
 
-function CheckDaySelect()
-{
-    if(requestSet('UpdateDay'))
-    {
-        $_SESSION['showday'] = requestInt('day', 0);
-    }
-    else
-    {
-        if(!isset($_SESSION['showday']))
-        $_SESSION['showday'] = 0;
-    }
-}
-
-function DaySelectForm($sessionID)
-{
-    $days = getSessionDates($sessionID);
-    if(sizeof($days) <= 1)
-        return '';
-    $out = "<div style='float:right;'><form>Display day: <select name='day'>";
-    foreach($days as $day)
-    {
-        $selected = $_SESSION['showday']==$day ? "selected='selected'":'';
-        $out .= "<option value='$day'{$selected}>".strftime("%a %d %b %Y", $day).'</option>';
-    }
-    $selected = $_SESSION['showday']==0 ? "selected='selected'":'';
-    $out .= "<option value='0'{$selected}>All days</option>";
-    $out .= "</select>";
-    $out .= "<input type='hidden' name='sessionID' value='$sessionID'/>";
-    $out .= "<input type='submit' name='UpdateDay' value='Update'/>";
-    $out .= "</form></div>";
-    return $out;
-}
-
-function getSessionDates($sessionID)
-{
-    $qis = questionInstance::retrieve_questionInstance_matching('inSession_id', $sessionID);
-    $days = array();
-    if($qis !== false)
-    {
-	    foreach($qis as $i)
-	    {
-	    	$day = intval($i->endtime / (24*3600)) * 24 * 3600;
-	        if(!in_array($day, $days))
-	           $days[] = $day;
-	    }
-    }
-	$day = intval(time() / (24*3600)) * 24 * 3600;
-    if(!in_array($day, $days))
-       $days[] = $day;
-    asort($days);
-    if((isset($_SESSION['showday']))&&(!in_array($_SESSION['showday'], $days)))
-        $_SESSION['showday'] = 0;
-    return $days;
-}
 
 
 ?>

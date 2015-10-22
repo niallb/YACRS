@@ -239,6 +239,45 @@ class basicQuestion extends questionBase
         return implode(' ',$ca);
     }
 
+    function getCorrectForDisplay($qi)
+    {
+        $ca = array();
+        if(is_array($this->correct))
+        {
+            foreach($this->correct as $id=>$sc)
+            {
+	            if($sc)
+    	            $ca[] = $this->options[$id];
+            }
+        }
+        elseif(is_array($qi->extras['correct']))
+        {
+            foreach($qi->extras['correct'] as $id=>$sc)
+            {
+                if($sc)
+	                $ca[] = $this->options[$id];
+            }
+        }
+        if(sizeof($ca))
+	        return implode('; ',$ca);
+        else
+            return '(undefined)';
+    }
+
+    function getResponseForDisplay($resp)
+    {
+        if($resp==false)
+            return '(none)';
+        $rs = explode(',', $resp->value);
+        $ca = array();
+        foreach($rs as $r)
+        {
+             $id = intval(substr($r, 1))-1;
+    	     $ca[] = $this->options[$id];
+        }
+        return implode('; ',$ca);
+    }
+
     function report($thisSession, $qi, $detailed = false)
     {
 	    if(isset($_REQUEST['updateAnotation']))

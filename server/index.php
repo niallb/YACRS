@@ -140,7 +140,10 @@ else
 	        foreach($sessions as $s)
 	        {
 	            $ctime = strftime("%Y-%m-%d %H:%M", $s->created);
-	            $template->pageData['mainBody'] .= "<li><a href='vote.php?sessionID={$s->id}'>{$s->title}</a></li>";
+	            $template->pageData['mainBody'] .= "<li><a href='vote.php?sessionID={$s->id}'>{$s->title}</a>";
+                if($s->allowQuReview)
+                     $template->pageData['mainBody'] .= " (<a href='review.php?sessionID={$s->id}'>Review previous answers</a>)";
+                $template->pageData['mainBody'] .= "</li>";
 	        }
 	        $template->pageData['mainBody'] .= '</ul>';
 	    }
