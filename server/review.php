@@ -40,6 +40,11 @@ if(($uinfo==false)||($thisSession==false)||(!$thisSession->allowQuReview))
 }
 $smemb = sessionMember::retrieve($uinfo['uname'], $thisSession->id);
 
+if((isset($thisSession->extras['customScoring']))&&(file_exists('locallib/customscoring/'.$thisSession->extras['customScoring'])))
+{
+    include_once('locallib/customscoring/'.$thisSession->extras['customScoring']);
+}
+
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
 $template->pageData['breadcrumb'] = $CFG['breadCrumb'];
@@ -56,40 +61,122 @@ $template->pageData['breadcrumb'] .= '| Review anwers';
 $template->pageData['mainBody'] .= DaySelectForm($thisSession->id, false, false);
 $template->pageData['mainBody'] .= "<h2>Questions</h2>";
 
-$questionInsts = array();
-$questions = array();
-if(strlen(trim($thisSession->questions)))
+$ViewQI = requestInt('qiID');
+if($ViewQI)
 {
-    $qiIDs = explode(',',$thisSession->questions);
-    foreach($qiIDs as $qid)
+    $allowShowCorrect=requestInt('asc');
+    $template->pageData['mainBody'] .= displayQuestion($ViewQI, false, $allowShowCorrect);
+}
+else
+{
+	$questionInsts = array();
+	$questions = array();
+    $responses = array();
+	if(strlen(trim($thisSession->questions)))
+	{
+	    $qiIDs = explode(',',$thisSession->questions);
+	    foreach($qiIDs as $qid)
+	    {
+	        $qi =  questionInstance::retrieve_questionInstance($qid);
+	        if(($showday == 0)||(($qi->endtime >= $showday)&&($qi->endtime < $showday+3600*24)))
+	            $questionInsts[] = $qi;
+	    }
+	    for($n=0; $n < sizeof($questionInsts); $n++)
+        {
+	        $questions[$questionInsts[$n]->id] = question::retrieve_question($questionInsts[$n]->theQuestion_id);
+	        $responses[$questionInsts[$n]->id] = response::retrieve($smemb->id, $questionInsts[$n]->id);
+        }
+	}
+	//$template->pageData['mainBody'] .= '<pre>'.print_r($questions,1).'</pre>';
+	//$template->pageData['mainBody'] .= '<pre>'.print_r($questionInsts,1).'</pre>';
+
+	$template->pageData['mainBody'] .= '<table border="1">';
+	    $template->pageData['mainBody'] .= "<tr><th>Question</th><th>Category</th><th>Response</th><th>Correct</th></tr>";
+	foreach( $questionInsts as $qi)
+	{
+	    if(isset($qi->extras['category']))
+	    	$cat = $qi->extras['category'];
+	    else
+	    	$cat = '';
+	    //$resp = response::retrieve($smemb->id, $qi->id);
+	    $dresp = $questions[$qi->id]->definition->getResponseForDisplay($responses[$qi->id]);
+        if(($questions[$qi->id]->definition->getCorrectStr($qi)==false)||($questions[$qi->id]->definition->getCorrectStr($qi)==''))
+            $correct = 'n/a';
+        else
+	        $correct = $questions[$qi->id]->definition->score($qi, $responses[$qi->id]) > 0 ? 'yes' : 'no';
+        $allowShowCorrect = $correct=='no' ? '&asc=1':'';
+
+	    $template->pageData['mainBody'] .= "<tr><td><a href='review.php?qiID={$qi->id}&sessionID={$thisSession->id}{$allowShowCorrect}'>{$qi->title}</a></td><td>$cat</td><td>$dresp</td><td>$correct</td></tr>";
+	}
+	$template->pageData['mainBody'] .= '</table>';
+
+    if(function_exists('customScoring'))
     {
-        $qi =  questionInstance::retrieve_questionInstance($qid);
-        if(($showday == 0)||(($qi->endtime >= $showday)&&($qi->endtime < $showday+3600*24)))
-            $questionInsts[] = $qi;
+	    $template->pageData['mainBody'] .= '<br/>'.customScoring($questionInsts, $questions, $responses);
     }
-    for($n=0; $n < sizeof($questionInsts); $n++)
-        $questions[$questionInsts[$n]->id] = question::retrieve_question($questionInsts[$n]->theQuestion_id);
 }
-//$template->pageData['mainBody'] .= '<pre>'.print_r($questions,1).'</pre>';
-//$template->pageData['mainBody'] .= '<pre>'.print_r($questionInsts,1).'</pre>';
-
-$template->pageData['mainBody'] .= '<table border="1">';
-    $template->pageData['mainBody'] .= "<tr><th>Question</th><th>Category</th><th>Response</th><th>Correct</th></tr>";
-foreach( $questionInsts as $qi)
-{
-    if(isset($qi->extras['category']))
-    	$cat = $qi->extras['category'];
-    else
-    	$cat = '';
-    $correct = $questions[$qi->id]->definition->getCorrectForDisplay($qi);
-    $resp = response::retrieve($smemb->id, $qi->id);
-    $dresp = $questions[$qi->id]->definition->getResponseForDisplay($resp);
-
-    $template->pageData['mainBody'] .= "<tr><td>{$qi->title}</td><td>$cat</td><td>$dresp</td><td>$correct</td></tr>";
-}
-$template->pageData['mainBody'] .= '</table>';
-
 
 echo $template->render();
+
+//# Bad cut and paste programming here (modified from vote.php and responses.php)
+
+function displayQuestion($qiid, $forceTitle=false, $allowShowCorrect=false)
+{
+    global $thisSession, $smemb;
+    $out = '';
+    $qi = questionInstance::retrieve_questionInstance($qiid);
+    $qu = question::retrieve_question($qi->theQuestion_id);
+    $resp = response::retrieve($smemb->id, $qi->id);
+    if($qu)
+    {
+        if($allowShowCorrect==2)
+            $resp->value = $qu->definition->getCorrectStr($qi);
+        $qu->definition->checkResponse($qi->id, $resp);
+	    //$qu->definition
+	    if((strlen($qi->screenshot))&&(file_exists($qi->screenshot)))
+	    {
+	        $out .= "\n\n<img id='image' src='$qi->screenshot'/>\n\n";
+	    }
+        $out .= '<fieldset>';
+        if($allowShowCorrect==2)
+            $out .= '<legend>Correct response:</legend>';
+        else
+            $out .= '<legend>You answered:</legend>';
+       //$out .= '<pre>'.print_r($resp,1).'</pre>';
+	    $out .= "<form id='questionForm' method='POST' action='vote.php'>";
+	    $out .= "<input type='hidden' name='sessionID' value='{$thisSession->id}'/>";
+	    $out .= "<input type='hidden' name='qiID' value='{$qi->id}'/>";
+        if($forceTitle)
+        {
+            $qu->definition->displayTitle = true;
+        }
+	    $out .= $qu->definition->render($qi->title);
+
+        if($allowShowCorrect==1)
+            $out .= "<div class='submit'><a href='review.php?qiID={$qi->id}&sessionID={$thisSession->id}&asc=2'>Show correct response</a></div>";
+        if($allowShowCorrect==2)
+            $out .= "<div class='submit'><a href='review.php?qiID={$qi->id}&sessionID={$thisSession->id}&asc=1'>Show your response</a></div>";
+        $out .= "<div class='submit'><a href='review.php?sessionID={$thisSession->id}'>Continue</a></div>";
+
+        $out .= '</fieldset>';
+	    $out .= "</form>";
+    }
+//$template->pageData['mainBody'] .= '<pre>'.print_r($qu,1).'</pre>';
+    return $out;
+}
+
+function getImageScript()
+{
+return '<script lang="JavaScript">
+        var shrunkWidth = 350;
+        var img = document.getElementById("image");
+        var oldWidth = img.width;
+        img.width = shrunkWidth;
+        img.onmouseenter = function () { img.width = oldWidth; }
+        img.onmouseleave = function () { img.width = shrunkWidth; }
+        </script>';
+}
+
+
 
 ?>

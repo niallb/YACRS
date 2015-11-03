@@ -203,7 +203,7 @@ function listSessions($page = 0)
     {
 	    foreach($sessions as $s)
 	    {
-	        $out .= "<li>{$s->ownerID} : <a href='runsession.php?sessionID={$s->id}'>{$s->title}</a>, created ".date(DATE_COOKIE, $s->created)."</li>";
+	        $out .= "<li>{$s->ownerID} : <a href='runsession.php?sessionID={$s->id}'>{$s->title}</a>, created ".date(DATE_COOKIE, $s->created)." <a href='editsession.php?sessionID={$s->id}'>Edit</a></li>";
 	    }
     }
     $out .= '</ul>';

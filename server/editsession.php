@@ -53,6 +53,8 @@ else
         {
 	        $esform->setData($thisSession);
             $esform->sessionID = $thisSession->id;
+            if(isset($thisSession->extras['customScoring']))
+                $esform->customScoring = $thisSession->extras['customScoring'];
         }
         else
         {
@@ -70,6 +72,7 @@ else
             $thisSession->ownerID = $uinfo['uname'];
         }
 	    $esform->getData($thisSession);
+        $thisSession->extras['customScoring'] = $esform->customScoring;
 	    if($thisSession->id > 0)
 	        $thisSession->update();
 	    else
@@ -80,8 +83,7 @@ else
         if(strlen($thisSession->courseIdentifier))
             enrolStudents($thisSession->id, $thisSession->courseIdentifier);
 	    header('Location:index.php?sessionID='.$thisSession->id);
-
-	    break;
+ 	    break;
 	case FORM_CANCELED:
 	    header('Location:index.php');
 	    break;

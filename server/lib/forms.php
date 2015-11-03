@@ -15,6 +15,7 @@ boolean visible "Display on user's available sessions list";
 select questionMode "Question control mode" {0=>"Teacher led (one question at a time)", 1=>"Student paced"};
 integer defaultQuActiveSecs "Default time limit for active questions (seconds, 0 for no limit).";
 boolean allowQuReview "Allow review of answers";
+select customScoring "Custom scoring" {""=>"None"};
 #group "Text/micro blogging settings";
 select ublogRoom "Micro blogging mode" {0=>"None", 1=>"Full class", 2=>"Personal (private)", 3=>"Personal (public)"};
 integer maxMessagelength "Maximum message length (characters)";
@@ -49,6 +50,7 @@ class editSession_form extends nbform
 	var $questionMode; //select
 	var $defaultQuActiveSecs; //integer
 	var $allowQuReview; //boolean
+	var $customScoring; //select
 	var $ublogRoom; //select
 	var $maxMessagelength; //integer
 	var $allowTeacherQu; //boolean
@@ -75,6 +77,7 @@ class editSession_form extends nbform
 		$this->questionMode = $data->questionMode;
 		$this->defaultQuActiveSecs = $data->defaultQuActiveSecs;
 		$this->allowQuReview = $data->allowQuReview;
+		$this->customScoring = $data->customScoring;
 		$this->ublogRoom = $data->ublogRoom;
 		$this->maxMessagelength = $data->maxMessagelength;
 		$this->allowTeacherQu = $data->allowTeacherQu;
@@ -90,6 +93,7 @@ class editSession_form extends nbform
 		$data->questionMode = $this->questionMode;
 		$data->defaultQuActiveSecs = $this->defaultQuActiveSecs;
 		$data->allowQuReview = $this->allowQuReview;
+		$data->customScoring = $this->customScoring;
 		$data->ublogRoom = $this->ublogRoom;
 		$data->maxMessagelength = $this->maxMessagelength;
 		$data->allowTeacherQu = $this->allowTeacherQu;
@@ -109,6 +113,7 @@ class editSession_form extends nbform
 			$this->questionMode = $_REQUEST['questionMode'];
 			$this->defaultQuActiveSecs = intval($_REQUEST['defaultQuActiveSecs']);
 			$this->allowQuReview = (isset($_REQUEST['allowQuReview'])&&($_REQUEST['allowQuReview']==1)) ? true : false;
+			$this->customScoring = $_REQUEST['customScoring'];
 			$this->ublogRoom = $_REQUEST['ublogRoom'];
 			$this->maxMessagelength = intval($_REQUEST['maxMessagelength']);
 			$this->allowTeacherQu = (isset($_REQUEST['allowTeacherQu'])&&($_REQUEST['allowTeacherQu']==1)) ? true : false;
@@ -151,6 +156,7 @@ class editSession_form extends nbform
 			$ok = false;
 		}
 		// Put custom code to validate $this->allowQuReview here. Put error message in $this->validateMessages['allowQuReview']
+		// Put custom code to check $this->customScoring here.
 		// Put custom code to check $this->ublogRoom here.
 		if(!is_numeric(trim($_REQUEST['maxMessagelength'])))
 		{
@@ -183,6 +189,31 @@ class editSession_form extends nbform
 		$out .= $this->selectListInput('Question control mode', 'questionMode', $options, $this->questionMode, false, $this->validateMessages);
 		$out .= $this->textInput('Default time limit for active questions (seconds, 0 for no limit).', 'defaultQuActiveSecs', $this->defaultQuActiveSecs, $this->validateMessages, 8);
 		$out .= $this->checkboxInput('Allow review/change of answers while question is active', 'allowQuReview', $this->allowQuReview, $this->validateMessages);
+        //Custom scoring defined in files in locallib/customscoring/
+		$options = array(""=>"None");
+        if (is_dir('locallib/customscoring'))
+        {
+            if ($dh = opendir('locallib/customscoring'))
+            {
+                while (($file = readdir($dh)) !== false)
+                {
+                    if(substr($file, strlen($file)-4) == '.php')
+                        $options[$file] = substr($file, 0, strlen($file)-4);
+                }
+                closedir($dh);
+            }
+        }
+
+        //Only enable if some defined custom scoring
+        if(sizeof($options) < 1)
+        {
+            $this->disabled['customScoring'] = true;
+        }
+        else
+        {
+            $this->disabled['customScoring'] = false;
+        }
+		$out .= $this->selectListInput('Custom scoring', 'customScoring', $options, $this->customScoring, false, $this->validateMessages);
 		$out .= $this->groupEnd();
 		$out .= $this->groupStart('Text/micro blogging settings');
 		//$options = array(0=>"None", 1=>"Full class", 2=>"Personal (private)", 3=>"Personal (public)");
@@ -209,6 +240,7 @@ class editSession_form extends nbform
 	    $formdata['questionMode'] = $this->questionMode;
 	    $formdata['defaultQuActiveSecs'] = $this->defaultQuActiveSecs;
 	    $formdata['allowQuReview'] = $this->allowQuReview;
+	    $formdata['customScoring'] = $this->customScoring;
 	    $formdata['ublogRoom'] = $this->ublogRoom;
 	    $formdata['maxMessagelength'] = $this->maxMessagelength;
 	    $formdata['allowTeacherQu'] = $this->allowTeacherQu;
