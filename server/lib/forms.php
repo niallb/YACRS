@@ -14,7 +14,8 @@ boolean visible "Display on user's available sessions list";
 #group "Question settings";
 select questionMode "Question control mode" {0=>"Teacher led (one question at a time)", 1=>"Student paced"};
 integer defaultQuActiveSecs "Default time limit for active questions (seconds, 0 for no limit).";
-boolean allowQuReview "Allow review of answers";
+boolean allowQuReview "Allow review/change of answers while response open";
+boolean allowFullReview "Allow students to view their answers after class.";
 select customScoring "Custom scoring" {""=>"None"};
 #group "Text/micro blogging settings";
 select ublogRoom "Micro blogging mode" {0=>"None", 1=>"Full class", 2=>"Personal (private)", 3=>"Personal (public)"};
@@ -50,6 +51,7 @@ class editSession_form extends nbform
 	var $questionMode; //select
 	var $defaultQuActiveSecs; //integer
 	var $allowQuReview; //boolean
+	var $allowFullReview; //boolean
 	var $customScoring; //select
 	var $ublogRoom; //select
 	var $maxMessagelength; //integer
@@ -77,6 +79,7 @@ class editSession_form extends nbform
 		$this->questionMode = $data->questionMode;
 		$this->defaultQuActiveSecs = $data->defaultQuActiveSecs;
 		$this->allowQuReview = $data->allowQuReview;
+		$this->allowFullReview = $data->allowFullReview;
 		$this->customScoring = $data->customScoring;
 		$this->ublogRoom = $data->ublogRoom;
 		$this->maxMessagelength = $data->maxMessagelength;
@@ -93,6 +96,7 @@ class editSession_form extends nbform
 		$data->questionMode = $this->questionMode;
 		$data->defaultQuActiveSecs = $this->defaultQuActiveSecs;
 		$data->allowQuReview = $this->allowQuReview;
+		$data->allowFullReview = $this->allowFullReview;
 		$data->customScoring = $this->customScoring;
 		$data->ublogRoom = $this->ublogRoom;
 		$data->maxMessagelength = $this->maxMessagelength;
@@ -113,6 +117,7 @@ class editSession_form extends nbform
 			$this->questionMode = $_REQUEST['questionMode'];
 			$this->defaultQuActiveSecs = intval($_REQUEST['defaultQuActiveSecs']);
 			$this->allowQuReview = (isset($_REQUEST['allowQuReview'])&&($_REQUEST['allowQuReview']==1)) ? true : false;
+			$this->allowFullReview = (isset($_REQUEST['allowFullReview'])&&($_REQUEST['allowFullReview']==1)) ? true : false;
 			$this->customScoring = $_REQUEST['customScoring'];
 			$this->ublogRoom = $_REQUEST['ublogRoom'];
 			$this->maxMessagelength = intval($_REQUEST['maxMessagelength']);
@@ -156,6 +161,7 @@ class editSession_form extends nbform
 			$ok = false;
 		}
 		// Put custom code to validate $this->allowQuReview here. Put error message in $this->validateMessages['allowQuReview']
+		// Put custom code to validate $this->allowFullReview here. Put error message in $this->validateMessages['allowFullReview']
 		// Put custom code to check $this->customScoring here.
 		// Put custom code to check $this->ublogRoom here.
 		if(!is_numeric(trim($_REQUEST['maxMessagelength'])))
@@ -188,7 +194,8 @@ class editSession_form extends nbform
 		$options = array(0=>"Teacher led (one question at a time)", 1=>"Student paced");
 		$out .= $this->selectListInput('Question control mode', 'questionMode', $options, $this->questionMode, false, $this->validateMessages);
 		$out .= $this->textInput('Default time limit for active questions (seconds, 0 for no limit).', 'defaultQuActiveSecs', $this->defaultQuActiveSecs, $this->validateMessages, 8);
-		$out .= $this->checkboxInput('Allow review/change of answers while question is active', 'allowQuReview', $this->allowQuReview, $this->validateMessages);
+		$out .= $this->checkboxInput('Allow review/change of answers while response open', 'allowQuReview', $this->allowQuReview, $this->validateMessages);
+		$out .= $this->checkboxInput('Allow students to view their answers after class.', 'allowFullReview', $this->allowFullReview, $this->validateMessages);
         //Custom scoring defined in files in locallib/customscoring/
 		$options = array(""=>"None");
         if (is_dir('locallib/customscoring'))
@@ -240,6 +247,7 @@ class editSession_form extends nbform
 	    $formdata['questionMode'] = $this->questionMode;
 	    $formdata['defaultQuActiveSecs'] = $this->defaultQuActiveSecs;
 	    $formdata['allowQuReview'] = $this->allowQuReview;
+	    $formdata['allowFullReview'] = $this->allowFullReview;
 	    $formdata['customScoring'] = $this->customScoring;
 	    $formdata['ublogRoom'] = $this->ublogRoom;
 	    $formdata['maxMessagelength'] = $this->maxMessagelength;

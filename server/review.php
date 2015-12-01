@@ -33,7 +33,7 @@ else
 $loginError = '';
 $uinfo = checkLoggedInUser(true, $loginError);
 $thisSession = isset($_REQUEST['sessionID'])? session::retrieve_session($_REQUEST['sessionID']):false;
-if(($uinfo==false)||($thisSession==false)||(!$thisSession->allowQuReview))
+if(($uinfo==false)||($thisSession==false)||(!$thisSession->extras['allowFullReview']))
 {
     header("Location: index.php");
     exit();

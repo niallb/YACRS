@@ -16,7 +16,7 @@ else
 
 $uinfo = checkLoggedInUser();
 
-$template->pageData['pagetitle'] = $CFG['sitetitle']; 
+$template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
 $template->pageData['breadcrumb'] = "<a href='http://www.gla.ac.uk/'>University of Glasgow</a> | <a href='http://www.gla.ac.uk/services/learningteaching/'>Learning & Teaching Centre</a> ";
 $template->pageData['breadcrumb'] .= '| <a href="index.php">YACRS</a>';
@@ -55,6 +55,8 @@ else
             $esform->sessionID = $thisSession->id;
             if(isset($thisSession->extras['customScoring']))
                 $esform->customScoring = $thisSession->extras['customScoring'];
+            if(isset($thisSession->extras['allowFullReview']))
+                $esform->allowFullReview = $thisSession->extras['allowFullReview'];
         }
         else
         {
@@ -72,7 +74,11 @@ else
             $thisSession->ownerID = $uinfo['uname'];
         }
 	    $esform->getData($thisSession);
-        $thisSession->extras['customScoring'] = $esform->customScoring;
+        if(isset($esform->customScoring))
+	        $thisSession->extras['customScoring'] = $esform->customScoring;
+        else
+	        $thisSession->extras['customScoring'] = false;
+        $thisSession->extras['allowFullReview'] = $esform->allowFullReview;
 	    if($thisSession->id > 0)
 	        $thisSession->update();
 	    else

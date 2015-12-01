@@ -141,7 +141,7 @@ else
 	        {
 	            $ctime = strftime("%Y-%m-%d %H:%M", $s->created);
 	            $template->pageData['mainBody'] .= "<li><a href='vote.php?sessionID={$s->id}'>{$s->title}</a>";
-                if($s->allowQuReview)
+                if((isset($s->extras['allowFullReview']))&&($s->extras['allowFullReview']))
                      $template->pageData['mainBody'] .= " (<a href='review.php?sessionID={$s->id}'>Review previous answers</a>)";
                 $template->pageData['mainBody'] .= "</li>";
 	        }
