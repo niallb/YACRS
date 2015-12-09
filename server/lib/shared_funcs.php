@@ -36,6 +36,33 @@ function enrolStudents($sessionID, $courseCode)
     }
 }
 
+function getRosterStudentIDs($sessionID, $courseCode)
+{
+    global $CFG;
+    $idlist = array();
+    if(isset($CFG['rosterservice']))
+    {
+		$rosterService = $CFG['rosterservice'];
+		if(substr($rosterService,0,4)!=='http') $rosterService = 'http://'.$_SERVER['HTTP_HOST'].substr($_SERVER['SCRIPT_NAME'],0,strrpos($_SERVER['SCRIPT_NAME'],'/')+1).$rosterService;
+        if(isset($CFG['rostersecret']))
+            $secret = sha1($courseCode.$CFG['rostersecret']);
+        else
+        	$secret = '';
+		$students = file($rosterService.'?actualCourseKey='.$courseCode.'&secret='.$secret);
+        //echo "Srudents:<pre>".print_r($students,1).'</pre>';
+        for($n=1; $n<sizeof($students); $n++)
+        {
+        	$s = trim($students[$n]);
+            if(strlen($s))
+            {
+                list($Forename,$Surname,$Email, $Telephone,$userID,$CourseCode,$Course,$AcademicLevel,$PersonID)=explode(',',$s);
+                $idlist[] = $userID;
+            }
+        }
+    }
+    return $idlist;
+}
+
 function checkPermission($uinfo, $thisSession)
 {
    if(($uinfo==false)||($thisSession == false))
@@ -58,7 +85,7 @@ function CheckDaySelect()
     }
 }
 
-function DaySelectForm($sessionID, $includeAll=true, $includeToday=true)
+function DaySelectForm($sessionID, $includeAll=true, $includeToday=true, $extraFields=array())
 {
     $days = getSessionDates($sessionID, $includeToday, $includeAll);
     if(sizeof($days) <= 1)
@@ -68,6 +95,10 @@ function DaySelectForm($sessionID, $includeAll=true, $includeToday=true)
     {
         $selected = $_SESSION['showday']==$day ? "selected='selected'":'';
         $out .= "<option value='$day'{$selected}>".strftime("%a %d %b %Y", $day).'</option>';
+    }
+    foreach($extraFields as $k=>$v)
+    {
+        $out .= "<input type='hidden' name='$k' value='$v'/>";
     }
     if($includeAll)
     {

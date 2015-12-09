@@ -639,7 +639,7 @@ class session
             $qis = explode(',',$s->questions);
             foreach($qis as $qi)
             {
-            	questionInstance::deleteInstance($qi);
+            	questionInstance::deleteInstance($qi);  // also deletes responses
             }
         }
         //Delete sessionmember links
@@ -657,6 +657,12 @@ class session
     private function clearSessionMembers()
     {
 		$query = "DELETE FROM yacrs_sessionMember WHERE session_id='{$this->id}';";
+		dataConnection::runQuery($query);
+    }
+
+    public function removeSessionMember($id)
+    {
+		$query = "DELETE FROM yacrs_sessionMember WHERE session_id='{$this->id}' AND id='{$id}';";
 		dataConnection::runQuery($query);
     }
 

@@ -38,7 +38,15 @@ if(($uinfo==false)||($thisSession==false)||(!$thisSession->extras['allowFullRevi
     header("Location: index.php");
     exit();
 }
-$smemb = sessionMember::retrieve($uinfo['uname'], $thisSession->id);
+$viewUser = requestInt('user');
+if(($viewUser!==false)&&(checkPermission($uinfo, $thisSession)))
+{
+    $smemb = sessionMember::retrieve_sessionMember($viewUser);
+}
+else
+{
+    $smemb = sessionMember::retrieve($uinfo['uname'], $thisSession->id);
+}
 
 if((isset($thisSession->extras['customScoring']))&&(file_exists('locallib/customscoring/'.$thisSession->extras['customScoring'])))
 {
@@ -50,15 +58,20 @@ $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
 $template->pageData['breadcrumb'] = $CFG['breadCrumb'];
 $template->pageData['breadcrumb'] .= '| <a href="index.php">YACRS</a>';
 $template->pageData['breadcrumb'] .= '| <a href="index.php">YACRS</a>';
-$template->pageData['breadcrumb'] .= '| <a href="vote.php?sessionID='.$thisSession->id.'">'.$thisSession->id.'</a>';
-$template->pageData['breadcrumb'] .= '| Review anwers';
+if($viewUser)
+   $template->pageData['breadcrumb'] .= '| <a href="sessionmembers.php?sessionID='.$thisSession->id.'">Session '.$thisSession->id.' members</a>';
+else
+   $template->pageData['breadcrumb'] .= '| <a href="vote.php?sessionID='.$thisSession->id.'">'.$thisSession->id.'</a>';
+$template->pageData['breadcrumb'] .= '| Review answers';
 
     session_start();
     CheckDaySelect();
     $showday = isset($_SESSION['showday']) ? $_SESSION['showday'] : 0;
 
-
-$template->pageData['mainBody'] .= DaySelectForm($thisSession->id, false, false);
+if($viewUser)
+	$template->pageData['mainBody'] .= DaySelectForm($thisSession->id, false, false, array('user'=>$viewUser));
+else
+    $template->pageData['mainBody'] .= DaySelectForm($thisSession->id, false, false);
 $template->pageData['mainBody'] .= "<h2>Questions</h2>";
 
 $ViewQI = requestInt('qiID');
@@ -105,8 +118,8 @@ else
         else
 	        $correct = $questions[$qi->id]->definition->score($qi, $responses[$qi->id]) > 0 ? 'yes' : 'no';
         $allowShowCorrect = $correct=='no' ? '&asc=1':'';
-
-	    $template->pageData['mainBody'] .= "<tr><td><a href='review.php?qiID={$qi->id}&sessionID={$thisSession->id}{$allowShowCorrect}'>{$qi->title}</a></td><td>$cat</td><td>$dresp</td><td>$correct</td></tr>";
+        $userField = $viewUser ? "&user={$viewUser}" : '';
+	    $template->pageData['mainBody'] .= "<tr><td><a href='review.php?qiID={$qi->id}&sessionID={$thisSession->id}{$allowShowCorrect}{$userField}'>{$qi->title}</a></td><td>$cat</td><td>$dresp</td><td>$correct</td></tr>";
 	}
 	$template->pageData['mainBody'] .= '</table>';
 
@@ -122,7 +135,7 @@ echo $template->render();
 
 function displayQuestion($qiid, $forceTitle=false, $allowShowCorrect=false)
 {
-    global $thisSession, $smemb;
+    global $thisSession, $smemb, $viewUser;
     $out = '';
     $qi = questionInstance::retrieve_questionInstance($qiid);
     $qu = question::retrieve_question($qi->theQuestion_id);
@@ -146,17 +159,20 @@ function displayQuestion($qiid, $forceTitle=false, $allowShowCorrect=false)
 	    $out .= "<form id='questionForm' method='POST' action='vote.php'>";
 	    $out .= "<input type='hidden' name='sessionID' value='{$thisSession->id}'/>";
 	    $out .= "<input type='hidden' name='qiID' value='{$qi->id}'/>";
+	    $out .= "<input type='hidden' name='user' value='{$smemb->id}'/>";
         if($forceTitle)
         {
             $qu->definition->displayTitle = true;
         }
 	    $out .= $qu->definition->render($qi->title);
 
+        $userField = $viewUser ? "&user={$viewUser}" : '';
+
         if($allowShowCorrect==1)
-            $out .= "<div class='submit'><a href='review.php?qiID={$qi->id}&sessionID={$thisSession->id}&asc=2'>Show correct response</a></div>";
+            $out .= "<div class='submit'><a href='review.php?qiID={$qi->id}&sessionID={$thisSession->id}&asc=2{$userField}'>Show correct response</a></div>";
         if($allowShowCorrect==2)
-            $out .= "<div class='submit'><a href='review.php?qiID={$qi->id}&sessionID={$thisSession->id}&asc=1'>Show your response</a></div>";
-        $out .= "<div class='submit'><a href='review.php?sessionID={$thisSession->id}'>Continue</a></div>";
+            $out .= "<div class='submit'><a href='review.php?qiID={$qi->id}&sessionID={$thisSession->id}&asc=1{$userField}'>Show your response</a></div>";
+        $out .= "<div class='submit'><a href='review.php?sessionID={$thisSession->id}{$userField}'>Continue</a></div>";
 
         $out .= '</fieldset>';
 	    $out .= "</form>";
