@@ -72,16 +72,25 @@ function checkPermission($uinfo, $thisSession)
    return true;
 }
 
-function CheckDaySelect()
+function CheckDaySelect($sessionID=false, $includeAll=true, $includeToday=true)
 {
+    if($sessionID)
+    {
+        $days = getSessionDates($sessionID, $includeToday, $includeAll);
+        $defDay = (sizeof($days)) ? $days[sizeof($days)-1] : 0;
+    }
+    else
+    	$defDay = 0;
     if(requestSet('UpdateDay'))
     {
-        $_SESSION['showday'] = requestInt('day', 0);
+        $_SESSION['showday'] = requestInt('day', $defDay);
     }
     else
     {
         if(!isset($_SESSION['showday']))
-        $_SESSION['showday'] = 0;
+        {
+            $_SESSION['showday'] = $defDay;
+        }
     }
 }
 

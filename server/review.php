@@ -33,7 +33,7 @@ else
 $loginError = '';
 $uinfo = checkLoggedInUser(true, $loginError);
 $thisSession = isset($_REQUEST['sessionID'])? session::retrieve_session($_REQUEST['sessionID']):false;
-if(($uinfo==false)||($thisSession==false)||(!$thisSession->extras['allowFullReview']))
+if(($uinfo==false)||($thisSession==false))
 {
     header("Location: index.php");
     exit();
@@ -45,6 +45,11 @@ if(($viewUser!==false)&&(checkPermission($uinfo, $thisSession)))
 }
 else
 {
+    if(!$thisSession->extras['allowFullReview'])
+    {
+	    header("Location: index.php");
+	    exit();
+    }
     $smemb = sessionMember::retrieve($uinfo['uname'], $thisSession->id);
 }
 
@@ -65,7 +70,7 @@ else
 $template->pageData['breadcrumb'] .= '| Review answers';
 
     session_start();
-    CheckDaySelect();
+    CheckDaySelect($thisSession->id, false, false);
     $showday = isset($_SESSION['showday']) ? $_SESSION['showday'] : 0;
 
 if($viewUser)

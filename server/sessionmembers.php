@@ -116,10 +116,7 @@ else
             {
                 $gaptext = 'Never';
             }
-            if($thisSession->extras['allowFullReview'])
-		        $template->pageData['mainBody'] .= "<tr><td><a href='review.php?sessionID={$thisSession->id}&user={$m->id}'>{$m->userID}</a></td><td>{$m->name}</td><td>$gaptext</td>";
-            else
-		        $template->pageData['mainBody'] .= "<tr><td>{$m->userID}</td><td>{$m->name}</td><td>$gaptext</td>";
+            $template->pageData['mainBody'] .= "<tr><td><a href='review.php?sessionID={$thisSession->id}&user={$m->id}'>{$m->userID}</a></td><td>{$m->name}</td><td>$gaptext</td>";
 	        if($detail)
 		    {
 		        foreach($qiIDs as $qiID)
