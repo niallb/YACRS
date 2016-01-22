@@ -40,6 +40,14 @@ class session
    string[20] courseIdentifier;
    int defaultQuActiveSecs;
    serialized extras;
+   extraTeachers[] teachers;
+}
+
+class extraTeachers #0.4.0
+{
+   primary key int id;
+   session session;
+   string[35] teacherID;
 }
 
 class subsession #0.2.0
@@ -157,6 +165,8 @@ function initializeDataBase_yacrs()
 	dataConnection::runQuery($query);
 	$query = "CREATE TABLE yacrs_session(id INTEGER PRIMARY KEY AUTO_INCREMENT, ownerID VARCHAR(35), title VARCHAR(80), created DATETIME, questions TEXT, currentQuestion INTEGER, questionMode INTEGER, endtime DATETIME, sessionstarttime DATETIME, sessionOpen INTEGER, activeSubsession_id INTEGER, sessionendtime DATETIME, visible INTEGER, allowGuests INTEGER, multiSession INTEGER, ublogRoom INTEGER, maxMessagelength INTEGER, allowQuReview INTEGER, allowTeacherQu INTEGER, courseIdentifier VARCHAR(20), defaultQuActiveSecs INTEGER, extras TEXT);";
 	dataConnection::runQuery($query);
+	$query = "CREATE TABLE yacrs_extraTeachers(id INTEGER PRIMARY KEY AUTO_INCREMENT, session_id INTEGER, teacherID VARCHAR(35));";
+	dataConnection::runQuery($query);
 	$query = "CREATE TABLE yacrs_subsession(id INTEGER PRIMARY KEY AUTO_INCREMENT, session_id INTEGER, title VARCHAR(80), starttime DATETIME, endtime DATETIME);";
 	dataConnection::runQuery($query);
 	$query = "CREATE TABLE yacrs_ltisessionlink(id INTEGER PRIMARY KEY AUTO_INCREMENT, client_id INTEGER, resource_link_id VARCHAR(255), session_id INTEGER);";
@@ -238,6 +248,13 @@ function updateDataBase_yacrs_v0p3p1_to_v0p3p2()
 {
         // Add field isPartial to response
 	$query = "ALTER TABLE response ADD COLUMN isPartial INTEGER;";
+	dataConnection::runQuery($query);
+}
+
+function updateDataBase_yacrs_v0p3p2_to_v0p4p0()
+{
+        // Add table extraTeachers
+	$query = "CREATE TABLE yacrs_extraTeachers(id INTEGER PRIMARY KEY AUTO_INCREMENT, session_id INTEGER, teacherID VARCHAR(35));";
 	dataConnection::runQuery($query);
 }
 
@@ -599,7 +616,39 @@ class session
 			return $result['0']['count'];
 	}
 
-	function toXML()
+
+	//1:n relationship to extraTeachers
+	function get_teachers_count()
+	{
+	    $query = "SELECT COUNT(*) AS count FROM extraTeachers WHERE parent_id = {$this->id};";
+	    $result = dataConnection::runQuery($query);
+	    if($result == false)
+	        return 0;
+	    else
+	        return $result['0']['count'];
+	}
+
+	function get_teachers($from=0, $count=-1, $sort=null)
+    {
+        $query = "SELECT * FROM yacrs_extraTeachers WHERE session_id='$this->id'";
+        if(($sort !== null)&&(preg_replace('/\W/','',$sort)!== $sort))
+            $query .= " ORDER BY ".$sort;
+        if(($count != -1)&&(is_int($count))&&(is_int($from)))
+            $query .= " LIMIT ".$count." OFFSET ".$from;
+        $query .= ';';
+        $result = dataConnection::runQuery($query);
+        if(sizeof($result)!=0)
+        {
+            $output = array();
+            foreach($result as $r)
+                $output[] = new extraTeachers($r);
+            return $output;
+        }
+        else
+            return false;
+    }
+
+    function toXML()
 	{
 		$out = "<session>\n";
 		$out .= '<id>'.htmlentities($this->id)."</id>\n";
@@ -649,6 +698,9 @@ class session
         //Delete any LTI link
         $query = "DELETE FROM yacrs_ltisessionlink WHERE session_id='{$id}';";
 		dataConnection::runQuery($query);
+        //Delete any additional teacher links
+        $query = "DELETE FROM yacrs_extraTeachers WHERE session_id='{$id}';";
+		dataConnection::runQuery($query);
         //Delete the session.
 		$query = "DELETE FROM yacrs_session WHERE id='{$id}';";
 		dataConnection::runQuery($query);
@@ -690,10 +742,13 @@ class session
     {
     	if(trim($userid)==trim($this->ownerID))
             return true;
-        elseif(isset($this->extras['additionalStaff'])&&(in_array(trim($userid), $this->extras['additionalStaff'])))
-            return true;
         else
-            return false;
+        {
+            $ets = $this->getExtraTeacherIDs();
+            if(in_array($userid, $ets))
+                return true;
+        }
+        return false;
     }
 
 	static function retrieve_all_sessions($from=0, $count=-1, $sort=null)
@@ -716,7 +771,193 @@ class session
 	        return false;
 	}
 
+    function getExtraTeacherIDs()
+    {
+        $et = array();
+        $eTeachers = $this->get_teachers();
+        if(is_array($eTeachers))
+        {
+            foreach($eTeachers as $t)
+            {
+                $et[] = $t->teacherID;
+            }
+        }
+        return $et;
+    }
+
+    function updateExtraTeachers($teachers)
+    {
+        if(!is_array($teachers))
+        {
+        	$teachers = explode(',', $teachers);
+        }
+        foreach($teachers as &$t)
+        {
+            $t = trim($t);
+        }
+        $knownTeachers = $this->get_teachers();
+        $ktIDs = array();
+        if(is_array($knownTeachers))
+        {
+	        foreach($knownTeachers as $kt)
+	        {
+	        	if(!in_array($kt->teacherID, $teachers))
+	            {
+	                $this->removeExtraTeacher($kt->id);
+	            }
+	            else
+	            {
+	                $ktIDs[] = $kt->teacherID;
+	            }
+	        }
+        }
+        foreach($teachers as $t)
+        {
+        	if(!in_array($t, $ktIDs))
+            {
+            	$kt = new extraTeachers();
+                $kt->teacherID = $t;
+                $kt->session_id = $this->id;
+                $kt->insert();
+            }
+        }
+    }
+
+    public function removeExtraTeacher($id)
+    {
+		$query = "DELETE FROM yacrs_extraTeachers WHERE session_id='{$this->id}' AND id='{$id}';";
+		dataConnection::runQuery($query);
+    }
+
+    public static function teacherExtraSessions($teacherID)
+    {
+        $sessions = array();
+		$ets = extraTeachers::retrieve_extraTeachers_matching('teacherID', $teacherID);
+        if(is_array($ets))
+        {
+            foreach($ets as $s)
+            {
+                $ses = session::retrieve_session($s->session_id);
+                if($ses !== false)
+                {
+                    $sessions[] = $ses;
+                }
+            }
+        }
+        return $sessions;
+    }
+
 	//[[USERCODE_session]] WEnd of custom class members.
+}
+
+class extraTeachers
+{
+	var $id; //primary key
+	var $session_id; //foreign key
+	var $teacherID;
+
+	function extraTeachers($asArray=null)
+	{
+		$this->id = null; //primary key
+		$this->session_id = null; // foreign key, needs dealt with.
+		$this->teacherID = "";
+		if($asArray!==null)
+			$this->fromArray($asArray);
+	}
+
+	function fromArray($asArray)
+	{
+		$this->id = $asArray['id'];
+		$this->session_id = $asArray['session_id']; // foreign key, check code
+		$this->teacherID = $asArray['teacherID'];
+	}
+
+	static function retrieve_extraTeachers($id)
+	{
+		$query = "SELECT * FROM yacrs_extraTeachers WHERE id='".dataConnection::safe($id)."';";
+		$result = dataConnection::runQuery($query);
+		if(sizeof($result)!=0)
+		{
+			return new extraTeachers($result[0]);
+		}
+		else
+			return false;
+	}
+
+	static function retrieve_extraTeachers_matching($field, $value, $from=0, $count=-1, $sort=null)
+	{
+	    if(preg_replace('/\W/','',$field)!== $field)
+	        return false; // not a permitted field name;
+	    $query = "SELECT * FROM yacrs_extraTeachers WHERE $field='".dataConnection::safe($value)."'";
+	    if(($sort !== null)&&(preg_replace('/\W/','',$sort)!== $sort))
+	        $query .= " ORDER BY ".$sort;
+	    if(($count != -1)&&(is_int($count))&&(is_int($from)))
+	        $query .= " LIMIT ".$count." OFFSET ".$from;
+	    $query .= ';';
+	    $result = dataConnection::runQuery($query);
+	    if(sizeof($result)!=0)
+	    {
+	        $output = array();
+	        foreach($result as $r)
+	            $output[] = new extraTeachers($r);
+	        return $output;
+	    }
+	    else
+	        return false;
+	}
+
+	function insert()
+	{
+		//#Any required insert methods for foreign keys need to be called here.
+		$query = "INSERT INTO yacrs_extraTeachers(session_id, teacherID) VALUES(";
+		if($this->session_id!==null)
+			$query .= "'".dataConnection::safe($this->session_id)."', ";
+		else
+			$query .= "null, ";
+		$query .= "'".dataConnection::safe($this->teacherID)."');";
+		dataConnection::runQuery("BEGIN;");
+		$result = dataConnection::runQuery($query);
+		$result2 = dataConnection::runQuery("SELECT LAST_INSERT_ID() AS id;");
+		dataConnection::runQuery("COMMIT;");
+		$this->id = $result2[0]['id'];
+		return $this->id;
+	}
+
+	function update()
+	{
+		$query = "UPDATE yacrs_extraTeachers ";
+		$query .= "SET session_id='".dataConnection::safe($this->session_id)."' ";
+		$query .= ", teacherID='".dataConnection::safe($this->teacherID)."' ";
+		$query .= "WHERE id='".dataConnection::safe($this->id)."';";
+		return dataConnection::runQuery($query);
+	}
+
+	static function count($where_name=null, $equals_value=null)
+	{
+		$query = "SELECT COUNT(*) AS count FROM yacrs_extraTeachers WHERE ";
+		if($where_name==null)
+			$query .= '1;';
+		else
+			$query .= "$where_name='".dataConnection::safe($equals_value)."';";
+		$result = dataConnection::runQuery($query);
+		if($result == false)
+			return 0;
+		else
+			return $result['0']['count'];
+	}
+
+	function toXML()
+	{
+		$out = "<extraTeachers>\n";
+		$out .= '<id>'.htmlentities($this->id)."</id>\n";
+		$out .= '<session>'.htmlentities($this->session)."</session>\n";
+		$out .= '<teacherID>'.htmlentities($this->teacherID)."</teacherID>\n";
+		$out .= "</extraTeachers>\n";
+		return $out;
+	}
+	//[[USERCODE_extraTeachers]] Put code for custom class members in this block.
+
+	//[[USERCODE_extraTeachers]] WEnd of custom class members.
 }
 
 class subsession
@@ -955,7 +1196,6 @@ class ltisessionlink
 		$out .= "</ltisessionlink>\n";
 		return $out;
 	}
-
 	//[[USERCODE_ltisessionlink]] Put code for custom class members in this block.
 	static function retrieve_session_id($client_id, $resource_link_id)
 	{
@@ -2491,3 +2731,4 @@ class tag
 	//[[USERCODE_tag]] WEnd of custom class members.
 }
 
+?>

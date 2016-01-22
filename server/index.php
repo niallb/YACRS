@@ -102,6 +102,7 @@ else
 	    {
 	        $template->pageData['mainBody'] .= "<p><b><a href='editsession.php'>Create a new clicker session</a></b></p>";
 		    $sessions = session::retrieve_session_matching('ownerID', $uinfo['uname']);
+            $sessions = array_merge($sessions, session::teacherExtraSessions($uinfo['uname']));
 		    $template->pageData['mainBody'] .= '<h2>My sessions (staff)</h2>';
 		    if($sessions == false)
 		    {
@@ -113,7 +114,12 @@ else
 		        foreach($sessions as $s)
 		        {
 		            $ctime = strftime("%Y-%m-%d %H:%M", $s->created);
-		            $template->pageData['mainBody'] .= "<li>Session number: <b>{$s->id}</b> <a href='runsession.php?sessionID={$s->id}'>{$s->title}</a> (Created $ctime) <a href='editsession.php?sessionID={$s->id}'>Edit</a> <a href='confirmdelete.php?sessionID={$s->id}'>Delete</a></li>";
+		            $template->pageData['mainBody'] .= "<li>Session number: <b>{$s->id}</b> <a href='runsession.php?sessionID={$s->id}'>{$s->title}</a> (Created $ctime";
+                    if($s->ownerID == $uinfo['uname'])
+                        $template->pageData['mainBody'] .= ") <a href='editsession.php?sessionID={$s->id}'>Edit</a> <a href='confirmdelete.php?sessionID={$s->id}'>Delete</a>";
+                    else
+                        $template->pageData['mainBody'] .= " by {$s->ownerID})";
+                    $template->pageData['mainBody'] .= "</li>";
 		        }
 		        $template->pageData['mainBody'] .= '</ul>';
 		    }

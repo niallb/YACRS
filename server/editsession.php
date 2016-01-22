@@ -57,6 +57,7 @@ else
                 $esform->customScoring = $thisSession->extras['customScoring'];
             if(isset($thisSession->extras['allowFullReview']))
                 $esform->allowFullReview = $thisSession->extras['allowFullReview'];
+            $esform->teachers = implode(', ', $thisSession->getExtraTeacherIDs());
         }
         else
         {
@@ -86,6 +87,7 @@ else
             $thisSession->created = time();
 	        $thisSession->id = $thisSession->insert();
 	    }
+        $thisSession->updateExtraTeachers($esform->teachers);
         if(strlen($thisSession->courseIdentifier))
             enrolStudents($thisSession->id, $thisSession->courseIdentifier);
 	    header('Location:index.php?sessionID='.$thisSession->id);

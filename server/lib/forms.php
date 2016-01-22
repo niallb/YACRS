@@ -22,6 +22,9 @@ select ublogRoom "Micro blogging mode" {0=>"None", 1=>"Full class", 2=>"Personal
 integer maxMessagelength "Maximum message length (characters)";
 boolean allowTeacherQu "Allow questions for the teacher?";
 #endgroup;
+#group "Additional teachers";
+string[80] teachers "Additional users who can run session (comma delimited list of user IDs)";
+#endgroup;
 okcancel 'Create' 'Cancel';
 
 #form addQuestion_form;
@@ -29,14 +32,10 @@ hidden sessionID '';
 select qu "Add a question" {0 => "Define new question"};
 ok "Add";
 
-#form editBasicQuestion_form;
-hidden sessionID '0';
-hidden id '0';
-string[80] title "Title/Stem";
-boolean displayStem "Display stem to participants.";
-memo[60,6] definition "Options:";
-boolean multiuse "This is a generic question to be made available in all my sessions.";
-okcancel 'Create' 'Cancel';
+#form selectQuestionType_form;
+hidden sessionID '';
+select qu "Select Question type" {};
+ok "Change";
 
 */
 
@@ -56,6 +55,7 @@ class editSession_form extends nbform
 	var $ublogRoom; //select
 	var $maxMessagelength; //integer
 	var $allowTeacherQu; //boolean
+	var $teachers; //string
 	var $validateMessages;
 
 	function __construct($readform=true)
@@ -84,6 +84,7 @@ class editSession_form extends nbform
 		$this->ublogRoom = $data->ublogRoom;
 		$this->maxMessagelength = $data->maxMessagelength;
 		$this->allowTeacherQu = $data->allowTeacherQu;
+		$this->teachers = $data->teachers;
 	}
 
 	function getData(&$data)
@@ -101,6 +102,7 @@ class editSession_form extends nbform
 		$data->ublogRoom = $this->ublogRoom;
 		$data->maxMessagelength = $this->maxMessagelength;
 		$data->allowTeacherQu = $this->allowTeacherQu;
+		$data->teachers = $this->teachers;
 		return $data;
 	}
 
@@ -122,6 +124,7 @@ class editSession_form extends nbform
 			$this->ublogRoom = $_REQUEST['ublogRoom'];
 			$this->maxMessagelength = intval($_REQUEST['maxMessagelength']);
 			$this->allowTeacherQu = (isset($_REQUEST['allowTeacherQu'])&&($_REQUEST['allowTeacherQu']==1)) ? true : false;
+			$this->teachers = stripslashes($_REQUEST['teachers']);
 			if('Cancel' == $_REQUEST['submit'])
 				$isCanceled = true;
 			$isValid = $this->validate();
@@ -170,6 +173,12 @@ class editSession_form extends nbform
 			$ok = false;
 		}
 		// Put custom code to validate $this->allowTeacherQu here. Put error message in $this->validateMessages['allowTeacherQu']
+		if(strlen($this->teachers)>80)
+		{
+		    $this->teachers = substr($this->teachers,0,80);
+		    $this->validateMessages['teachers'] = "This field was too long and has been truncated.";
+		}
+		// Put custom code to validate $this->teachers here. Error message in $this->validateMessages['teachers']
 		if(sizeof($this->validateMessages)==0)
 			return true;
 		else
@@ -229,6 +238,9 @@ class editSession_form extends nbform
 		$out .= $this->textInput('Maximum message length (characters)', 'maxMessagelength', $this->maxMessagelength, $this->validateMessages, 8);
 		$out .= $this->checkboxInput('Allow questions for the teacher?', 'allowTeacherQu', $this->allowTeacherQu, $this->validateMessages);
 		$out .= $this->groupEnd();
+		$out .= $this->groupStart('Additional teachers');
+		$out .= $this->textInput('Additional users who can run session (comma delimited list of user IDs)', 'teachers', $this->teachers, $this->validateMessages, 80);
+		$out .= $this->groupEnd();
 		$out .= $this->submitInput('submit', 'Create', 'Cancel');
 		$out .= $this->formEnd(false);
 		return $out;
@@ -252,6 +264,7 @@ class editSession_form extends nbform
 	    $formdata['ublogRoom'] = $this->ublogRoom;
 	    $formdata['maxMessagelength'] = $this->maxMessagelength;
 	    $formdata['allowTeacherQu'] = $this->allowTeacherQu;
+	    $formdata['teachers'] = $this->teachers;
 
 	    $http->execute('http://culrain.cent.gla.ac.uk/cgi-bin/qh/qhc','','POST',$formdata);
 	    return ($http->error) ? $http->error : $http->result;
