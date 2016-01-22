@@ -2,7 +2,7 @@
 require_once('corelib/dataaccess.php');
 
 /*
-//Database code generated using http://www.nbwebsites.com/wizards2/dbwiz/index.php 
+//Database code generated using http://www.nbwebsites.com/wizards2/dbwiz/index.php
 //Some manual aditions will need restored following regeneration.
 #tablePrefix yacrs_
 #database MySQL
@@ -689,6 +689,8 @@ class session
     function isStaffInSession($userid)
     {
     	if(trim($userid)==trim($this->ownerID))
+            return true;
+        elseif(isset($this->extras['additionalStaff'])&&(in_array(trim($userid), $this->extras['additionalStaff'])))
             return true;
         else
             return false;
@@ -2012,6 +2014,25 @@ class response
 	    if(sizeof($result)!=0)
 	    {
 			return new response($result[0]);
+	    }
+	    else
+	        return false;
+	}
+
+	static function retrieveByQiID($user_id, $qi_ids)
+	{
+        //userID VARCHAR(35), name VARCHAR(45), email VARCHAR(85), joined DATETIME, lastresponse DATETIME
+	    $query = "SELECT * FROM yacrs_response WHERE user_id='".dataConnection::safe($user_id)."' ";
+        foreach($qi_ids as &$qi_id)
+            $qi_id = dataConnection::safe($qi_id);
+        $query .= " AND question_id IN ('".implode("', '", $qi_ids)."') ORDER BY question_id ASC;";
+	    $result = dataConnection::runQuery($query);
+	    if(sizeof($result)!=0)
+	    {
+            $ret = array();
+			foreach($result as $r)
+                $ret[$r['question_id']] = new response($r);
+            return $ret;
 	    }
 	    else
 	        return false;

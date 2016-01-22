@@ -11,6 +11,10 @@ require_once('lib/shared_funcs.php');
 $uinfo = checkLoggedInUser();
 
 $sessionID = requestInt('sessionID');
+$showResponses = requestSet('responses');
+$showQuScores = requestSet('scores');
+$showCategoryScores = requestSet('catsco');
+$showCustomReport = requestSet('custrep');
 
 $thisSession = $sessionID? session::retrieve_session($sessionID):false;
 //if(($uinfo==false)||($thisSession == false)||(!$thisSession->isStaffInSession($uinfo['uname'])))
@@ -19,7 +23,10 @@ if(!checkPermission($uinfo, $thisSession))
     header("Location: index.php");
     exit();
 }
-
+if((isset($thisSession->extras['customScoring']))&&(file_exists('locallib/customscoring/'.$thisSession->extras['customScoring'])))
+{
+    include_once('locallib/customscoring/'.$thisSession->extras['customScoring']);
+}
 
 header("Expires: 0");
 header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -48,7 +55,8 @@ echo "Student ID,Name";
 $catCount = array();
 foreach($questionInsts as $q)
 {
-    echo ','.preg_replace('/([\\\\"])/','\\\\\\1', $q->title);
+    if($showResponses)
+        echo ','.preg_replace('/([\\\\"])/','\\\\\\1', $q->title);
     $quRespCount[$q->id] = 0;
     $quScoreTot[$q->id] = 0;
     if(isset($q->extras['category']))
@@ -63,34 +71,51 @@ foreach($questionInsts as $q)
 // headings for scores
 echo ',,'; // a gap
 echo ',BLANKS';
-foreach($questionInsts as $q)
-    echo ','.preg_replace('/([\\\\"])/','\\\\\\1', $q->title);
-// headings for category scores
-if(isset($thisSession->extras['categories']))
+if($showQuScores)
 {
-	echo ',,'; // a gap
-    $catScoreTmpl = array();
-	foreach($thisSession->extras['categories'] as $cat)
-    {
-        if(!isset($catCount[$cat]))
-            $catCount[$cat] = 0;
+	foreach($questionInsts as $q)
+	    echo ','.preg_replace('/([\\\\"])/','\\\\\\1', $q->title);
+}
 
-	    echo ','.preg_replace('/([\\\\"])/','\\\\\\1', "$cat ({$catCount[$cat]})");
-        $catScoreTmpl[$cat]=0;
-    }
-}
-else
+// headings for category scores
+if($showCategoryScores)
 {
-    $catScoreTmpl = array();
+	if(isset($thisSession->extras['categories']))
+	{
+		echo ',,'; // a gap
+	    $catScoreTmpl = array();
+		foreach($thisSession->extras['categories'] as $cat)
+	    {
+	        if(!isset($catCount[$cat]))
+	            $catCount[$cat] = 0;
+
+		    echo ','.preg_replace('/([\\\\"])/','\\\\\\1', "$cat ({$catCount[$cat]})");
+	        $catScoreTmpl[$cat]=0;
+	    }
+	}
+	else
+	{
+	    $catScoreTmpl = array();
+	}
 }
+// Custom report headings
+if(($showCustomReport)&&(function_exists('customReportHeadings')))
+{
+    echo customReportHeadings($questionInsts, $questions);
+}
+
 echo "\r\n";
 
-// Correct responses
-echo',';
-foreach($questionInsts as $q)
+if($showResponses)
 {
-    echo ','.$questions[$q->id]->definition->getCorrectStr($q);
+	// Correct responses
+	echo',Correct';
+	foreach($questionInsts as $q)
+	{
+	    echo ','.$questions[$q->id]->definition->getCorrectStr($q);
+	}
 }
+
 echo "\r\n";
 
 foreach($members as $m)
@@ -98,22 +123,31 @@ foreach($members as $m)
     $respCount = 0;
     $catScore=$catScoreTmpl;
     echo preg_replace('/([\\\\"])/e', '\\\\\\1', $m->userID).','.preg_replace('/([\\\\"])/e', '\\\\\\1', $m->name);
-    $resp = array();
+
+    $qiids = array();
 	foreach($questionInsts as $q)
     {
-        $resp[$q->id] = response::retrieve($m->id, $q->id);
-        echo ',';
-        if($resp[$q->id])
+       $qiids[] = $q->id;
+    }
+    $resp = response::retrieveByQiID($m->id, $qiids);
+	foreach($questionInsts as $q)
+    {
+        if($showResponses)
+            echo ',';
+        if(isset($resp[$q->id]))
         {
             $respCount++;
-    	    echo preg_replace('/([\\\\"])/','\\\\\\1', str_replace(',', ' ',$resp[$q->id]->value));
+            if($showResponses)
+            {
+    	        echo preg_replace('/([\\\\"])/','\\\\\\1', str_replace(',', ' ',$resp[$q->id]->value));
+            }
         }
     }
     echo ',,'; // a gap
     echo ','.(sizeof($questionInsts)-$respCount); // blanks
+
 	foreach($questionInsts as $q)
     {
-        echo ',';
         $sc = 0;
         if($resp[$q->id])
         {
@@ -123,24 +157,39 @@ foreach($members as $m)
             $quRespCount[$q->id]++;
             $quScoreTot[$q->id]+=$sc;
         }
-    	echo $sc;
+        if($showQuScores)
+        	echo ','.$sc;
     }
-	if(isset($thisSession->extras['categories']))
+    if($showCategoryScores)
+    {
+		if(isset($thisSession->extras['categories']))
+		{
+			echo ',,'; // a gap
+			foreach($thisSession->extras['categories'] as $cat)
+		    {
+			    echo ','.$catScore[$cat];
+		    }
+		}
+    }
+    // Custom Report scores go here
+	if(($showCustomReport)&&(function_exists('customReport')))
 	{
-		echo ',,'; // a gap
-		foreach($thisSession->extras['categories'] as $cat)
-	    {
-		    echo ','.$catScore[$cat];
-	    }
+	    echo customReport($questionInsts, $questions, $resp);
 	}
+
     echo "\r\n";
 }
 
+if($showQuScores)
+{
     echo "\r\n";
     echo ',';
-	foreach($questionInsts as $q)
+    if($showResponses)
     {
-        echo ',';
+		foreach($questionInsts as $q)
+	    {
+	        echo ',';
+	    }
     }
     echo ',,,';
 	foreach($questionInsts as $q)
@@ -149,9 +198,12 @@ foreach($members as $m)
     }
     echo "\r\n";
     echo ',';
-	foreach($questionInsts as $q)
+    if($showResponses)
     {
-        echo ',';
+		foreach($questionInsts as $q)
+	    {
+	        echo ',';
+	    }
     }
     echo ',,,';
 	foreach($questionInsts as $q)
@@ -160,9 +212,12 @@ foreach($members as $m)
     }
     echo "\r\n\r\n";
     echo ',';
-	foreach($questionInsts as $q)
+    if($showResponses)
     {
-        echo ',';
+		foreach($questionInsts as $q)
+	    {
+	        echo ',';
+	    }
     }
     echo ',,,';
 	foreach($questionInsts as $q)
@@ -172,6 +227,7 @@ foreach($members as $m)
         else
             echo ',';
     }
+}
 
 /*foreach($messages as $m)
 {

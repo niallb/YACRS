@@ -115,14 +115,36 @@ else
         //$template->pageData['mainBody'] .= "<p><a href='export.php?sessionID={$thisSession->id}'>Export response data (CSV)</a></p>";
         $template->pageData['mainBody'] .= "<form action='export.php' method='POST'>Export response data (CSV):<input type='hidden' name='sessionID' value='{$thisSession->id}'/>";
         $template->pageData['mainBody'] .= "From <select name='from'>";
+        $cday = '';
         foreach($quTitles as $qt)
-           $template->pageData['mainBody'] .= "<option value='{$qt['id']}'>{$qt['title']}</option>";
+        {
+            if($qt['day']==$cday)
+                $template->pageData['mainBody'] .= "\n<option value='{$qt['id']}'>{$qt['title']}</option>";
+            else
+            {
+                $template->pageData['mainBody'] .= "\n<option value='{$qt['id']}'>{$qt['title']} ({$qt['day']})</option>";
+                $cday = $qt['day'];
+            }
+        }
         $template->pageData['mainBody'] .= "</select>";
         $template->pageData['mainBody'] .= " To <select name='to'><option value='".$quTitles[sizeof($quTitles)-1]['id']."'></option>";
+        $cday = '';
         foreach($quTitles as $qt)
-           $template->pageData['mainBody'] .= "<option value='{$qt['id']}'>{$qt['title']}</option>";
-        $template->pageData['mainBody'] .= "</select>";
-        $template->pageData['mainBody'] .= "<input type='submit' value='Export'/></form>";
+        {
+            if($qt['day']==$cday)
+                $template->pageData['mainBody'] .= "\n<option value='{$qt['id']}'>{$qt['title']}</option>";
+            else
+            {
+                $template->pageData['mainBody'] .= "\n<option value='{$qt['id']}'>{$qt['title']} ({$qt['day']})</option>";
+                $cday = $qt['day'];
+            }
+        }
+        $template->pageData['mainBody'] .= "</select><br/>";
+        $template->pageData['mainBody'] .= "Include: Responses <input type='checkbox' name='responses'  value='1' checked='checked'/>; ";
+        $template->pageData['mainBody'] .= "Question Scores <input type='checkbox' name='scores'  value='1' checked='checked'/>; ";
+        $template->pageData['mainBody'] .= "Category scores <input type='checkbox' name='catsco'  value='1' checked='checked'/>; ";
+        $template->pageData['mainBody'] .= "Custom report <input type='checkbox' name='custrep'  value='1'/>; ";
+        $template->pageData['mainBody'] .= "<br/><input type='submit' value='Export'/></form>";
 
     }
 
@@ -276,7 +298,8 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
             $qi = questionInstance::retrieve_questionInstance($qiID);
             if(($showday == 0)||(($qi->endtime >= $showday)&&($qi->endtime < $showday+3600*24)))
             {
-            $quTitles[] = array('id'=>$qi->id, 'title'=>$qi->title);
+            $day = strftime("%a %d %b %Y", ((floor($qi->endtime / (3600*24)) * 3600 * 24)+3600));
+            $quTitles[] = array('id'=>$qi->id, 'title'=>$qi->title, 'day'=>$day);
             $qu = question::retrieve_question($qi->theQuestion_id);
             if($qu)
             {
@@ -361,7 +384,8 @@ function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
             $qi = questionInstance::retrieve_questionInstance($qiID);
             if(($showday == 0)||(($qi->endtime >= $showday)&&($qi->endtime < $showday+3600*24)))
             {
-            $quTitles[] = array('id'=>$qi->id, 'title'=>$qi->title);
+            $day = strftime("%a %d %b %Y", ((floor($qi->endtime / (3600*24)) * 3600 * 24)+3600));
+            $quTitles[] = array('id'=>$qi->id, 'title'=>$qi->title, 'day'=>$day);
             $qu = question::retrieve_question($qi->theQuestion_id);
             if($qu)
             {
