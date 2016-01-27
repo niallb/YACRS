@@ -93,7 +93,7 @@ else
         	$session = session::retrieve_session($_REQUEST['id']);
             if($session == false)
                 $errors[] = "Session {$_REQUEST['id']} not found.";
-            elseif($session->ownerID != $uinfo['uname'])
+            elseif(!checkPermission($uinfo, $session))
                 $errors[] = "You do not have permission to run session {$_REQUEST['id']}.";
             else
             {
@@ -136,7 +136,7 @@ else
         	$session = session::retrieve_session($_REQUEST['id']);
             if($session == false)
                 $errors[] = "Session {$_REQUEST['id']} not found.";
-            elseif($session->ownerID != $uinfo['uname'])
+            elseif(!checkPermission($uinfo, $session))
                 $errors[] = "You do not have permission to run session {$_REQUEST['id']}.";
             else
             {
@@ -154,7 +154,7 @@ else
         	$session = session::retrieve_session($_REQUEST['id']);
             if($session == false)
                 $errors[] = "Session {$_REQUEST['id']} not found.";
-            elseif($session->ownerID != $uinfo['uname'])
+            elseif(!checkPermission($uinfo, $session))
                 $errors[] = "You do not have permission to run session {$_REQUEST['id']}.";
             else
             {
@@ -170,7 +170,7 @@ else
         	$session = session::retrieve_session($_REQUEST['id']);
             if($session == false)
                 $errors[] = "Session {$_REQUEST['id']} not found.";
-            elseif($session->ownerID != $uinfo['uname'])
+            elseif(!checkPermission($uinfo, $session))
                 $errors[] = "You do not have permission to run session {$_REQUEST['id']}.";
             else
             {
@@ -255,6 +255,9 @@ else
         break;
     case 'sessionlist':
    	    $sessions = session::retrieve_session_matching('ownerID', $uinfo['uname']);
+        if($sessions === false)
+            $sessions = array();
+        $sessions = array_merge($sessions, session::teacherExtraSessions($uinfo['uname']));
         $data['sessionInfo'] = array();
         if($sessions !== false)
         {
@@ -271,7 +274,7 @@ else
         	$session = session::retrieve_session($_REQUEST['id']);
             if($session == false)
                 $errors[] = "Session {$_REQUEST['id']} not found.";
-            elseif($session->ownerID != $uinfo['uname'])
+            elseif(!checkPermission($uinfo, $session))
                 $errors[] = "You do not have permission to modify session {$_REQUEST['id']}.";
         }
         else

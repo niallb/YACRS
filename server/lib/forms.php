@@ -37,6 +37,15 @@ hidden sessionID '';
 select qu "Select Question type" {};
 ok "Change";
 
+#form editBasicQuestion_form;
+hidden sessionID '0';
+hidden id '0';
+string[80] title "Title/Stem";
+boolean displayStem "Display stem to participants.";
+memo[60,6] definition "Options:";
+boolean multiuse "This is a generic question to be made available in all my sessions.";
+okcancel 'Create' 'Cancel';
+
 */
 
 class editSession_form extends nbform

@@ -102,6 +102,8 @@ else
 	    {
 	        $template->pageData['mainBody'] .= "<p><b><a href='editsession.php'>Create a new clicker session</a></b></p>";
 		    $sessions = session::retrieve_session_matching('ownerID', $uinfo['uname']);
+            if($sessions === false)
+                $sessions = array();
             $sessions = array_merge($sessions, session::teacherExtraSessions($uinfo['uname']));
 		    $template->pageData['mainBody'] .= '<h2>My sessions (staff)</h2>';
 		    if($sessions == false)

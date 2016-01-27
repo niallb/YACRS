@@ -2731,4 +2731,3 @@ class tag
 	//[[USERCODE_tag]] WEnd of custom class members.
 }
 
-?>
