@@ -18,9 +18,10 @@ $uinfo = checkLoggedInUser();
 
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
-$template->pageData['breadcrumb'] = "<a href='http://www.gla.ac.uk/'>University of Glasgow</a> | <a href='http://www.gla.ac.uk/services/learningteaching/'>Learning & Teaching Centre</a> ";
-$template->pageData['breadcrumb'] .= '| <a href="index.php">YACRS</a>';
-$template->pageData['breadcrumb'] .= '| Run a session';
+$template->pageData['breadcrumb'] = $CFG['breadCrumb'];
+$template->pageData['breadcrumb'] .= '<li><a href="index.php">YACRS</a></li>';
+$template->pageData['breadcrumb'] .= '<li>Run a Session</li>';
+$template->pageData['breadcrumb'] .= '</ul>';
 
 
 $thisSession = isset($_REQUEST['sessionID'])? session::retrieve_session($_REQUEST['sessionID']):false;
@@ -113,8 +114,9 @@ else
     if(sizeof($quTitles))
     {
         //$template->pageData['mainBody'] .= "<p><a href='export.php?sessionID={$thisSession->id}'>Export response data (CSV)</a></p>";
-        $template->pageData['mainBody'] .= "<form action='export.php' method='POST'>Export response data (CSV):<input type='hidden' name='sessionID' value='{$thisSession->id}'/>";
-        $template->pageData['mainBody'] .= "From <select name='from'>";
+        $template->pageData['mainBody'] .= "<form action='export.php' method='POST' class='form-horizontal form-export-data'><input type='hidden' name='sessionID' value='{$thisSession->id}'/>";
+        $template->pageData['mainBody'] .= "<div class='form-group'><label class='col-sm-4 control-label'>Export Response Data</label><div class='col-sm-8'>";
+         $template->pageData['mainBody'] .= "<div class='row'><div class='col-sm-2'><label for='from' class='control-label'>From</label></div><div class='col-sm-10'><select name='from' id='from' class='form-control'>";
         $cday = '';
         foreach($quTitles as $qt)
         {
@@ -126,8 +128,8 @@ else
                 $cday = $qt['day'];
             }
         }
-        $template->pageData['mainBody'] .= "</select>";
-        $template->pageData['mainBody'] .= " To <select name='to'><option value='".$quTitles[sizeof($quTitles)-1]['id']."'></option>";
+        $template->pageData['mainBody'] .= "</select></div></div><div class='row'><div class='col-sm-2'><label class='control-label' for='to'>To</label></div><div class='col-sm-10'>";
+        $template->pageData['mainBody'] .= "<select name='to' id='to' class='form-control'><option value='".$quTitles[sizeof($quTitles)-1]['id']."'></option>";
         $cday = '';
         foreach($quTitles as $qt)
         {
@@ -139,20 +141,21 @@ else
                 $cday = $qt['day'];
             }
         }
-        $template->pageData['mainBody'] .= "</select><br/>";
-        $template->pageData['mainBody'] .= "Include: Responses <input type='checkbox' name='responses'  value='1' checked='checked'/>; ";
-        $template->pageData['mainBody'] .= "Question Scores <input type='checkbox' name='scores'  value='1' checked='checked'/>; ";
-        $template->pageData['mainBody'] .= "Category scores <input type='checkbox' name='catsco'  value='1' checked='checked'/>; ";
-        $template->pageData['mainBody'] .= "Custom report <input type='checkbox' name='custrep'  value='1'/>; ";
-        $template->pageData['mainBody'] .= "<br/><input type='submit' value='Export'/></form>";
+        $template->pageData['mainBody'] .= "</select></div></div></div><div class='form-group'><label class='col-sm-4 control-label'>Include in Export</label><div class='col-sm-8'>";
+        $template->pageData['mainBody'] .= "<div class='checkbox'><label><input type='checkbox' name='responses'  value='1' checked='checked'/> Responses</label></div>";
+        $template->pageData['mainBody'] .= "<div class='checkbox'><label><input type='checkbox' name='scores'  value='1' checked='checked'/> Question Scores</label></div>";
+        $template->pageData['mainBody'] .= "<div class='checkbox'><label><input type='checkbox' name='catsco'  value='1' checked='checked'/> Category Scores</label></div>";
+        $template->pageData['mainBody'] .= "<div class='checkbox'><label><input type='checkbox' name='custrep'  value='1'/> Custom Report</label></div></div></div>";
+
+        $template->pageData['mainBody'] .= "<div class='control-group'><div class='col-sm-8 col-sm-push-4'><input type='submit' class='btn btn-primary' value='Export'/></div></div></div></div></form>";
 
     }
 
     if($thisSession->ublogRoom)
     {
-	    $template->pageData['mainBody'] .= "<h2>Chat</h2><a href='chatviewer.php?sessionID={$thisSession->id}' target='_new'>QR code and chat display</a>";
+	    $template->pageData['mainBody'] .= "<h2 class='page-section'>Chat</h2><a href='chatviewer.php?sessionID={$thisSession->id}' target='_new'>QR code and chat display</a>";
 	    $template->pageData['mainBody'] .= " | <a href='chatlisting.php?sessionID={$thisSession->id}'>Download full chat list</a>";
-	    $template->pageData['mainBody'] .= "<div id='messages' style='border : 1px solid #00008B;'></div>";
+	    $template->pageData['mainBody'] .= "<div id='messages'></div>";
         $template->pageData['afterContent'] .= getUBlogUpdateAJAXScript($thisSession->id);
     }
 
@@ -283,7 +286,7 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
 {
     $out .= "<form method='POST' action='{$_SERVER['PHP_SELF']}'>";
     $out .= "<input type='hidden' name='sessionID' value='{$thisSession->id}'/>";
-        $out .= '<table border="1"><thead><tr><th>#</th><th>Question</th><th>Used</th><th>Control</th><th>Responses</th><th>Actions</th></tr></thead><tbody>';
+        $out .= '<table class="table table-striped"><thead><tr><th>#</th><th>Question</th><th>Used</th><th>Control</th><th>Responses</th><th>Actions</th></tr></thead><tbody>';
 
         $qiIDs = explode(',',$thisSession->questions);
         if(!isset($thisSession->extras[currentQuestions]))
@@ -323,7 +326,7 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
                 if(($count == 0)&&(!in_array($qiID, $thisSession->extras[currentQuestions])))
 	            	$out .= "<td>No responses</td>";
                 else
-		            $out .= "<td><a href='responses.php?sessionID={$thisSession->id}&qiID=$qiID'><span id='rc$qiID'>$count</span> response(s)</a></td>";
+		            $out .= "<td><a href='responses.php?sessionID={$thisSession->id}&qiID=$qiID'><span id='rc$qiID'>$count</span> response".s($count)."</a></td>";
                 if(sizeof($thisSession->extras[currentQuestions])==0)
                 {
 	                if(isset($_REQUEST['move']))
@@ -340,8 +343,8 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
 	                }
 	                else
 	                {
-	            		$out .= "<td><a href='runsession.php?sessionID={$thisSession->id}&move=$qiID'>(Move)</a> ";
-	                    $out .= "<a href='runsession.php?sessionID={$thisSession->id}&delete=$qiID'>(Delete)</a></td>";
+	            		$out .= "<td><span class='feature-links'><a href='runsession.php?sessionID={$thisSession->id}&move=$qiID'><i class='fa fa-arrows'></i> Move</a> ";
+	                    $out .= "<a href='runsession.php?sessionID={$thisSession->id}&delete=$qiID'><i class='fa fa-trash-o'></i> Delete</a></span></td>";
 	                }
                 }
                 else
@@ -365,7 +368,7 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
 
 function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
 {
-        $out = '<table border="1"><thead><tr><th>#</th><th>Question</th><th>Used</th><th>Control</th><th>Responses</th><th>Actions</th></tr></thead><tbody>';
+        $out = '<table class="table table-striped"><thead><tr><th>#</th><th>Question</th><th>Used</th><th>Control</th><th>Responses</th><th>Actions</th></tr></thead><tbody>';
 
         $qiIDs = explode(',',$thisSession->questions);
         // check current is valid, display make active stuff otherwise
@@ -420,23 +423,23 @@ function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
                 if(($count == 0)&&($thisSession->currentQuestion != $qiID))
 	            	$out .= "<td>No responses</td>";
                 else
-		            $out .= "<td><a href='responses.php?sessionID={$thisSession->id}&qiID=$qiID'><span id='rc$qiID'>$count</span> response(s)</a></td>";
+		            $out .= "<td><a href='responses.php?sessionID={$thisSession->id}&qiID=$qiID'><span id='rc$qiID'>$count</span> response".s($count)."</a></td>";
                 if(isset($_REQUEST['move']))
                 {
                     if($_REQUEST['move'] == $qiID)
                     {
             			$moveMode = 'after';
-            		    $out .= "<td><i><a href='runsession.php?sessionID={$thisSession->id}'>(Cancel move)</a></i></td>";
+            		    $out .= "<td><span class='feature-links'><a href='runsession.php?sessionID={$thisSession->id}'><i class='fa fa-ban'></i> Cancel move</a></td>";
                     }
                     else
                     {
-            		    $out .= "<td><a href='runsession.php?sessionID={$thisSession->id}&moveitem={$_REQUEST['move']}&$moveMode=$qiID'>(To $moveMode this)</a> ";
+            		    $out .= "<td><span class='feature-links'><a href='runsession.php?sessionID={$thisSession->id}&moveitem={$_REQUEST['move']}&$moveMode=$qiID'><i class='fa fa-arrows'></i> Move $moveMode this</a> ";
                     }
                 }
                 else
                 {
-            		$out .= "<td><a href='runsession.php?sessionID={$thisSession->id}&move=$qiID'>(Move)</a> ";
-                    $out .= "<a href='runsession.php?sessionID={$thisSession->id}&delete=$qiID'>(Delete)</a></td>";
+            		$out .= "<td><span class='feature-links'><a href='runsession.php?sessionID={$thisSession->id}&move=$qiID'><i class='fa fa-arrows'></i> Move</a> ";
+                    $out .= "<a href='runsession.php?sessionID={$thisSession->id}&delete=$qiID'><i class='fa fa-trash-o'></i> Delete</a></span></td>";
                 }
 	            $out .= "</tr>";
             }

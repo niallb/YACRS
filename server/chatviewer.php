@@ -6,28 +6,129 @@
 
 <body>
 <style>
-.mupost{
-	margin-bottom: 8px;
-	margin-top: 8px;
-	border: 0;
-	font-size : large;
+body {
+	font-family: "Verdana", "Helvetica", "Arial", sans-serif;
+	font-size: 1.2em;
+	padding: 20px;
 }
 
-.muname{
-	font-family : Arial, Helvetica, sans-serif;
-	font-weight : bolder;
-    color: Gray;
-	width: 10%;
+.comment, .info {
+	clear: both;
+	max-width: 70%;
+	margin-bottom: 20px;
 }
-.muinfo{
-	font-family : Arial, Helvetica, sans-serif;
-	font-weight : bold;
-	color: Green;
-	width: 10%;
+
+.comment .meta, .info .meta {
+	clear: both;
+	margin-left: 10px;
+	color: #777;
+	font-size: 0.85em;
+	margin-bottom: 0;
 }
-.mumsg{
-	font-family : Arial, Helvetica, sans-serif;
+
+.meta .time {
+	margin-left: 0.5em;
 }
+
+.meta .time:before {
+	content: "\00b7";
+	padding-right: 0.5em;
+}
+
+.comment .bubble, .info .bubble {
+	position: relative;
+	width: 100%;
+	background-color: #eee;
+	padding: 8px;
+	border-radius: 8px;
+	margin-left: 10px;
+	float: left;
+	margin-bottom: 5px;
+}
+
+.comment .bubble:after {
+  content:"";
+  position:absolute;
+  bottom: 8px;
+  left: -10px;
+  top: auto;
+  border-width:7px 10px 2px 0; /* vary these values to change the angle of the vertex */
+  border-style:solid;
+  border-color: transparent #eee;
+}
+
+.comment.me .bubble {
+	background-color: #CCEC8C;
+	margin-left: 0;
+	margin-right: 10px;
+}
+
+.info .bubble {
+	background-color: #AED7ED;
+}
+
+.info .bubble:after {
+  border-color: transparent #AED7ED;
+  content:"";
+  position:absolute;
+  bottom: 8px;
+  left: -10px;
+  top: auto;
+  border-width:7px 10px 2px 0; /* vary these values to change the angle of the vertex */
+  border-style:solid;
+}
+
+.comment.me .bubble:after {
+  border-color: transparent #CCEC8C;
+}
+
+.comment.me {
+	float: right;
+	margin-right: 25px;
+}
+
+.comment.me .meta {
+	text-align: right;
+}
+
+.comment.me .bubble:after {
+  content:"";
+  position:absolute;
+  bottom: 8px;
+  left: auto;
+  right: -10px;
+  top: auto;
+  border-width: 7px 0 2px 10px; /* vary these values to change the angle of the vertex */
+  border-style:solid;
+  border-color: transparent #CCEC8C;
+}
+
+.session-header {
+	background-color: #eee;
+	border: 1px solid #ddd;
+	padding: 10px;
+	overflow: hidden;
+}
+
+.qr {
+	float: right;
+	width: 200px;
+	height: 200px;
+}
+
+h1 {
+	font-size: 2em;
+	font-weight: normal;
+	margin: 0;
+	margin-bottom: 20px;
+}
+
+h2 {
+	font-size: 1.5em;
+	font-weight: normal;
+	margin: 0;
+}
+
 </style>
 
 <?php
@@ -70,10 +171,11 @@ else
     else
     {
         $joinURL = "{$serverURL}join.php?sessionID={$thisSession->id}";
-        echo "<img align='right' src='qrimg.php?url={$joinURL}'/>";
+        echo "<div class='session-header'>";
+        echo "<img class='qr' src='qrimg.php?url={$joinURL}'/>";
         echo "<h1>{$thisSession->title}</h1>";
-        echo "<h2>$joinURL</h2>";
-        echo "<div id='messages' style='border : 1px solid #00008B;'></div>";
+        echo "<h2>$joinURL</h2></div>";
+        echo "<div id='messages''></div>";
     }
 	echo getAJAXScript($thisSession->id);
 }

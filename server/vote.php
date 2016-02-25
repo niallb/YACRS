@@ -17,8 +17,9 @@ $uinfo = checkLoggedInUser();
 
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
-$template->pageData['breadcrumb'] = "<a href='http://www.gla.ac.uk/'>University of Glasgow</a> | <a href='http://www.gla.ac.uk/services/learningteaching/'>Learning & Teaching Centre</a> ";
-$template->pageData['breadcrumb'] .= '| <a href="index.php">YACRS</a>';
+$template->pageData['breadcrumb'] = $CFG['breadCrumb'];
+$template->pageData['breadcrumb'] .= '<li><a href="index.php">YACRS</a></li>';
+
 
 if((isset($_SERVER['HTTPS']))&&($_SERVER['HTTPS']=='on'))
 {
@@ -67,19 +68,22 @@ else
 			$smemb->update();
         }
 
-		$template->pageData['breadcrumb'] .= "| {$thisSession->title}";
+		$template->pageData['breadcrumb'] .= "<li>{$thisSession->title}</li>";
+		
+		$template->pageData['breadcrumb'] .= '</ul>';
+		
         if($thisSession->questionMode == 0)
         {
 	        if($thisSession->currentQuestion == 0)
 	        {
 	            header( "Refresh: 10; url={$serverURL}?sessionID={$thisSession->id}" );
-	            $template->pageData['mainBody'] .= "<p>No active question.</p>";
+	            $template->pageData['mainBody'] .= "<div class='alert alert-warning'>No active question.</div>";
 	        }
 	        else
 	        {
                 $template->pageData['mainBody'] .= displayQuestion($thisSession->currentQuestion);
 	        }
-	        $template->pageData['mainBody'] .= "<p><a href='vote.php?sessionID={$thisSession->id}&continue=1'>Next</a></p>";
+	        $template->pageData['mainBody'] .= "<div class='question-nav bottom'><a href='vote.php?sessionID={$thisSession->id}&continue=1' class='pull-right'>Continue to Next Question &rsaquo;</a></div>";
         }
         else
         {
@@ -93,17 +97,17 @@ else
 
 	            $positions = array_flip($thisSession->extras[currentQuestions]);
 	            $cidx = $positions[$cqiid];
-	            $template->pageData['mainBody'] .= "<p>";
-	            $template->pageData['mainBody'] .= '(Question '.($cidx+1).' of '.sizeof($thisSession->extras[currentQuestions]).') ';
+	            $template->pageData['mainBody'] .= "<p class='question-navigation'>";
+	            $template->pageData['mainBody'] .= 'Question '.($cidx+1).' of '.sizeof($thisSession->extras[currentQuestions]);
 	            if($cidx > 0)
 	            {
 	                $prev = $thisSession->extras[currentQuestions][$cidx-1];
-		            $template->pageData['mainBody'] .= "<a href='vote.php?sessionID={$thisSession->id}&qiID={$prev}'>Prev.</a> ";
+		            $template->pageData['mainBody'] .= "<a href='vote.php?sessionID={$thisSession->id}&qiID={$prev}' class='pull-left'>&lsaquo; Back to Previous Quesiton</a> ";
 	            }
 	            if($cidx < sizeof($thisSession->extras[currentQuestions])-1)
 	            {
 	                $next = $thisSession->extras[currentQuestions][$cidx+1];
-		            $template->pageData['mainBody'] .= "<a href='vote.php?sessionID={$thisSession->id}&qiID={$next}'>Next</a>";
+		            $template->pageData['mainBody'] .= "<a href='vote.php?sessionID={$thisSession->id}&qiID={$next}' class='pull-right'>Continue to Next Question &rsaquo;</a>";
 	            }
 	            $template->pageData['mainBody'] .= "</p>";
             }
@@ -116,7 +120,7 @@ else
         }
         if($thisSession->ublogRoom)
         {
-	        $template->pageData['mainBody'] .= "<p><a href='chat.php?sessionID={$thisSession->id}'>&mu;blog and discuss</a></p>";
+	        $template->pageData['mainBody'] .= "<a class='btn btn-success btn-block page-bottom-button' href='chat.php?sessionID={$thisSession->id}'><i class='fa fa-comments'></i> Discuss This Question</a>";
         }
     }
 	//$template->pageData['mainBody'] .= '<pre>'.print_r($uinfo,1).'</pre>';
@@ -136,11 +140,11 @@ function displayQuestion($qiid, $forceTitle=false)
      $resp = response::retrieve($smemb->id, $qi->id);
      if((isset($_REQUEST['continue']))&&($resp!==false))
      {
-         $out .= "<p style='color:red;'>Sorry, the next queston is not active yet.</p>";
+         $out .= "<div class='alert alert-danger'>Sorry, the next queston is not active yet.</div>";
          header( "Refresh: 10; url={$serverURL}?sessionID={$thisSession->id}" );
      }
      if((isset($_REQUEST['submitans']))&&(isset($_REQUEST['qiID']))&&($_REQUEST['qiID']!==$qi->id))
-         $out .= "<p style='color:red;'>Sorry, your answer was submitted after the question closed, so has been ignored.</p>";
+         $out .= "<div class='alert alert-danger'>Sorry, your answer was submitted after the question closed, so has been ignored.</div>";
      if($qu)
      {
 	     $qu->definition->checkResponse($qi->id, $resp);
@@ -173,7 +177,7 @@ function displayQuestion($qiid, $forceTitle=false)
         else
             $out .= '<legend>You answered:</legend>';
         //$out .= '<pre>'.print_r($resp,1).'</pre>';
-	     $out .= "<form id='questionForm' method='POST' action='vote.php'>";
+	     $out .= "<form id='questionForm' method='POST' action='vote.php' class='form-horizontal'>";
 	     $out .= "<input type='hidden' name='sessionID' value='{$thisSession->id}'/>";
 	     $out .= "<input type='hidden' name='qiID' value='{$qi->id}'/>";
          if($forceTitle)
@@ -183,11 +187,11 @@ function displayQuestion($qiid, $forceTitle=false)
 	     $out .= $qu->definition->render($qi->title);
          if(($qu->definition->responseValue === false)||(($thisSession->allowQuReview)&&(isset($_REQUEST['doupdate']))))
          {
-             $out .= "<div class='submit'><input type='submit' name='submitans' value='Submit answer'/></div>";
+             $out .= "<input type='submit' name='submitans' value='Save Answer' class='btn btn-primary' />";
          }
          elseif(($thisSession->allowQuReview)&&($qu->definition->allowReview()))
          {
-             $out .= "<div class='submit'><a href='vote.php?sessionID={$thisSession->id}&qiID={$qi->id}&doupdate=1'>Change answer</a></div>";
+             $out .= "<a href='vote.php?sessionID={$thisSession->id}&qiID={$qi->id}&doupdate=1' class='btn btn-success'>Change Answer</a>";
          }
          $out .= '</fieldset>';
 	     $out .= "</form>";

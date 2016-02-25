@@ -36,8 +36,9 @@ $uinfo = checkLoggedInUser();
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
 $template->pageData['breadcrumb'] = $CFG['breadCrumb'];
-$template->pageData['breadcrumb'] .= '| <a href="index.php">YACRS</a>';
-$template->pageData['breadcrumb'] .= '| Administration';
+$template->pageData['breadcrumb'] .= '<li><a href="index.php">YACRS</a></li>';
+$template->pageData['breadcrumb'] .= '<li>Administration</li>';
+$template->pageData['breadcrumb'] .= '</ul>';
 
 if($uinfo==false)
 {
@@ -55,24 +56,24 @@ else
     $id = requestInt('id', 0);
     $searchval = requestRaw('searchval', "");
     $template->pageData['mainBody'] = '<h1>YACRS Administration</h1>';
-    $template->pageData['mainBody'] .= '<ul>';
+    $template->pageData['mainBody'] .= '<ul class="adminSections">';
     if($disp == 'sessions')
     {
         $pageCount = ceil(session::count()/PAGESIZE);
         $pageDisp = $page+1;
         if($pageDisp > 1)
-            $prevLink = adminLink(' Prev.', array('disp'=>'sessions', 'page'=>$page-1), true);
+            $prevLink = adminLink('<i class="fa fa-angle-left"></i> ', array('disp'=>'sessions', 'page'=>$page-1), true);
         else
         	$prevLink = '';
         if($pageDisp < $pageCount)
-            $nextLink = adminLink(' Next', array('disp'=>'sessions', 'page'=>$page+1), true);
+            $nextLink = adminLink(' <i class="fa fa-angle-right"></i>', array('disp'=>'sessions', 'page'=>$page+1), true);
         else
         	$nextLink = '';
-        $template->pageData['mainBody'] .= "<li><b>Sessions</b> (Page $pageDisp of $pageCount.{$prevLink}{$nextLink})</li>";
+        $template->pageData['mainBody'] .= "<li>Sessions <span class='badge'>{$prevLink}Page $pageDisp of $pageCount {$nextLink}</span></li>";
         $template->pageData['mainBody'] .= listSessions($page);
     }
     else
-        $template->pageData['mainBody'] .= '<li><b>'.adminLink('Sessions', array('disp'=>'sessions'), true).'</b> ('.session::count().')</li>';
+        $template->pageData['mainBody'] .= '<li>'.adminLink('Sessions', array('disp'=>'sessions'), true).' <span class="badge">'.session::count().'</span></li>';
     if($disp == 'users')
     {
         update_from_userSearch($searchval);
@@ -82,11 +83,12 @@ else
 
 	        $pageDisp = $page+1;
 	        if($pageDisp > 1)
-	            $prevLink = adminLink(' Prev.', array('disp'=>'users', 'page'=>$page-1, 'searchval'=>$searchval), true);
+	            $prevLink = adminLink('<i class="fa fa-angle-left"></i> ', array('disp'=>'users', 'page'=>$page-1, 'searchval'=>$searchval), true);
 	        else
 	        	$prevLink = '';
-            $nextLink = adminLink(' Next', array('disp'=>'users', 'page'=>$page+1, 'searchval'=>$searchval), true);
-	        $template->pageData['mainBody'] .= "<li><b>Users</b> (Search results page $pageDisp. {$prevLink}{$nextLink})</li>";
+	        if($pageDisp < $pageCount)
+            	$nextLink = adminLink(' <i class="fa fa-angle-right"></i>', array('disp'=>'users', 'page'=>$page+1, 'searchval'=>$searchval), true);
+	        $template->pageData['mainBody'] .= "<li>Users <span class='badge'>{$prevLink} Page $pageDisp {$nextLink}</span></li>";
 
 	        $template->pageData['mainBody'] .= listUsers($page, $searchval);
 
@@ -98,31 +100,32 @@ else
 	        $pageCount = ceil(userInfo::count()/PAGESIZE);
 	        $pageDisp = $page+1;
 	        if($pageDisp > 1)
-	            $prevLink = adminLink(' Prev.', array('disp'=>'users', 'page'=>$page-1), true);
+	            $prevLink = adminLink('<i class="fa fa-angle-left"></i> ', array('disp'=>'users', 'page'=>$page-1), true);
 	        else
 	        	$prevLink = '';
 	        if($pageDisp < $pageCount)
-	            $nextLink = adminLink(' Next', array('disp'=>'users', 'page'=>$page+1), true);
+	            $nextLink = adminLink(' <i class="fa fa-angle-right"></i>', array('disp'=>'users', 'page'=>$page+1), true);
 	        else
 	        	$nextLink = '';
-	        $template->pageData['mainBody'] .= "<li><b>Users</b> (Page $pageDisp of $pageCount.{$prevLink}{$nextLink})</li>";
+	        $template->pageData['mainBody'] .= "<li>Users <span class='badge'>{$prevLink} Page $pageDisp of $pageCount {$nextLink}</li>";
 
 //            exit(__LINE__.' '.__FILE__.' Implement search next');
 
 	        $template->pageData['mainBody'] .= listUsers($page);
-            $template->pageData['mainBody'] .= "Search for a user: ".show_userSearch($disp, $searchval);
+            $template->pageData['mainBody'] .= show_userSearch($disp, $searchval);
         }
         else
         {
-            $template->pageData['mainBody'] .= '<li><b>'.adminLink('Users', array('disp'=>'users'), true).'</b> ('.userInfo::count().')</li>';
+            $template->pageData['mainBody'] .= '<li>'.adminLink('Users', array('disp'=>'users'), true).' <span class="badge">'.userInfo::count().'</span></li>';
 	        $template->pageData['mainBody'] .= displayUser($id);
         }
     }
     else
-        $template->pageData['mainBody'] .= '<li><b>'.adminLink('Users', array('disp'=>'users'), true).'</b> ('.userInfo::count().')</li>';
+        $template->pageData['mainBody'] .= '<li>'.adminLink('Users', array('disp'=>'users'), true).' <span class="badge">'.userInfo::count().'</span></li>';
+    $template->pageData['mainBody'] .= '</form>';
     if($disp == 'lti')
     {
-        $template->pageData['mainBody'] .= '<li><b>LTI Consumers</b> ('.lticonsumer::count().')</li>';
+        $template->pageData['mainBody'] .= '<li>LTI Consumers <span class="badge">'.lticonsumer::count().'</span></li>';
         $add = requestInt('add', 0);
         $name = '';
         $consumer_key = '';
@@ -187,7 +190,7 @@ else
     }
     else
     {
-        $template->pageData['mainBody'] .= '<li><b>'.adminLink('LTI Consumers', array('disp'=>'lti'), true).'</b> ('.lticonsumer::count().')</li>';
+        $template->pageData['mainBody'] .= '<li><b>'.adminLink('LTI Consumers', array('disp'=>'lti'), true).'</b> <span class="badge">'.lticonsumer::count().'</span></li>';
     }
     $template->pageData['mainBody'] .= '</ul>';
     $template->pageData['mainBody'] .= "<p>Student responses in last hour: ".response::countAllInLastHour().'</p>';
@@ -197,13 +200,14 @@ echo $template->render();
 
 function listSessions($page = 0)
 {
-    $out = '<ul>';
+    $out = '<ul class="session-list">';
     $sessions = session::retrieve_all_sessions($page*PAGESIZE, PAGESIZE, "created desc");
     if($sessions !== false)
     {
 	    foreach($sessions as $s)
 	    {
-	        $out .= "<li>{$s->ownerID} : <a href='runsession.php?sessionID={$s->id}'>{$s->title}</a>, created ".date(DATE_COOKIE, $s->created)." <a href='editsession.php?sessionID={$s->id}'>Edit</a></li>";
+	        $out .= "<li><p class='session-title'><a href='runsession.php?sessionID={$s->id}'>{$s->title}</a><span class='user-badge session-id'><i class='fa fa-hashtag'></i> {$s->id}</span></p><p class='session-details'> Owned by {$s->ownerID}</p><p class='session-details'>Created ".strftime("%A %e %B %Y at %H:%M", $s->created)."</p><span class='feature-links'><a href='editsession.php?sessionID={$s->id}'><i class='fa fa-pencil'></i> Edit</a></span></li>";
+	        //$template->pageData['mainBody'] .= "<li><p class='session-title'><a href='runsession.php?sessionID={$s->id}'>{$s->title}</a><span class='user-badge session-id'><i class='fa fa-hashtag'></i> {$s->id}</span></p><p class='session-details'> Created $ctime</p><span class='feature-links'><a href='editsession.php?sessionID={$s->id}'><i class='fa fa-pencil'></i> Edit</a> <a href='confirmdelete.php?sessionID={$s->id}'><i class='fa fa-trash-o'></i> Delete</a></span></li>";
 	    }
     }
     $out .= '</ul>';
@@ -212,7 +216,7 @@ function listSessions($page = 0)
 
 function listUsers($page = 0, $searchTerm=null)
 {
-    $out = '<ul>';
+    $out = '<ul class="session-list">';
     if($searchTerm==null)
 	    $users = userInfo::retrieve_all_userInfo($page*PAGESIZE, PAGESIZE, "name asc");
     else
@@ -222,8 +226,8 @@ function listUsers($page = 0, $searchTerm=null)
     {
 	    foreach($users as $u)
 	    {
-            $admin = $u->isAdmin?" <b>(Admin)</b>":"";
-            $sessionCreator = $u->sessionCreator?" <b>(Session creator)</b>":"";
+            $admin = $u->isAdmin?" <span class='user-badge admin'><i class='fa fa-wrench'></i> Admin</span>":"";
+            $sessionCreator = $u->sessionCreator?" <span class='user-badge creator'><i class='fa fa-plus-circle'></i> Session creator</span>":"";
             $link = adminLink($u->name, array('disp'=>'users', 'page'=>$page, 'id'=>$u->id), $reset=false);
 	        $out .= "<li>{$link}, {$u->email}{$admin}{$sessionCreator}</li>";
 	    }
@@ -269,7 +273,7 @@ define('ltiConsumerInfo_magic', md5('ltiConsumerInfo'));
 
 function show_userInfo($disp, $page, $id, $username, $name, $email, $nickname, $phone, $sessionCreator, $isAdmin)
 {
-    $out = '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">';
+    $out = '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" class="form-horizontal">';
     $out .= '<input type="hidden" name="userInfo_code" value="'.userInfo_magic.'"/>';
 
     $out .= '<input type="hidden" name="disp" value="'.$disp.'"';
@@ -281,56 +285,45 @@ function show_userInfo($disp, $page, $id, $username, $name, $email, $nickname, $
     $out .= '<input type="hidden" name="id" value="'.$id.'"';
     $out .= "/>\n";
 
-    $out .= '<div class="formfield">';
-    $out .= '<label for="username">Username:';
-    $out .= '</label>';
-    $out .= '<br/><span class="forminput"><input type="text" name="username" value="'.$username.'" size="80" readonly="readonly"';
-    $out .= "/></span></div>\n";
+    $out .= '<div class="form-group">';
+    $out .= '<label class="col-sm-4 control-label" for="username">Username</label>';
+    $out .= '<div class="col-sm-8"><p class="form-control-static" id="username">'.$username.'</p></div></div>';
+    
+    $out .= '<div class="form-group">';
+    $out .= '<label class="col-sm-4 control-label" for="name">Name</label>';
+    $out .= '<div class="col-sm-8"><p class="form-control-static" id="name">'.$name.'</p></div></div>';
 
-    $out .= '<div class="formfield">';
-    $out .= '<label for="name">Name:';
-    $out .= '</label>';
-    $out .= '<br/><span class="forminput"><input type="text" name="name" value="'.$name.'" size="45" readonly="readonly"';
-    $out .= "/></span></div>\n";
+	$out .= '<div class="form-group">';
+    $out .= '<label class="col-sm-4 control-label" for="email">Email</label>';
+    $out .= '<div class="col-sm-8"><p class="form-control-static" id="email">'.$email.'</p></div></div>';
+    
+    $out .= '<div class="form-group">';
+    $out .= '<label class="col-sm-4 control-label" for="nickname">Nickname</label>';
+    $out .= '<div class="col-sm-8"><input type="text" name="nickname" value="'.$nickname.'" class="form-control" /></div></div>';
+    
+    $out .= '<div class="form-group">';
+    $out .= '<label class="col-sm-4 control-label" for="phone">Phone</label>';
+    $out .= '<div class="col-sm-8"><input type="text" name="phone" value="'.$phone.'" class="form-control" /></div></div>';
 
-    $out .= '<div class="formfield">';
-    $out .= '<label for="email">email:';
-    $out .= '</label>';
-    $out .= '<br/><span class="forminput"><input type="text" name="email" value="'.$email.'" size="85" readonly="readonly"';
-    $out .= "/></span></div>\n";
-
-    $out .= '<div class="formfield">';
-    $out .= '<label for="nickname">Nickname:';
-    $out .= '</label>';
-    $out .= '<br/><span class="forminput"><input type="text" name="nickname" value="'.$nickname.'" size="45"';
-    $out .= "/></span></div>\n";
-
-    $out .= '<div class="formfield">';
-    $out .= '<label for="phone">Phone number:';
-    $out .= '</label>';
-    $out .= '<br/><span class="forminput"><input type="text" name="phone" value="'.$phone.'" size="20"';
-    $out .= "/></span></div>\n";
-
-    $out .= '<div class="formfield">';
-    $out .= '<label for="sessionCreator">Force allow session creation:';
-    $out .= '</label>';
-    $out .= '<br/><span class="forminput"><input type="checkbox" name="sessionCreator" value="1"';
+    $out .= '<div class="form-group"><div class="col-sm-8 col-sm-offset-4"><div class="checkbox">';
+    $out .= '<label for="sessionCreator"><input type="checkbox" name="sessionCreator" value="1"';
     if($sessionCreator)
         $out .= ' checked="1" ';
-    $out .= "/></span></div>\n";
+    $out .= '/> Force Allow Session Creation</label>';
+    $out .= '</div></div></div>';
 
-    $out .= '<div class="formfield">';
-    $out .= '<label for="isAdmin">Administrator:';
-    $out .= '</label>';
-    $out .= '<br/><span class="forminput"><input type="checkbox" name="isAdmin" value="1"';
+    $out .= '<div class="form-group"><div class="col-sm-8 col-sm-offset-4"><div class="checkbox">';
+    $out .= '<label for="isAdmin"><input type="checkbox" name="isAdmin" value="1"';
     if($isAdmin)
         $out .= ' checked="1" ';
-    $out .= "/></span></div>\n";
+    $out .= '/> Administrator</label>';
+    $out .= '</div></div></div>';
 
-    $out .= '<div class="formfield">';
-    $out .= '<input class="submit" name="userInfo_submit" type="submit" value="Update" />';
-    $out .= '<input class="submit" name="userInfo_cancel" type="submit" value="Done" />';
-    $out .= "</div>";
+    $out .= '<div class="form-group">';
+    $out .= '<div class="col-sm-8 col-sm-offset-4">';
+    $out .= '<input class="submit btn btn-primary" name="userInfo_submit" type="submit" value="Save Changes" />';
+    $out .= '<input class="submit btn btn-link" name="userInfo_cancel" type="submit" value="Close" />';
+    $out .= '</div></div>';
 
     $out .= '<form>';
     return $out;
@@ -356,21 +349,14 @@ function update_from_userInfo(&$nickname, &$phone, &$sessionCreator, &$isAdmin)
 
 function show_userSearch($disp, $searchval)
 {
-    $out = '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">';
+    $out = '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" class="form-horizontal user-search-form">';
     $out .= '<input type="hidden" name="userSearch_code" value="'.userSearch_magic.'"/>';
 
-    $out .= '<input type="hidden" name="disp" value="'.$disp.'"';
-    $out .= "/>\n";
+    $out .= '<input type="hidden" name="disp" value="'.$disp.'"/>';
 
-    $out .= '<div class="formfield">';
-    $out .= '<label for="searchval">Name or ID:';
-    $out .= '</label>';
-    $out .= '<br/><span class="forminput"><input type="text" name="searchval" value="'.$searchval.'" size="20"';
-    $out .= "/></span></div>\n";
-
-    $out .= '<div class="formfield">';
-    $out .= '<input class="submit" name="userSearch_submit" type="submit" value="Search" />';
-    $out .= "</div>";
+    $out .= '<div class="form-group">';
+    $out .= '<label for="searchval" class="control-label col-sm-4">Search by Name or ID</label>';
+    $out .= '<div class="col-sm-8"><div class="input-group"><input type="text" name="searchval" value="'.$searchval.'" class="form-control"><span class="input-group-btn"><input class="submit btn btn-primary" name="userSearch_submit" type="submit" value="Search" /></span></div></div></div>';
 
     $out .= '<form>';
     return $out;

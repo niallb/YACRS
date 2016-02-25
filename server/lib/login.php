@@ -77,6 +77,7 @@ function checkLoggedInUser($allowLogin = true, &$error = false)
     if($uinfo)
     {
       	setcookie($CFG['appname'].'_login',CreateLoginCookie($uinfo));
+        $uinfo['user']=userInfo::retrieve_by_username($uinfo['uname']);
         return $uinfo;
     }
     else
@@ -118,21 +119,27 @@ function loginBox($uinfo, $error = '')
         $protocol = 'http';
     if($uinfo==false)
     {
-		$out .= "<form method='POST' action='$protocol://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF']."'>";
-	    $out .= "<table><tr><td><label for='uname'>Username</label>:</td><td><input type='text' name='uname' id='uname'/></td></tr>";
-	    $out .= "<tr><td><label for='pwd'>Password</label>:</td><td><input type='password' name='pwd' id='pwd'/></td></tr>";
+		$out .= "<form method='POST' action='$protocol://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF']."' class='form-horizontal'>";
         if(strlen($error))
         {
-	        $out .= "<tr><td colspan='2'><span style='color:red;'>$error</span></td></tr>";
+	        $out .= "<div class='form-group'><div class='col-sm-8 col-sm-push-4'><div class='alert alert-danger'>$error</div></div></div>";
         }
+		$out .= "<div class='form-group'><label for='uname' class='col-sm-4 control-label'>Username</label>";
+		$out .= "<div class='col-sm-8'>";
+		$out .= "<input type='text' name='uname' id='uname' class='form-control' /></div></div>";
+		$out .= "<div class='form-group'><label for='pwd' class='col-sm-4 control-label'>Password</label>";
+		$out .= "<div class='col-sm-8'><input type='password' name='pwd' id='pwd' class='form-control'/></div></div>";
+        
         foreach($_REQUEST as $k=>$v)
         {
             $out .= "<input type='hidden' name='$k' value='$v'/>";
         }
-	    $out .= "<tr><td colspan='2' align='center'><input type='submit' name='submit' value='Log-in'/></td></tr></table></form>";
+        
+		$out .= "<div class='form-group'><div class='col-sm-4 col-sm-push-4'><input type='submit' name='submit' value='Log in' class='btn btn-block btn-success'/></div><div class='col-sm-4 col-sm-push-4'><a href='join.php' class='btn btn-link btn-block'>Anonymous Guest Access</a></div></div>";
+	    $out .= "</form>";
     }
     else
-    	$out .= "You are logged in as {$uinfo['gn']} {$uinfo['sn']} (<a href='{$_SERVER['PHP_SELF']}?logout=1'>Log-out</a>)";
+    	$out .= "{$uinfo['gn']} {$uinfo['sn']} <a href='{$_SERVER['PHP_SELF']}?logout=1'><i class='fa fa-lock'></i> Log out</a>";
     $out .= '</div>';
     return $out;
 }

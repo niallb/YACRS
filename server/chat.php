@@ -18,8 +18,8 @@ $uinfo = checkLoggedInUser();
 
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
-$template->pageData['breadcrumb'] = "<a href='http://www.gla.ac.uk/'>University of Glasgow</a> | <a href='http://www.gla.ac.uk/services/learningteaching/'>Learning & Teaching Centre</a> ";
-$template->pageData['breadcrumb'] .= '| <a href="index.php">YACRS</a>';
+$template->pageData['breadcrumb'] = $CFG['breadCrumb'];
+$template->pageData['breadcrumb'] .= '<li><a href="index.php">YACRS</a></li>';
 
 if((isset($_SERVER['HTTPS']))&&($_SERVER['HTTPS']=='on'))
 {
@@ -89,17 +89,16 @@ else
         }
 
 		$template->pageData['afterContent'] = getAJAXScript($thisSession->id);
-        $template->pageData['breadcrumb'] .= "| <a href='vote.php?sessionID={$thisSession->id}'>{$thisSession->title}</a>";
-		$template->pageData['breadcrumb'] .= "| Disscuss or &mu;blog";
+        $template->pageData['breadcrumb'] .= "<li><a href='vote.php?sessionID={$thisSession->id}'>{$thisSession->title}</a></li>";
+		$template->pageData['breadcrumb'] .= "<li>Discussion</li>";
 
-        $template->pageData['mainBody'] .= "Add a post:<br/>";
-        $template->pageData['mainBody'] .= "<form id='mublogForm' method='POST' action='chat.php'>";
-        $template->pageData['mainBody'] .= "<input type='hidden' name='sessionID' value='{$thisSession->id}'/>";
-        $template->pageData['mainBody'] .= "<textarea name='mublog' rows='3' cols='25'></textarea><br/>";
-        $template->pageData['mainBody'] .= "<input type='submit' name='submit' value='Submit'/>";
-        $template->pageData['mainBody'] .= "</form>";
-        $template->pageData['mainBody'] .= "<div id='messages' style='border : 1px solid #00008B;'></div>";
-        $template->pageData['mainBody'] .= "<p><a href='vote.php?sessionID={$thisSession->id}&continue=1'>Questions</a></p>";
+		$template->pageData['mainBody'] .= '<h2 class="page-section extra-bottom">Discuss This Question<a class="pull-right" href="vote.php?sessionID='.$thisSession->id.'&continue=1">Back to Questions</a></h2>';
+        $template->pageData['mainBody'] .= "<form id='mublogForm' method='POST' action='chat.php' class='form-horizontal'><div class='form-group'>";
+        $template->pageData['mainBody'] .= "<div class='col-xs-10'><input type='hidden' name='sessionID' value='{$thisSession->id}' />";
+        $template->pageData['mainBody'] .= "<textarea name='mublog' rows='3' class='form-control'></textarea></div>";
+        $template->pageData['mainBody'] .= "<div class='col-xs-2'><input type='submit' name='submit' value='Send' class='btn btn-block btn-info submit'/></div>";
+        $template->pageData['mainBody'] .= "</div></form>";
+        $template->pageData['mainBody'] .= "<div id='messages'></div></div>";
     }
 	//$template->pageData['mainBody'] .= '<pre>'.print_r($uinfo,1).'</pre>';
 	//$template->pageData['mainBody'] .= '<pre>'.print_r($smemb,1).'</pre>';

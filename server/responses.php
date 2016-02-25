@@ -19,10 +19,13 @@ $uinfo = checkLoggedInUser();
 
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
-$template->pageData['breadcrumb'] = "<a href='http://www.gla.ac.uk/'>University of Glasgow</a> | <a href='http://www.gla.ac.uk/services/learningteaching/'>Learning & Teaching Centre</a> ";
-$template->pageData['breadcrumb'] .= '| <a href="index.php">YACRS</a>';
-$template->pageData['breadcrumb'] .= "| <a href='runsession.php?sessionID={$_REQUEST['sessionID']}'>Session {$_REQUEST['sessionID']}</a>";
-$template->pageData['breadcrumb'] .= '| Responses';
+
+
+$template->pageData['breadcrumb'] = $CFG['breadCrumb'];
+$template->pageData['breadcrumb'] .= '<li><a href="index.php">YACRS</a></li>';
+$template->pageData['breadcrumb'] .= "<li><a href='runsession.php?sessionID={$_REQUEST['sessionID']}'>Session {$_REQUEST['sessionID']}</a></li>";
+$template->pageData['breadcrumb'] .= '<li>Responses</li>';
+$template->pageData['breadcrumb'] .= '</ul>';
 
 $thisSession = isset($_REQUEST['sessionID'])? session::retrieve_session($_REQUEST['sessionID']):false;
 //if(($uinfo==false)||($thisSession == false)||(!$thisSession->isStaffInSession($uinfo['uname'])))
@@ -37,7 +40,6 @@ else
     $qi = questionInstance::retrieve_questionInstance($_REQUEST['qiID']);
     $qu = question::retrieve_question($qi->theQuestion_id);
     //$template->pageData['mainBody'] = "<h2>$qu->title</h2>";
-    $template->pageData['mainBody'] = "<h2>$qi->title</h2>";
     // Work out where this questopn sits in list, show next and prev buttons...
     $qiIDs = explode(',',$thisSession->questions);
     $qiIDPos = array_flip($qiIDs);
@@ -45,14 +47,17 @@ else
     $PrevNextLinks = '';
     if($pos > 0)
     {
-        $PrevNextLinks .= "<a href='responses.php?sessionID={$thisSession->id}&qiID={$qiIDs[$pos-1]}'>Prev.</a> ";
+        $PrevNextLinks .= "<a href='responses.php?sessionID={$thisSession->id}&qiID={$qiIDs[$pos-1]}' class='pull-left'>&lsaquo;Previous Question</a> ";
     }
     if($pos < sizeof($qiIDs)-1)
     {
-        $PrevNextLinks .= "<a href='responses.php?sessionID={$thisSession->id}&qiID={$qiIDs[$pos+1]}'>Next</a> ";
+        $PrevNextLinks .= "<a href='responses.php?sessionID={$thisSession->id}&qiID={$qiIDs[$pos+1]}' class='pull-right'>Next Question &rsaquo;</a> ";
     }
-    $template->pageData['mainBody'] .= $PrevNextLinks.'<br/>';
+    if(!empty($PrevNextLinks))
+    	$template->pageData['mainBody'] .= '<div class="question-nav top">'.$PrevNextLinks.'</div>';
+    	
     // End of next/prev button stuff
+    //$template->pageData['mainBody'] .= "<h2>$qi->title</h2>";
 	//$template->pageData['mainBody'] .= '<pre>'.print_r($qu->definition,1).'</pre>';
     if((strlen($qi->screenshot))&&(file_exists($qi->screenshot)))
     {
@@ -60,7 +65,7 @@ else
         $template->pageData['afterContent'] = getImageScript();
     }
     $template->pageData['mainBody'] .= $qu->definition->report($thisSession, $qi, (isset($_REQUEST['display']))&&($_REQUEST['display']=='detail'));
-    $template->pageData['mainBody'] .= $PrevNextLinks.'<br/>';
+    $template->pageData['mainBody'] .= '<div class="question-nav bottom">'.$PrevNextLinks.'</div>';
 	$template->pageData['logoutLink'] = loginBox($uinfo);
 
 }

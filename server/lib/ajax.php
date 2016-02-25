@@ -21,7 +21,7 @@ function httpGet(theUrl)
 }
 
 UpdatePosts({$sessionID});
-window.setInterval(function(){UpdatePosts({$sessionID})},5000);
+window.setInterval(function(){UpdatePosts({$sessionID})},60000);
 
 function UpdatePosts(id)
 {

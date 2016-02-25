@@ -36,14 +36,14 @@ $uinfo = checkLoggedInUser(true, $loginError);
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
 $template->pageData['breadcrumb'] = $CFG['breadCrumb'];
-$template->pageData['breadcrumb'] .= '| YACRS';
-
+$template->pageData['breadcrumb'] .= '<li>YACRS</li>';
+$template->pageData['breadcrumb'] .= '</ul>';
 if($uinfo==false)
 {
 	$template->pageData['headings'] = "<h1  style='text-align:center; padding:10px;'>Login</h1>";
     if((isset($CFG['ldaphost']))&&($CFG['ldaphost']!=''))
     {
-        $template->pageData['loginBox'] = loginBox($uinfo, $loginError);//."<p style='text-align:right;'><a href='join.php'>Or click here for guest/anonymous access</a></p>";
+        $template->pageData['loginBox'] = loginBox($uinfo, $loginError);
     }
     if(file_exists('logininfo.htm'))
 	    $template->pageData['mainBody'] = file_get_contents('logininfo.htm').'<br/>';
@@ -78,8 +78,9 @@ else
             $s = session::retrieve_session($ltiSessionID);
             if($s !== false)
             {
-	            $ctime = strftime("%Y-%m-%d %H:%M", $s->created);
-	            $template->pageData['mainBody'] .= "<li>Session number: <b>{$s->id}</b> <a href='runsession.php?sessionID={$s->id}'>{$s->title}</a> (Created $ctime) <a href='editsession.php?sessionID={$s->id}'>Edit</a> <a href='confirmdelete.php?sessionID={$s->id}'>Delete</a></li>";
+	            $ctime = strftime("%A %e %B %Y at %H:%M", $s->created);
+	            $template->pageData['mainBody'] .= "<li><p class='session-title'><a href='runsession.php?sessionID={$s->id}'>{$s->title}</a><span class='user-badge session-id'><i class='fa fa-hashtag'></i> {$s->id}</span></p><p class='session-details'> Created $ctime</p><a href='editsession.php?sessionID={$s->id}'>Edit</a> <a href='confirmdelete.php?sessionID={$s->id}'>Delete</a></li>";
+	            //$template->pageData['mainBody'] .= "<li>Session number: <b>{$s->id}</b> <a href='runsession.php?sessionID={$s->id}'>{$s->title}</a> (Created $ctime) <a href='editsession.php?sessionID={$s->id}'>Edit</a> <a href='confirmdelete.php?sessionID={$s->id}'>Delete</a></li>";
                 $template->pageData['mainBody'] .= "<li>To use the teacher control app for this session login with username: <b>{$s->id}</b> and password <b>".substr($s->ownerID, 0, 8)."</b></li>";
 
             }
@@ -100,34 +101,27 @@ else
 	    $template->pageData['mainBody'] = sessionCodeinput();
 	    if($uinfo['sessionCreator'])
 	    {
-	        $template->pageData['mainBody'] .= "<p><b><a href='editsession.php'>Create a new clicker session</a></b></p>";
+	        $template->pageData['mainBody'] .= "<div class='row'><div class='col-sm-8 col-sm-push-4'><a class='btn btn-primary' href='editsession.php'><i class='fa fa-plus-circle'></i> Create a new clicker session</a></div></div>";
 		    $sessions = session::retrieve_session_matching('ownerID', $uinfo['uname']);
-            if($sessions === false)
-                $sessions = array();
-            $sessions = array_merge($sessions, session::teacherExtraSessions($uinfo['uname']));
-		    $template->pageData['mainBody'] .= '<h2>My sessions (staff)</h2>';
+		    $template->pageData['mainBody'] .= '<h2 class="page-section">My sessions (staff)</h2>';
 		    if($sessions == false)
 		    {
 		        $template->pageData['mainBody'] .= "<p>No sessions found</p>";
 		    }
 		    else
 		    {
-		        $template->pageData['mainBody'] .= '<ul>';
+		        $template->pageData['mainBody'] .= '<ul class="session-list">';
 		        foreach($sessions as $s)
 		        {
-		            $ctime = strftime("%Y-%m-%d %H:%M", $s->created);
-		            $template->pageData['mainBody'] .= "<li>Session number: <b>{$s->id}</b> <a href='runsession.php?sessionID={$s->id}'>{$s->title}</a> (Created $ctime";
-                    if($s->ownerID == $uinfo['uname'])
-                        $template->pageData['mainBody'] .= ") <a href='editsession.php?sessionID={$s->id}'>Edit</a> <a href='confirmdelete.php?sessionID={$s->id}'>Delete</a>";
-                    else
-                        $template->pageData['mainBody'] .= " by {$s->ownerID})";
-                    $template->pageData['mainBody'] .= "</li>";
+		            $ctime = strftime("%A %e %B %Y at %H:%M", $s->created);
+		            $template->pageData['mainBody'] .= "<li><p class='session-title'><a href='runsession.php?sessionID={$s->id}'>{$s->title}</a><span class='user-badge session-id'><i class='fa fa-hashtag'></i> {$s->id}</span></p><p class='session-details'> Created $ctime</p><span class='feature-links'><a href='editsession.php?sessionID={$s->id}'><i class='fa fa-pencil'></i> Edit</a> <a href='confirmdelete.php?sessionID={$s->id}'><i class='fa fa-trash-o'></i> Delete</a></span></li>";
+		            //$template->pageData['mainBody'] .= "<li>Session number: <b>{$s->id}</b> <a href='runsession.php?sessionID={$s->id}'>{$s->title}</a> (Created $ctime) <span class='feature-links'><a href='editsession.php?sessionID={$s->id}'><i class='fa fa-pencil'></i> Edit</a> <a href='confirmdelete.php?sessionID={$s->id}'><i class='fa fa-trash-o'></i> Delete</a></span></li>";
 		        }
 		        $template->pageData['mainBody'] .= '</ul>';
 		    }
 	    }
 		$slist = sessionMember::retrieve_sessionMember_matching('userID', $uinfo['uname']);
-	    $template->pageData['mainBody'] .= '<h2>My sessions</h2>';
+	    $template->pageData['mainBody'] .= '<h2 class="page-section">My sessions</h2>';
 	    $sessions = array();
 	    if($slist)
 	    {
@@ -147,7 +141,7 @@ else
 	        $template->pageData['mainBody'] .= '<ul>';
 	        foreach($sessions as $s)
 	        {
-	            $ctime = strftime("%Y-%m-%d %H:%M", $s->created);
+	            $ctime = strftime("%A %e %B %Y at %H:%M", $s->created);
 	            $template->pageData['mainBody'] .= "<li><a href='vote.php?sessionID={$s->id}'>{$s->title}</a>";
                 if((isset($s->extras['allowFullReview']))&&($s->extras['allowFullReview']))
                      $template->pageData['mainBody'] .= " (<a href='review.php?sessionID={$s->id}'>Review previous answers</a>)";
@@ -158,7 +152,7 @@ else
         $user = userInfo::retrieve_by_username($uinfo['uname']);
         if($user !== false)
         {
-	        $template->pageData['mainBody'] .= '<h2>My settings</h2>';
+	        $template->pageData['mainBody'] .= '<h2 class="page-section">My settings</h2>';
             if((isset($CFG['smsnumber']))&&(strlen($CFG['smsnumber'])))
             {
 	            $code = substr(md5($CFG['cookiehash'].$user->username),0,4);
@@ -173,7 +167,7 @@ else
         }
 	    if($uinfo['isAdmin'])
 	    {
-	        $template->pageData['mainBody'] .= '<p style="text-align:right;"><a href="admin.php">YACRS administration</a></p>';
+	        $template->pageData['mainBody'] .= '<a href="admin.php" class="btn btn-danger"><i class="fa fa-wrench"></i> YACRS administration</a>';
 	    }
 	    //$template->pageData['mainBody'] .= '<pre>'.print_r($uinfo,1).'</pre>';
 		$template->pageData['logoutLink'] = loginBox($uinfo);

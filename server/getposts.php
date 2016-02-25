@@ -22,17 +22,20 @@ require_once('lib/database.php');
 require_once('lib/shared_funcs.php');
 $uinfo = checkLoggedInUser();
 
-$messages = message::getSessionMessages($_REQUEST['sessionID'], 10);
+$messages = message::getSessionMessages($_REQUEST['sessionID'], 25);
 foreach($messages as $m)
 {
     if($m->user_id > 0)
     {
 		$user = sessionMember::retrieve_sessionMember($m->user_id);
-    	echo '<p class="mupost"><span class="muname">'.$user->name.':</span> <span class="mumsg">'.$m->message.'</span></p>';
+    	echo '<div class="comment';
+    	if($uinfo['uname'] == $user->userID)
+    		echo ' me';
+    	echo '"><p class="bubble">'.$m->message.'</p><p class="meta"><span class="username">'.$user->name.'</span><span class="time">'.ago($m->posted).'</span></p></div>';
     }
     else
     {
-    	echo '<p class="mupost"><span class="muinfo">Info:</span> <span class="mumsg">'.$m->message.'</span></p>';
+	    echo '<div class="info"><p class="bubble">'.$m->message.'</p><p class="meta"><span class="username">General Information</span><span class="time">'.ago($m->posted).'</span></p></div>';
     }
 }
 

@@ -37,7 +37,7 @@ $CFG['ldap_sessionCreator_rules'] = array();
 
 // URL where users are returned after exiting a YACRS session
 $CFG['defaultLogoutURL'] = 'https://www.google.com/';
-$CFG['breadCrumb'] = "<a href='https://www.google.com/?gws_rd=ssl#q=yacrs'>Search for YACRS</a> ";
+$CFG['breadCrumb'] = '<ul class="breadcrumb">';
 
 $CFG['screenshotpath'] = "userimages";
 

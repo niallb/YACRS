@@ -471,16 +471,15 @@ class selectQuestionType_form extends nbform
 function sessionCodeinput($target='vote.php', $sessionID=false)
 {
     global $uinfo;
-	$out ='<div id="box"><h2>Join a session</h2>';
-    $out .= "<form method='POST' action='$target'>";
+	$out ='<div id="box"><h2 class="page-section">Join a session</h2>';
+    $out .= "<form method='POST' action='$target' class='form-horizontal'>";
     if($sessionID)
-		$out .= "<table><tr><td><label for='sessionID'>Session number</label>:</td><td><input type='hidden' name='sessionID' value='{$sessionID}'/>{$sessionID}</td></tr>";
+		$out .= "<div class='form-group'><label for='sessionID' class='col-sm-4 control-label'>Session number</label><div class='col-sm-8'><input type='hidden' name='sessionID' value='{$sessionID}'/><p class='form-control-static' id='sessionID'>{$sessionID}</p><input type='submit' name='submit' value='Join Session' class='btn btn-success' /></div></div>";
     else
-		$out .= "<table><tr><td><label for='sessionID'>Session number</label>:</td><td><input type='text' name='sessionID' id='sessionID'/></td></tr>";
+		$out .= "<div class='form-group'><label for='sessionID' class='col-sm-4 control-label'>Session number</label><div class='col-sm-8'><div class='input-group'><input type='text' name='sessionID' id='sessionID' class='form-control' /><span class='input-group-btn'><input type='submit' name='submit' value='Join Session' class='btn btn-success' /></span></div></div></div>";
     if($uinfo == false)
-		$out .= "<td><label for='nickname'>Your name</label>:</td><td><input type='text' name='nickname' id='nickname'/></td></tr>";
-	$out .= "<tr><td colspan='2' align='center'><input type='submit' name='submit' value='Join'/></td></tr></table></form>";
-    $out .= '</div>';
+		$out .= "<div class='form-group'><label for='nickname' class='col-sm-4 control-label'>Your Nickname</label><div class='col-sm-8'><input type='text' name='nickname' id='nickname' class='form-control' /></div></div>";
+    $out .= '</form></div>';
     return $out;
 }
 

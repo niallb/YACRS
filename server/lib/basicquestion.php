@@ -145,25 +145,25 @@ class basicQuestion extends questionBase
             $out .= "<p class='stem'>{$this->stem}</p>";
         if($this->displayTitle)
             $out .= "<p class='stem'>{$title}</p>";
-        $out .= "<div class='wide buttonlist'>";
+        $out .= "<div class='form-group'><div class='col-sm-12'>";
         $onum = 0;
         foreach($this->options as $o)
         {
             $onum++;
-            $out .= "<label for='R$onum'>";
+            $out .= "<div class='radio'><label for='R$onum'>";
 
             if(($this->quType == 'MCS')||($this->quType == 'MCQ'))
             {
-                $out .= "<input class='radio' type='radio' name='Ans' id='R$onum' value='R$onum'";
+                $out .= "<input type='radio' name='Ans' id='R$onum' value='R$onum'";
                 if($this->responseValue == "R$onum")
                     $out .= " checked='1'";
                 if(($this->responseValue !== false)&&(!isset($_REQUEST['doupdate'])))
                     $out .= " disabled='1'";
-                $out .= "/>&nbsp;";
+                $out .= "/> ";
             }
             else
             {
-                $out .= "<input class='radio' type='checkbox' name='R$onum' id='R$onum' value='R$onum'";
+                $out .= "<input type='checkbox' name='R$onum' id='R$onum' value='R$onum'";
                 if($this->responseValue !== false)
                 {
                     if(!isset($_REQUEST['doupdate']))
@@ -171,13 +171,14 @@ class basicQuestion extends questionBase
 	                if(strpos($this->responseValue,"R$onum")!==false)
 	                    $out .= " checked='1'";
                 }
-                $out .= "/>&nbsp;";
+                $out .= "/> ";
             }
             $out .= $o;
             $out .= "</label>";
+            $out .= '</div>';
 
         }
-        $out .= '</div>';
+        $out .= '</div></div>';
         //if($this->responseValue == false)
         //{
         //    $out .= "<div class='submit'><input type='submit' name='submitans' value='Submit answer'/></div>";
@@ -338,8 +339,8 @@ class basicQuestion extends questionBase
 	    }
 	    if($detailed)
 	    {
-		    $out .= "<p><a href='responses.php?sessionID={$thisSession->id}&qiID={$qi->id}'>Summary view</a></p>";
-		    $out .= "<table border='1'><thead><tr><th>User</th><th>Name</th><th>Response</th></thead><tbody>";
+		    $out .= "<h2 class='page-section'>".$qi->title."<a class='pull-right' href='responses.php?sessionID={$thisSession->id}&qiID={$qi->id}'>Back to Summary</a></h2>";
+		    $out .= "<table class='table table-striped'><thead><tr><th>User</th><th>Name</th><th>Response</th></thead><tbody>";
 	        if($responses)
 	        {
 		        foreach($responses as $r)
@@ -354,12 +355,12 @@ class basicQuestion extends questionBase
 	    {
 	        if($responses)
 	        {
-		    	$out .= "<p><a href='responses.php?sessionID={$thisSession->id}&qiID={$qi->id}&display=detail'><b>".sizeof($responses)." response(s).</b></a></p>";
+		    	$out .= "<h2 class='page-section'>".$qi->title."<span class='pull-right'><a href='responses.php?sessionID={$thisSession->id}&qiID={$qi->id}&display=detail'>".sizeof($responses)." Response".s(sizeof($responses))."</a></h2>";
 	            $out .= "<img src='chart.php?qiID={$qi->id}'/><br/>";
 	        }
-		    $out .= "<form action='#' method='POST'>";
+		    $out .= "<form action='#' method='POST' class='form-horizontal'>";
             $out .= "<input type='hidden' value='".sizeof($labels)."' name='optcount'/>";
-		    $out .= "<table border='1'><thead><tr><th>Response</th><th>Count</th><th>Correct</th></thead><tbody>";
+		    $out .= "<table class='table table-striped'><thead><tr><th>Response</th><th>Count</th><th>Correct</th></thead><tbody>";
             $ci = 0;
 		    foreach($labels as $r=>$txt)
 		    {
@@ -382,7 +383,7 @@ class basicQuestion extends questionBase
                 $ci++;
 		    }
 		    $out .= "</table>";
-		    $out .= "Category: <select name='cat'>";
+		    $out .= "<div class='form-group'><label class='control-label col-sm-4' for='cat'>Question Category</label><div class='col-sm-8'><select name='cat' class='form-control'>";
             $out .= "<option value=''>None</option>";
             if(isset($thisSession->extras['categories']))
             {
@@ -394,10 +395,9 @@ class basicQuestion extends questionBase
                     $out .= ">$cat</option>";
                 }
             }
-            $out .= "</select> or new category: <input type='text' name='newcat'/><input type='submit' name='updateAnotation' value='Update'/><input type='submit' name='updateAnotation' value='Update and Next'/></form>";
+            $out .= "</select></div></div><div class='form-group'><label class='control-label col-sm-4' for='newcat'>Or Create New Category</label><div class='col-sm-8'><input type='text' name='newcat' class='form-control'/></div></div><div class='form-group'><div class='col-sm-4'><a class='btn btn-link btn-block' href='{$_SERVER['PHP_SELF']}?sessionID={$thisSession->id}&qiID={$qi->id}&cdc=1'><i class='fa fa-plus-circle'></i> Duplicate This Question</a></div><div class='col-sm-4'><input type='submit' name='updateAnotation' class='btn btn-primary btn-block' value='Update'/></div><div class='col-sm-4'><input type='submit' name='updateAnotation' class='btn btn-default btn-block' value='Update and Go to Next Question'/></div></div></form>";
 
             //$out .= '<pre>'.print_r($this,1).'</pre>';
-            $out .= "<p><a href='{$_SERVER['PHP_SELF']}?sessionID={$thisSession->id}&qiID={$qi->id}&cdc=1'>Create a duplicate comparison question.</a></p>";
 	    }
         return $out;
     }
@@ -419,7 +419,7 @@ class editBasicQuestion_form extends nbform
 	var $definition; //memo
 	var $multiuse; //boolean
 	var $validateMessages;
-    static $briefHelp = "<div style='border : 1px solid Blue;margin : 30px;padding: 10px;background-color : #FFFFAA;'><h3>Instructions</h3><p>Add one option per line on the form. Precede options that are to be 'correct' with a *</p><ul>
+    static $briefHelp = "<div class='alert alert-block alert-info'><h3>Instructions</h3><p>Add one option per line on the form. Precede options that are to be 'correct' with a *</p><ul>
             <li>If exactly one option is preceded with a * the question will be treated as having a single correct answer with a single selection available.</li>
             <li>If more than one option is preceded with a * and at least one is not, the question will be treated as a multiple response with correct and incorrect selections.</li>
             <li>If no options are preceded with a * the question will be treated as having no correct or incorrect answer with a single selection available.</li>
@@ -516,7 +516,7 @@ class editBasicQuestion_form extends nbform
 		$out .= $this->hiddenInput('id', $this->id);
 		$out .= $this->textInput('Title/Stem', 'title', $this->title, $this->validateMessages, 80);
 		$out .= $this->checkboxInput('Display stem to participants.', 'displayStem', $this->displayStem, $this->validateMessages);
-		$out .= $this->textareaInput('Options:', 'definition', $this->definition, $this->validateMessages, 60 , 6);
+		$out .= $this->textareaInput('Options', 'definition', $this->definition, $this->validateMessages, 60 , 6);
 		$out .= $this->checkboxInput('This is a generic question to be made available in all my sessions.', 'multiuse', $this->multiuse, $this->validateMessages);
 		$out .= $this->submitInput('submit', 'Create', 'Cancel');
 		$out .= $this->formEnd(false);

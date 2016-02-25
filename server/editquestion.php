@@ -17,14 +17,16 @@ $uinfo = checkLoggedInUser();
 
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
-$template->pageData['breadcrumb'] = "<a href='http://www.gla.ac.uk/'>University of Glasgow</a> | <a href='http://www.gla.ac.uk/services/learningteaching/'>Learning & Teaching Centre</a> ";
-$template->pageData['breadcrumb'] .= '| <a href="index.php">YACRS</a>';
+$template->pageData['breadcrumb'] = $CFG['breadCrumb'];
+$template->pageData['breadcrumb'] .= '<li><a href="index.php">YACRS</a></li>';
+
 if(requestSet('sessionID'))
 {
     $sessionID = requestInt('sessionID');
-	$template->pageData['breadcrumb'] .= "| <a href='runsession.php?sessionID={$sessionID}'>Session {$sessionID}</a>";
+	$template->pageData['breadcrumb'] .= "<li><a href='runsession.php?sessionID={$sessionID}'>Session {$sessionID}</a></li>";
 }
-$template->pageData['breadcrumb'] .= '| Add/Edit a question';
+$template->pageData['breadcrumb'] .= '<li>Add/Edit a question</li>';
+$template->pageData['breadcrumb'] .= '</ul>';
 
 if($uinfo==false)
 {

@@ -58,7 +58,7 @@ abstract class nbform
 	    $out = '<form action="'.$target.'" method="'.$method.'"';
         if($enctype != '')
         	$out .= ' enctype="'.$enctype.'"';
-        $out .= '>';
+        $out .= ' class="form-horizontal">';
 	    return $out;
 	}
 
@@ -69,9 +69,9 @@ abstract class nbform
         {
             $out .= "<div class=\"formfield\">";
     		if($showSubmit)
-	            $out .= '<input class="submit" name="submit" type="submit" value="Submit" />';
+	            $out .= '<input class="submit btn btn-lg btn-success" name="submit" type="submit" value="Submit" />';
     		if($showCancel)
-	            $out .= '<input class="submit" name="submit" type="submit" value="Cancel" />';
+	            $out .= '<input class="submit btn btn-lg btn-default" name="submit" type="submit" value="Cancel" />';
             $out .= "</div>";
         }
         if($this->inFieldset)
@@ -82,11 +82,11 @@ abstract class nbform
 
 	function submitInput($name, $value1, $value2=null)
 	{
-	    $out = "<div class=\"formfield\">";
-        $out .= '<input class="submit" name="'.$name.'" type="submit" value="'.$value1.'" />';
+	    $out = "<div class=form-group><div class=\"col-sm-8 col-sm-offset-4\">";
+        $out .= '<input class="submit btn btn-success" name="'.$name.'" type="submit" value="'.$value1.'" />';
   		if($value2)
-            $out .= '<input class="submit" name="'.$name.'" type="submit" value="'.$value2.'" />';
-        $out .= "</div>";;
+            $out .= '<input class="submit btn btn-link" name="'.$name.'" type="submit" value="'.$value2.'" />';
+        $out .= "</div></div>";
 	    return $out;
 	}
 
@@ -100,17 +100,20 @@ abstract class nbform
 
 	function textInput($caption, $name, $value="", $validateMsgs=null, $width=40, $required=false)
 	{
-	    $out = "<div class=\"formfield\">";
-        $out .= "<label for=\"$name\">$caption:";
+	    $out = "<div class=\"form-group\">";
+        $out .= "<label class='col-sm-4 control-label' for=\"$name\">$caption";
         if($required)
-        	$out .= '<span style="color: Red;">*</span>';
-	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
-	        $out .= "<span class=\"errormsg\">{$validateMsgs[$name]}</span>";
+        	$out .= '<span class="required">*</span>';
 	    $out .= '</label>';
-	    $out .= "<br/><span class=\"forminput\"><input type=\"text\" name=\"$name\" value=\"$value\" size=\"$width\"";
+	    $out .= "<div class='col-sm-8'>";
+	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
+	        $out .= "<div class='alert alert-danger'>{$validateMsgs[$name]}</div>";
+	    
+	    $out .= '<input type="text" class="form-control" name="'.$name.'" id="'.$name.'" value="'.$value.'" size="'.$width.'"';
         if((isset($this->disabled[$name]))&&($this->disabled[$name]))
           	$out .= ' disabled="1" ';
-        $out .= "/></span></div>\n";
+        $out .= "/></div></div>";
+        
 	    return $out;
 	}
 
@@ -133,11 +136,13 @@ abstract class nbform
     // Fake field used for 'text' fields that aren't to be edited, but should be clearer than disabled text fields.
 	function fixedInput($caption, $name, $value)
 	{
-	    $out = "<div class=\"formfield\">";
-    	$out .= "<label>$caption ";
-	    $out .= '</label>';
+		$out = "<div class=\"form-group\">";
+        $out .= "<label class='col-sm-4 control-label' for=\"$name\">$caption</label>";
+        $out .= "<div class='col-sm-8'>";
 	    $out .= "<input type=\"hidden\" name=\"$name\" value=\"$value\" />";
-	    $out .= "<br/><span class=\"forminput\"><table border='1'><tr><td>$value</td></tr></table></span></div>\n";
+        $out .= '<p class="form-control-static" id="'.$name.'">'.$caption.'</p>'; 
+        $out .= "/></div></div>";
+	    
 	    return $out;
 	}
 
@@ -179,13 +184,23 @@ abstract class nbform
     //# Should also have an option of checkboxGroupInput that does several at once
 	function checkboxInput($caption, $name, $checked=false, $validateMsgs=null, $required=false)
 	{
-	    $out = "<div class=\"formfield\">";
-        $out .= "<label for=\"$name\">$caption:";
-        if($required)
-        	$out .= '<span style="color: Red;">*</span>';
+		$out = "<div class=\"form-group\">";
+	    $out .= "<div class='col-sm-8 col-sm-offset-4'>";
 	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
-	        $out .= "<span class=\"errormsg\">{$validateMsgs[$name]}</span>";
-	    $out .= '</label>';
+	        $out .= "<div class='alert alert-danger'>{$validateMsgs[$name]}</div>";
+	    
+	    $out .= "<div class=\"checkbox\"><label><input type=\"checkbox\" name=\"$name\" id=\"$name\"";
+	    if($checked)
+	    	$out .= ' checked="1" ';
+        if((isset($this->disabled[$name]))&&($this->disabled[$name]))
+          	$out .= ' disabled="disabled" ';
+        $out .= "/>";
+        $out .= $caption;
+        $out .= "</label></div></div></div>";
+        
+	    return $out;
+		
+
 	    $out .= "<br/><span class=\"forminput\"><input type=\"checkbox\" name=\"$name\" value=\"1\"";
 	    if($checked)
 	    	$out .= ' checked="1" ';
@@ -326,19 +341,20 @@ abstract class nbform
 
 	function textareaInput($caption, $name, $value="", $validateMsgs=null, $width=70, $height=3, $required=false)
 	{
-	    $out = "<div class=\"formfield\">";
-    	$out .= "<label for=\"$name\">$caption:";
+	    $out = "<div class=\"form-group\">";
+    	$out .= "<label for=\"$name\" class='control-label col-sm-4'>$caption";
         if($required)
         	$out .= '<span style="color: Red;">*</span>';
-	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
-	        $out .= "<span class=\"errormsg\">{$validateMsgs[$name]}</span>";
 	    $out .= '</label>';
-	    $out .= "<br/><span class=\"forminput\"><textarea name=\"$name\" cols=\"$width\" rows=\"$height\"";
+	    $out .= '<div class="col-sm-8">';
+	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
+	        $out .= "<div class=\"alert alert-error\">{$validateMsgs[$name]}</div>";
+	    $out .= "<textarea name=\"$name\" class=\"form-control\" rows=\"$height\"";
         if((isset($this->disabled[$name]))&&($this->disabled[$name]))
           	$out .= ' disabled="disabled" ';
         $out .= ">";
 	    $out .= $value;
-	    $out .= "</textarea></span></div>\n";
+	    $out .= "</textarea></div></div>";
 	    return $out;
 	}
 
@@ -360,14 +376,18 @@ abstract class nbform
 
 	function selectListInput($caption, $name, $options, $value="", $required=false)
 	{
-	    $out = "<div class=\"formfield\">";
-    	$out .= "<label for=\"$name\">$caption:</label>";
+		$out = "<div class=\"form-group\">";
+        $out .= "<label class='col-sm-4 control-label' for=\"$name\">$caption";
         if($required)
-        	$out .= '<span style="color: Red;">*</span>';
-	    $out .= "<br/><span class=\"forminput\">";
+        	$out .= '<span class="required">*</span>';
+	    $out .= '</label>';
+	    $out .= "<div class='col-sm-8'>";
+	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
+	        $out .= "<div class='alert alert-danger'>{$validateMsgs[$name]}</div>";
+	        
 	    if(!is_array($options))
 	        $options = explode(",",$options);
-	    $out .= "<select name=\"$name\"";
+	    $out .= "<select class=\"form-control\" name=\"$name\" id=\"$name\"";
         if((isset($this->disabled[$name]))&&($this->disabled[$name]))
           	$out .= ' disabled="disabled" ';
         $out .= ">\n";
@@ -383,11 +403,13 @@ abstract class nbform
             }
 	        if(trim($v)==trim($value))
 	            $out .= " selected=\"1\"";
-	        $out .= " value='$v'>{$nm}</option>\n";
+	        $out .= " value='$v'>{$nm}</option>";
 
 	    }
-	    $out .= "</select></span></div>\n";
+	    $out .= "</select></div></div>";
+        
 	    return $out;
+		
 	}
 
 	function selectListInputCompact($caption, $name, $options, $value="", $required=false, $validateMsgs=null)
