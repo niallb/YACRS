@@ -67,7 +67,7 @@ function checkLoggedInUser($allowLogin = true, &$error = false)
     }
     elseif(isset($_REQUEST['logout']))
     {
-        setcookie($CFG['appname'].'_login','');
+        setcookie($CFG['appname'].'_login', '', 0, '', '', false, true);
         return false;
     }
     elseif(isset($_COOKIE[$CFG['appname'].'_login']))
@@ -76,7 +76,7 @@ function checkLoggedInUser($allowLogin = true, &$error = false)
     }
     if($uinfo)
     {
-      	setcookie($CFG['appname'].'_login',CreateLoginCookie($uinfo));
+      	setcookie($CFG['appname'].'_login',CreateLoginCookie($uinfo), 0, '', '', false, true);
         $uinfo['user']=userInfo::retrieve_by_username($uinfo['uname']);
         return $uinfo;
     }

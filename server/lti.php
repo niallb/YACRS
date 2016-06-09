@@ -34,7 +34,7 @@ if($consumer != false)
     $sn = isset($userinfo->params['lis_person_name_family']) ? $userinfo->params['lis_person_name_family'] : '';
     $email = isset($userinfo->params['lis_person_contact_email_primary']) ? $userinfo->params['lis_person_contact_email_primary'] : '';
     $uinfo = array('uname'=>$sessionMemberUserID, 'gn'=>$gn, 'sn'=>$sn.' (LTI)', 'email'=>$email, 'isAdmin'=>false, 'sessionCreator'=>false);
-    setcookie($CFG['appname'].'_login',CreateLoginCookie($uinfo));
+    setcookie($CFG['appname'].'_login',CreateLoginCookie($uinfo), 0, '', '', false, true);
 
 
 	$session_id = ltisessionlink::retrieve_session_id($consumer->id, $userinfo->params['resource_link_id']);

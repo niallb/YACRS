@@ -226,6 +226,7 @@ else
                 if($qu !== false)
                 {
 				    $labels = $qu->definition->getGraphLabels();
+                    $correctData = explode('; ', $qu->definition->getCorrectStr($qi));
                     if((is_array($labels))&&(sizeof($labels)))
                     {
 					    $count = array_fill_keys(array_keys($labels), 0);
@@ -246,7 +247,11 @@ else
 	                    }
 		                foreach($count as $label=>$value)
 		                {
-		                    $data['questionResponseInfo']['optionInfo'][] = array('title'=>$labels[$label], 'count'=>$value);
+					        if(in_array($label, $correctData))
+					            $isCorrect = 'true';
+					        else
+					            $isCorrect = 'false';
+		                    $data['questionResponseInfo']['optionInfo'][] = array('title'=>$labels[$label], 'count'=>$value, 'isCorrect'=>$isCorrect);
 		                }
                     }
                 }
@@ -367,7 +372,7 @@ function sendResponse($messageName, $errors, $data)
 {
  	header ("Content-Type:text/xml");
 	echo "<?xml version=\"1.0\"?>\n";
-	echo "<YACRSResponse version=\"0.4.7\"";
+	echo "<YACRSResponse version=\"0.6.0\"";
     if($messageName)
     {
     	echo " messageName='$messageName'";

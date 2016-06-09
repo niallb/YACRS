@@ -64,7 +64,7 @@ elseif(($uinfo==false)&&(isset($_REQUEST['submit'])))
 		$smemb->lastresponse = 0;
         $smemb->update();
         $uinfo = array('uname'=>$smemb->userID, 'gn'=>$smemb->name, 'sn'=>'(Guest)', 'email'=>'', 'isAdmin'=>false, 'sessionCreator'=>false);
-        setcookie($CFG['appname'].'_login',CreateLoginCookie($uinfo));
+        setcookie($CFG['appname'].'_login',CreateLoginCookie($uinfo), 0, '', '', false, true);
         if(($thisSession->currentQuestion==0)&&($thisSession->ublogRoom>0))
         {
             $template->pageData['mainBody'] .= "<a href='chat.php?sessionID={$thisSession->id}'>Join session</a>";

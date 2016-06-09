@@ -31,15 +31,21 @@ if($qu !== false)
 		}
 	}
     $chartData = array();
+    $chartShowAsCorrect = array();
+    $correctData = explode('; ', $qu->definition->getCorrectStr($qi));
 	foreach($count as $label=>$value)
 	{
         $chartData[$labels[$label]] = $value;
-	}
-    drawChart($chartData);
+        if(in_array($label, $correctData))
+            $chartShowAsCorrect[$labels[$label]] = true;
+        else
+            $chartShowAsCorrect[$labels[$label]] = false;
+    }
+    drawChart($chartData, $chartShowAsCorrect);
 }
 
 
-function drawChart($data)
+function drawChart($data, $showAsCorrect=false)
 {
     $maxval = 0;
     foreach($data as $d)
@@ -70,7 +76,10 @@ function drawChart($data)
 		$graph->string(5, $lxpos, $lypos, $t);
         if($d > 0)
         {
-        	$graph->filledrectangle($colPos, $baseLine, $colPos + $colWidth, $baseLine-($d*$hightMultiplier));
+            if(($showAsCorrect!==false)&&($showAsCorrect[$t]))
+            	$graph->filledborderrectangle($colPos, $baseLine, $colPos + $colWidth, $baseLine-($d*$hightMultiplier), true);
+            else
+            	$graph->filledborderrectangle($colPos, $baseLine, $colPos + $colWidth, $baseLine-($d*$hightMultiplier));
         }
     }
 
@@ -111,6 +120,7 @@ class MyImage
 		$this->green = imagecolorallocate($this->image, 0, 255, 0);
 		$this->yellow = imagecolorallocate($this->image, 255, 255, 0);
 		$this->blue = imagecolorallocate($this->image, 0, 0, 255);
+		$this->lightblue = imagecolorallocate($this->image, 128, 128, 255);
         $this->lineColour = $this->black;
         $this->fillColour = $this->grey;
        	$style = array($this->black, $this->black, $this->black, $this->black, $this->black, $this->black, $this->white, $this->white, $this->white, $this->white);
@@ -137,7 +147,16 @@ class MyImage
 
     function filledrectangle($x1, $y1, $x2, $y2)
     {
-        return imagefilledrectangle($this->image, $x1 , $y1 , $x2 ,  $y2 , $this->fillColour);
+        imagefilledrectangle($this->image, $x1 , $y1 , $x2 ,  $y2 , $this->fillColour);
+    }
+
+    function filledborderrectangle($x1, $y1, $x2, $y2, $highlight = false)
+    {
+        imagefilledrectangle($this->image, $x1 , $y1 , $x2 ,  $y2 , $this->black);
+        if($highlight)
+	        return imagefilledrectangle($this->image, $x1+1 , $y1-1 , $x2-1 ,  $y2+1 , $this->green);
+        else
+	        return imagefilledrectangle($this->image, $x1+1 , $y1-1 , $x2-1 ,  $y2+1 , $this->lightblue);
     }
 
     function line($x1, $y1, $x2, $y2)
