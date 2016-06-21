@@ -1,0 +1,21 @@
+#pageHeader {
+	background-color: #003865;
+	background: linear-gradient(to bottom, #004377 0%,#003865 100%); 
+	border-bottom-color: #011A31;
+}
+
+#pageHeader .logo {
+	height: 80px;
+	background-image: url('logo-gu.png');
+}
+
+#pageHeader .loginBox {
+	color: #6593BD;
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) { 
+	#pageHeader .logo {
+		background-image: url('logo-gu-retina.png');
+		background-size: 172px 54px;
+	}
+}
