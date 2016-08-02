@@ -191,7 +191,8 @@ function httpGet(theUrl)
 function EditTitle(id)
 {
     name = \"title\"+id;
-    document.getElementById(name).innerHTML = \"<input type='text' id='edt' size='60' maxlength='80' value='\"+document.getElementById('title'+id+'_txt').innerHTML+\"'/><a href='#' OnClick='UpdateTitle(\\\"\"+id+\"\\\");'>Update</a>\";
+    document.getElementById(name).innerHTML = \"<input type='text' id='edt' size='60' maxlength='80' value='\"+document.getElementById('title'+id+'_txt').innerHTML+\"'/><a OnClick='UpdateTitle(\\\"\"+id+\"\\\");'>Update</a>\";
+    return false;
 }
 
 function UpdateTitle(id)
@@ -199,7 +200,7 @@ function UpdateTitle(id)
     var updateURL = 'updateTitle.php?qiID='+id+'&text='+encodeURIComponent(document.getElementById('edt').value);
     var text = httpGet(updateURL);
     var name = \"title\"+id;
-    document.getElementById(name).innerHTML = \"<span id='title\"+id+\"_txt'>\"+text + \"</span>&nbsp;<a href='#' OnClick='EditTitle(\\\"\"+id+\"\\\");'>(Edit)</a></td></tr></table>\";
+    document.getElementById(name).innerHTML = \"<span id='title\"+id+\"_txt'>\"+text + \"</span>&nbsp;<a OnClick='EditTitle(\\\"\"+id+\"\\\");'>(Edit)</a></td></tr></table>\";
 }
 
 function toggle(checked)
@@ -307,9 +308,9 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
             if($qu)
             {
                 if(in_array($qiID, $thisSession->extras[currentQuestions]))
-	                $out .= "\n<tr style='background-color: palegreen;'><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a href='#' OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
+	                $out .= "\n<tr style='background-color: palegreen;'><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
                 else
-	                $out .= "\n<tr><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a href='#' OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
+	                $out .= "\n<tr><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
                 if($qi->endtime > 0)
                 {
 	                $out .= "<td>".strftime("%d %b %H:%M", $qi->endtime)."</td>";
@@ -393,9 +394,9 @@ function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
             if($qu)
             {
                 if($thisSession->currentQuestion == $qiID)
-	                $out .= "\n<tr style='background-color: palegreen;'><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a href='#' OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
+	                $out .= "\n<tr style='background-color: palegreen;'><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
                 else
-	                $out .= "\n<tr><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a href='#' OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
+	                $out .= "\n<tr><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
                 if($qi->endtime > 0)
                 {
 	                $out .= "<td>".strftime("%d %b %H:%M", $qi->endtime)."</td>";

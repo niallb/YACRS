@@ -114,7 +114,7 @@ else
             else
 	        {
 	            header( "Refresh: 10; url={$serverURL}?sessionID={$thisSession->id}" );
-	            $template->pageData['mainBody'] .= "<p>No active questions.</p>";
+	            $template->pageData['mainBody'] .= "<div class='alert alert-warning'>No active questions.</div>";
                 $template->pageData['mainBody'] .= "<p><a href='vote.php?sessionID={$thisSession->id}&continue=1'>Refresh</a></p>";
 	        }
         }

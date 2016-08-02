@@ -64,6 +64,8 @@ class ttcQuestion1 extends questionBase
         {
             $out .= " value='{$this->responseValue}'";
         }
+        if(($this->responseValue !== false)&&(!isset($_REQUEST['doupdate'])))
+            $out .= " disabled='1'";
         $out .= '/>';
         if($this->wordLimit>0)
         {

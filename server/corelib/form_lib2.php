@@ -189,7 +189,7 @@ abstract class nbform
 	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
 	        $out .= "<div class='alert alert-danger'>{$validateMsgs[$name]}</div>";
 	    
-	    $out .= "<div class=\"checkbox\"><label><input type=\"checkbox\" name=\"$name\" id=\"$name\"";
+	    $out .= "<div class=\"checkbox\"><label><input type=\"checkbox\" name=\"$name\" id=\"$name\" value=\"1\"";
 	    if($checked)
 	    	$out .= ' checked="1" ';
         if((isset($this->disabled[$name]))&&($this->disabled[$name]))
@@ -198,15 +198,6 @@ abstract class nbform
         $out .= $caption;
         $out .= "</label></div></div></div>";
         
-	    return $out;
-		
-
-	    $out .= "<br/><span class=\"forminput\"><input type=\"checkbox\" name=\"$name\" value=\"1\"";
-	    if($checked)
-	    	$out .= ' checked="1" ';
-        if((isset($this->disabled[$name]))&&($this->disabled[$name]))
-          	$out .= ' disabled="disabled" ';
-   	    $out .= "/></span></div>\n";
 	    return $out;
 	}
 

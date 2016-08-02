@@ -127,7 +127,7 @@ class editSession_form extends nbform
 			$this->visible = (isset($_REQUEST['visible'])&&($_REQUEST['visible']==1)) ? true : false;
 			$this->questionMode = $_REQUEST['questionMode'];
 			$this->defaultQuActiveSecs = intval($_REQUEST['defaultQuActiveSecs']);
-			$this->allowQuReview = (isset($_REQUEST['allowQuReview'])&&($_REQUEST['allowQuReview']==1)) ? true : false;
+			$this->allowQuReview = (isset($_REQUEST['allowQuReview'])&&($_REQUEST['allowQuReview'])) ? true : false;
 			$this->allowFullReview = (isset($_REQUEST['allowFullReview'])&&($_REQUEST['allowFullReview']==1)) ? true : false;
 			$this->customScoring = $_REQUEST['customScoring'];
 			$this->ublogRoom = $_REQUEST['ublogRoom'];
