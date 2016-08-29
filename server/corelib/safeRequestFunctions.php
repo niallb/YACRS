@@ -7,6 +7,15 @@ function requestSet($name)
     return isset($_REQUEST[$name]);
 }
 
+function requestHtml($name, $defaultVal=false, $allowTags=array())
+{
+// This is a temporary implementation that does basic sanitizing.
+    if(isset($_REQUEST[$name]))
+        return htmlspecialchars(strip_tags($_REQUEST[$name]));
+    else
+        return $defaultVal;
+}
+
 function requestInt($name, $defaultVal=false)
 {
     if(isset($_REQUEST[$name]))

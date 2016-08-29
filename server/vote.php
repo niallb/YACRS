@@ -110,6 +110,20 @@ else
 		            $template->pageData['mainBody'] .= "<a href='vote.php?sessionID={$thisSession->id}&qiID={$next}' class='pull-right'>Continue to Next Question &rsaquo;</a>";
 	            }
 	            $template->pageData['mainBody'] .= "</p>";
+                // Display which ones done, and quick links.
+                $n = 0;
+                $disps = array();
+                foreach($thisSession->extras[currentQuestions] as $qiid)
+                {
+                    $n++;
+                    $respExists = (response::retrieve($smemb->id, $qiid) != false);
+                    if($respExists)
+                        $style = "style='border:2px solid blue;padding:1px;margin:2px;background:#eeeeff;'";
+                    else
+                        $style = "style='border:2px solid gray;padding:1px;margin:2px;background:#ffeeee;'";
+                    $disps[] = "<a href='vote.php?sessionID={$thisSession->id}&qiID={$qiid}' $style>$n</a>";
+                }
+                $template->pageData['mainBody'] .= '<p>'.implode(" ", $disps).'</p>';
             }
             else
 	        {

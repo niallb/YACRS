@@ -70,7 +70,7 @@ else
 
         if((requestSet('submit'))&&(requestSet('mublog')))
         {
-            $post = trim(requestRaw('mublog',''));
+            $post = trim(requestHtml('mublog',''));
             if(strlen($post))
             {
 	            $msg = new message();

@@ -51,7 +51,7 @@ if(strlen(trim($thisSession->questions)))
 $quRespCount = array();
 $quScoreTot = array();
 
-echo "Student ID,Name";
+echo ",Question title";
 $catCount = array();
 foreach($questionInsts as $q)
 {
@@ -109,7 +109,7 @@ echo "\r\n";
 if($showResponses)
 {
 	// Correct responses
-	echo',Correct';
+	echo',Correct Response';
 	foreach($questionInsts as $q)
 	{
 	    echo ','.$questions[$q->id]->definition->getCorrectStr($q);
@@ -117,6 +117,10 @@ if($showResponses)
 }
 
 echo "\r\n";
+
+echo "Student ID,Student Name";
+echo "\r\n";
+
 
 foreach($members as $m)
 {

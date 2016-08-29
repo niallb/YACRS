@@ -297,12 +297,12 @@ else
 			}
 			if((isset($_REQUEST['allowGuests']))&&($_REQUEST['allowGuests'] != $session->allowGuests))
 			{
-			    $session->allowGuests = $_REQUEST['allowGuests'];
+			    $session->allowGuests = $_REQUEST['allowGuests']==1;
 			    $altered = true;
 			}
 			if((isset($_REQUEST['visible']))&&($_REQUEST['visible'] != $session->visible))
 			{
-			    $session->visible = $_REQUEST['visible'];
+			    $session->visible = $_REQUEST['visible']==1;
 			    $altered = true;
 			}
 			if((isset($_REQUEST['questionMode']))&&($_REQUEST['questionMode'] != $session->questionMode))

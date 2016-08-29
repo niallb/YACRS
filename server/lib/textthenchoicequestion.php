@@ -19,14 +19,14 @@ class ttcQuestion1 extends questionBase
 
     function checkResponse($qiID, $resp, $SMSResp=false)
     {
-        if($resp == false)
+        if($resp === false)
 	        $this->responseValue = false;
         else
             $this->responseValue = $resp->value;
 
         if((isset($_REQUEST['submitans']))&&($_REQUEST['qiID']==$qiID))
         {
-            $this->responseValue = trim($_REQUEST['Ans']);
+            $this->responseValue = trim(requestHtml('Ans'));
             if($this->wordLimit>0)
             {
                 $wordcount = str_word_count($this->responseValue);
@@ -51,7 +51,7 @@ class ttcQuestion1 extends questionBase
     function render($title='')
     {
         //$out = '<fieldset>';
-        $out .= '<legend>Input:</legend>';
+        //$out .= '<legend>Input:</legend>';
         if($this->displayStem)
             $out .= "<p class='stem'>{$this->stem}</p>";
         $out .= "<div class='wide buttonlist'>";
@@ -60,9 +60,9 @@ class ttcQuestion1 extends questionBase
         {
             $out .= " maxlength='{$this->characterLimit}'";
         }
-        if($this->responseValue)
+        if($this->responseValue!==false)
         {
-            $out .= " value='{$this->responseValue}'";
+            $out .= " value='".str_replace("'", "&#39;", htmlspecialchars($this->responseValue))."'";
         }
         if(($this->responseValue !== false)&&(!isset($_REQUEST['doupdate'])))
             $out .= " disabled='1'";
