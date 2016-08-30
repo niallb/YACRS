@@ -106,6 +106,44 @@ if(($showCustomReport)&&(function_exists('customReportHeadings')))
 
 echo "\r\n";
 
+echo ",Question date";
+foreach($questionInsts as $q)
+{
+    if($showResponses)
+        echo ','.preg_replace('/([\\\\"])/','\\\\\\1', date("D d M y", $q->starttime));
+    $quRespCount[$q->id] = 0;
+    $quScoreTot[$q->id] = 0;
+}
+
+// headings for scores
+echo ',,,'; // a gap
+if($showQuScores)
+{
+	foreach($questionInsts as $q)
+	    echo ','.preg_replace('/([\\\\"])/','\\\\\\1', date("D d M y", $q->starttime));
+}
+
+echo "\r\n";
+
+echo ",Question time";
+foreach($questionInsts as $q)
+{
+    if($showResponses)
+        echo ','.preg_replace('/([\\\\"])/','\\\\\\1', date("H:i:s", $q->starttime));
+    $quRespCount[$q->id] = 0;
+    $quScoreTot[$q->id] = 0;
+}
+
+// headings for scores
+echo ',,,'; // a gap
+if($showQuScores)
+{
+	foreach($questionInsts as $q)
+	    echo ','.preg_replace('/([\\\\"])/','\\\\\\1', date("H:i:s", $q->starttime));
+}
+
+echo "\r\n";
+
 if($showResponses)
 {
 	// Correct responses
@@ -116,6 +154,7 @@ if($showResponses)
 	}
 }
 
+echo "\r\n";
 echo "\r\n";
 
 echo "Student ID,Student Name";

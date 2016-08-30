@@ -1,7 +1,6 @@
 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-
 require_once('config.php');
 require_once('lib/database.php');
 require_once('lib/forms.php');
@@ -13,14 +12,11 @@ if($deviceType=='mobile')
     $template->pageData['modechoice'] = "<a href='{$_SERVER['PHP_SELF']}?sessionID={$sessionID}&mode=computer'>Use computer mode</a>";
 else
     $template->pageData['modechoice'] = "<a href='{$_SERVER['PHP_SELF']}?sessionID={$sessionID}&mode=mobile'>Use mobile mode</a>";
-
 $uinfo = checkLoggedInUser();
-
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
 $template->pageData['breadcrumb'] = $CFG['breadCrumb'];
 $template->pageData['breadcrumb'] .= '<li><a href="index.php">YACRS</a></li>';
-
 if((isset($_SERVER['HTTPS']))&&($_SERVER['HTTPS']=='on'))
 {
 	$serverURL = 'https://'.$_SERVER['HTTP_HOST'];
@@ -34,7 +30,6 @@ else
         $serverURL .= ':'.$_SERVER['SERVER_PORT'];
 }
 $serverURL .= $_SERVER['SCRIPT_NAME'];
-
 if($uinfo==false)
 {
     header("Location: index.php");
@@ -67,10 +62,9 @@ else
 			$smemb->lastresponse = time();
 			$smemb->update();
         }
-
         if((requestSet('submit'))&&(requestSet('mublog')))
         {
-            $post = trim(requestHtml('mublog',''));
+            $post = trim(requestRaw('mublog',''));
             if(strlen($post))
             {
 	            $msg = new message();
@@ -85,33 +79,25 @@ else
 	                $msg->addTag($mtag);
 	            }
             }
-
         }
-
 		$template->pageData['afterContent'] = getAJAXScript($thisSession->id);
         $template->pageData['breadcrumb'] .= "<li><a href='vote.php?sessionID={$thisSession->id}'>{$thisSession->title}</a></li>";
 		$template->pageData['breadcrumb'] .= "<li>Discussion</li>";
-
-		$template->pageData['mainBody'] .= '<h2 class="page-section extra-bottom">Discuss This Question<a class="pull-right" href="vote.php?sessionID='.$thisSession->id.'&continue=1">Back to Questions</a></h2>';
+		$template->pageData['mainBody'] .= '<h2 class="page-section extra-bottom">Discuss<span class="hidden-xs"> This Question</span><a class="pull-right" href="vote.php?sessionID='.$thisSession->id.'&continue=1">Back<span class="hidden-xs"> to Questions</span></a></h2>';
         $template->pageData['mainBody'] .= "<form id='mublogForm' method='POST' action='chat.php' class='form-horizontal'><div class='form-group'>";
-        $template->pageData['mainBody'] .= "<div class='col-xs-10'><input type='hidden' name='sessionID' value='{$thisSession->id}' />";
+        $template->pageData['mainBody'] .= "<div class='col-sm-10 col-xs-9'><input type='hidden' name='sessionID' value='{$thisSession->id}' />";
         $template->pageData['mainBody'] .= "<textarea name='mublog' rows='3' class='form-control'></textarea></div>";
-        $template->pageData['mainBody'] .= "<div class='col-xs-2'><input type='submit' name='submit' value='Send' class='btn btn-block btn-info submit'/></div>";
+        $template->pageData['mainBody'] .= "<div class='col-sm-2 col-xs-3'><input type='submit' name='submit' value='Send' class='btn btn-block btn-info submit'/></div>";
         $template->pageData['mainBody'] .= "</div></form>";
         $template->pageData['mainBody'] .= "<div id='messages'></div></div>";
     }
 	//$template->pageData['mainBody'] .= '<pre>'.print_r($uinfo,1).'</pre>';
 	//$template->pageData['mainBody'] .= '<pre>'.print_r($smemb,1).'</pre>';
 	$template->pageData['logoutLink'] = loginBox($uinfo);
-
 }
-
 echo $template->render();
-
 function getAJAXScript($sessionID)
 {
 	return getUBlogUpdateAJAXScript($sessionID);
 }
-
-
 ?>

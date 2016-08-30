@@ -188,6 +188,8 @@ function displayQuestion($qiid, $forceTitle=false)
         $out .= '<fieldset>';
         if(($resp == false)||($resp->isPartial))
             $out .= '<legend>Input:</legend>';
+        elseif(isset($_REQUEST['doupdate']))
+            $out .= '<legend>Update answer:</legend>';
         else
             $out .= '<legend>You answered:</legend>';
         //$out .= '<pre>'.print_r($resp,1).'</pre>';
