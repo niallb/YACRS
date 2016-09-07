@@ -411,7 +411,7 @@ function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
                 }
                 elseif($thisSession->currentQuestion == $qiID)
                 {
-	            	$out .= "<td><a href='runsession.php?sessionID={$thisSession->id}&activate=0'>Close</a></td>";
+	            	$out .= "<td><a href='runsession.php?sessionID={$thisSession->id}&activate=0'>Close</a><br/><a href='liveresponses.php?sessionID={$thisSession->id}' target='_live'>View Live</a></td>";
                     $template->pageData['afterContent'] .= getMonitorResponsesJS($thisSession->id, $qiID);
                 }
                 else

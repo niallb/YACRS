@@ -180,6 +180,7 @@ function displayQuestion($qiid, $forceTitle=false)
          elseif($qu->definition->responseValue !== false)
          {
 	         $resp->value = $qu->definition->responseValue;
+             $resp->time = time();
 	         $resp->update();
 	         $smemb->lastresponse = time();
 	         $smemb->update();
