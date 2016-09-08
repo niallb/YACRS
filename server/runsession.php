@@ -110,6 +110,10 @@ else
     else
         $template->pageData['mainBody'] .= "<p>No questions added yet.</p>";
     $template->pageData['mainBody'] .= $aqform->getHtml();
+    if($thisSession->questionMode == 0)
+        $template->pageData['mainBody'] .= "<div><a href='switchmode.php?sessionID={$thisSession->id}'>Close question and switch to student paced (multi-question) mode.</a></div>";
+    else
+        $template->pageData['mainBody'] .= "<div><a href='switchmode.php?sessionID={$thisSession->id}'>Close questions and switch to teacher paced (single question) mode.</a></div>";
 
     if(sizeof($quTitles))
     {
@@ -192,6 +196,13 @@ function EditTitle(id)
 {
     name = \"title\"+id;
     document.getElementById(name).innerHTML = \"<input type='text' id='edt' size='60' maxlength='80' value='\"+document.getElementById('title'+id+'_txt').innerHTML+\"'/><a OnClick='UpdateTitle(\\\"\"+id+\"\\\");'>Update</a>\";
+    document.getElementById('edt').onkeydown = function(e)
+    {
+        if(e.keyCode == 13)
+        {
+            UpdateTitle(id);
+        }
+    };
     return false;
 }
 

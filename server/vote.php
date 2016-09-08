@@ -117,10 +117,11 @@ else
                 {
                     $n++;
                     $respExists = (response::retrieve($smemb->id, $qiid) != false);
+                    $borderSize = $thisSession->extras[currentQuestions][$cidx] == $qiid ? 4:2;
                     if($respExists)
-                        $style = "style='border:2px solid blue;padding:1px;margin:2px;background:#eeeeff;'";
+                        $style = "style='border:{$borderSize}px solid blue;padding:1px;margin:2px;background:#eeeeff;'";
                     else
-                        $style = "style='border:2px solid gray;padding:1px;margin:2px;background:#ffeeee;'";
+                        $style = "style='border:{$borderSize}px solid gray;padding:1px;margin:2px;background:#ffeeee;'";
                     $disps[] = "<a href='vote.php?sessionID={$thisSession->id}&qiID={$qiid}' $style>$n</a>";
                 }
                 $template->pageData['mainBody'] .= '<p>'.implode(" ", $disps).'</p>';
