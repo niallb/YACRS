@@ -1,0 +1,479 @@
+.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.form-horizontal .form-group, .row {
+	margin-left: -10px;
+	margin-right: -10px;
+}
+
+body {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	background: #e0e0e0;
+	color: #404040;
+}
+
+.container {
+	max-width: 960px;
+}
+
+#pageHeader {
+	color: white;
+	background-color : #789;
+	border-bottom: 1px solid #68798C;
+}
+
+#pageHeader .logo {
+	height: 80px;
+	margin: 0;
+	text-indent: -1000em;
+	background-image: url('logo-yacrs.png');
+	background-position: 0 50%;
+	background-repeat: no-repeat;
+}
+
+#pageHeader #loginBox
+{
+	position: absolute;
+	width: 90px;
+	left: 50%;
+    top: 15px;
+	margin-left: 330px;
+    text-align: right;
+    color: #B4C0CD;
+}
+
+#pageHeader #loginBox a
+{
+	color: yellow;
+}
+
+#pageHeader h1
+{
+	font-weight : lighter;
+	font-size: 25px;
+	margin: 0px;
+	margin-left: 160px;
+}
+
+#pageHeader h2
+{
+	font-weight : lighter;
+    font-size: 20px;
+    margin-top: 2px;
+	margin-bottom: 2px;
+	/*color: #086cff;*/
+	color: white;
+	margin-left: 160px;
+}
+
+#main {
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+#main #content {
+	background-color: #fff;
+	border: 1px solid #ccc;
+	padding: 20px;
+	overflow: hidden;
+}
+
+#main #content h2:first-child {
+	margin-top: 0;
+}
+
+#modechoice
+{
+	float:right;
+    margin: 20px;
+    color:white;
+    margin-top:10px;
+    font: 110% Helvetica, Arial, sans-serif;
+}
+#modechoice a
+{
+    color: #404040;
+}
+
+#main h1:first-child, #main h2:first-child, #main h3:first-child {
+	margin-top: 0;
+}
+
+h1, h2, h3{
+	margin-top: 20px;
+	margin-bottom: 10px;
+	font-size: 1.6em;
+	line-height: 1.4em;
+}
+
+h2 {
+	font-size: 1.4em;
+	line-height: 1.4em;
+}
+
+h3 {
+	font-size: 1.2em;
+}
+
+label {
+	font-weight: normal;
+}
+
+table {
+	font-size: inherit;
+}
+
+.form-group .alert {
+	margin-bottom: 0;
+}
+
+#pageHeader .loginBox {
+	float: right;
+	margin-top: 30px;
+}
+
+#pageHeader .loginBox a {
+	margin-left: 0.5em;
+	text-decoration: none;
+	color: #fff;
+}
+
+.adminSections {
+	padding-left: 0;
+}
+
+.adminSections > li {
+	display: block;
+	font-size: 1.2em;
+	margin-top: 20px;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.adminSections ul {
+	padding-left: 0;
+}
+
+.adminSections ul li {
+	display: block;
+}
+
+.badge {
+	float: right;
+}
+
+.user-badge {
+	margin-left: 1em;
+}
+
+.user-badge.admin {
+	color: #7D2239;
+}
+
+.user-badge.creator {
+	color: #005133;
+}
+
+.user-badge.session-id {
+	color: #B59079;
+}
+
+.page-section {
+	font-size: 1.2em;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+	background-color: #e0e0e0;
+	padding: 5px;
+	margin-top: 20px;
+}
+
+.form-export-data {
+	margin-top: 20px;
+	background-color: #f5f5f5;
+	padding: 20px;
+	margin-bottom: 0;
+}
+
+.form-export-data .form-group:last-child {
+	margin-bottom: 0;
+}
+
+.session-list {
+	padding-left: 0;
+}
+
+.session-list li {
+	display: block;
+	padding: 5px;
+	border-bottom: 1px solid #e0e0e0;
+	position: relative;
+}
+
+.session-list li:last-child {
+	border-bottom: none;
+}
+
+.session-list li:nth-child(2n) {
+	background-color: #f5f5f5;
+}
+
+.session-title {
+	margin: 0;
+}
+
+.session-details {
+	color: #777;
+	margin-top: 5px;
+	margin-bottom: 0;
+}
+
+.feature-links a {
+	color: #777;
+	text-decoration: none;
+	margin-left: 1em;
+}
+
+.feature-links a:first-child {
+	margin-left: 0;
+}
+
+td .feature-links {
+	float: none;
+	position: relative;
+	top: 0;
+	right: 0;
+}
+
+td .feature-links a {
+	display: block;
+	margin-left: 0;
+	white-space: nowrap;
+}
+
+.feature-links i {
+	width: 1.5em;
+	text-align: center;
+}
+
+h1, h2, h3, .adminSections > li, .adminSections > li a {
+	color: #586776;
+	font-weight: normal;
+}
+
+.breadcrumb {
+	padding-left: 0;
+	margin-bottom: 20px;
+	color: #586776;
+}
+
+.breadcrumb li {
+	display: inline;
+}
+
+.breadcrumb li:after {
+	content: "\203A";
+	color: #999;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
+
+.breadcrumb li:last-child:after {
+	content: none;
+}
+
+.breadcrumb a {
+	color: #586776;
+	text-decoration: none;
+}
+
+.adminSections > li {
+	border-bottom: 1px solid #ccc;
+	background-color: #e0e0e0;
+	padding: 5px;
+}
+
+.user-search-form {
+	padding: 10px;
+	background-color: #f6f6f6;
+	margin-top: 20px;
+}
+
+.user-search-form .form-group {
+	margin-bottom: 0;
+}
+
+.question-navigation {
+	color: #777;
+	margin-top: 20px;
+	margin-bottom: 0;
+	border-top: 1px solid #ddd;
+	padding-top: 20px;
+	text-align: center;
+	padding-left: 20em;
+	padding-right: 20em;
+}
+
+.question-nav.top {
+	overflow: hidden;
+	border-bottom: 1px solid #ddd;
+	padding-bottom: 10px;
+	margin-bottom: 20px;
+}
+
+.question-nav.bottom {
+	overflow: hidden;
+	border-top: 1px solid #ddd;
+	padding-top: 10px;
+	margin-top: 20px;
+}
+
+.table-striped td {
+	position: relative;
+}
+
+.form-group .row {
+	margin-bottom: 15px;
+}
+
+.page-bottom-button {
+	margin-top: 20px;
+}
+
+#mublogForm {
+	margin-bottom: 20px;
+	overflow: hidden;
+}
+
+#mublogForm .submit {
+	height: 74px;
+}
+
+.comment, .info {
+	clear: both;
+	max-width: 70%;
+	margin-bottom: 20px;
+}
+
+.comment .meta, .info .meta {
+	clear: both;
+	margin-left: 10px;
+	color: #777;
+	font-size: 0.85em;
+	margin-bottom: 0;
+}
+
+.meta .time {
+	margin-left: 0.5em;
+}
+
+.meta .time:before {
+	content: "\00b7";
+	padding-right: 0.5em;
+}
+
+.comment .bubble, .info .bubble {
+	position: relative;
+	width: 100%;
+	background-color: #eee;
+	padding: 8px;
+	border-radius: 8px;
+	margin-left: 10px;
+	float: left;
+	margin-bottom: 5px;
+	box-shadow 0 0 2px #000;
+}
+
+.comment .bubble:after {
+  content:"";
+  position:absolute;
+  bottom: 8px;
+  left: -10px;
+  top: auto;
+  border-width:7px 10px 2px 0; /* vary these values to change the angle of the vertex */
+  border-style:solid;
+  border-color: transparent #eee;
+}
+
+.comment.me .bubble {
+	background-color: #CCEC8C;
+	margin-left: 0;
+	margin-right: 10px;
+}
+
+.info .bubble {
+	background-color: #AED7ED;
+}
+
+.info .bubble:after {
+  border-color: transparent #AED7ED;
+  content:"";
+  position:absolute;
+  bottom: 8px;
+  left: -10px;
+  top: auto;
+  border-width:7px 10px 2px 0; /* vary these values to change the angle of the vertex */
+  border-style:solid;
+}
+
+.comment.me .bubble:after {
+  border-color: transparent #CCEC8C;
+}
+
+.comment.me {
+	float: right;
+	margin-right: 10px;
+}
+
+.comment.me .meta {
+	text-align: right;
+}
+
+.comment.me .bubble:after {
+  content:"";
+  position:absolute;
+  bottom: 8px;
+  left: auto;
+  right: -10px;
+  top: auto;
+  border-width: 7px 0 2px 10px; /* vary these values to change the angle of the vertex */
+  border-style:solid;
+  border-color: transparent #CCEC8C;
+}
+
+.extra-bottom {
+	margin-bottom: 20px;
+}
+
+/* Overrides for Bootstrap's mobile theme */
+
+@media (min-width: 768px) {
+
+	.feature-links {
+		float: right;
+		position: absolute;
+		top: 5px;
+		right: 5px;
+	}
+	
+}
+
+@media (max-width: 767px) {
+
+	.feature-links {
+		display: block;
+		margin-top: 5px;
+	}
+	
+	#pageHeader .loginBox {
+		float: none;
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}
+	
+	.logo {
+		display: none;
+	}
+
+}

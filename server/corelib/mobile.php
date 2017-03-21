@@ -1,4 +1,6 @@
 <?php
+
+/*
 $deviceType = 'unknown';
 if(requestSet('mode'))
 {
@@ -22,3 +24,8 @@ else
 if((isset($MOBILETEMPLATE))&&($deviceType=='mobile'))
     $TEMPLATE = $MOBILETEMPLATE;
 
+*/
+
+// New responsive theme. No more mobile mode.
+
+$deviceType='computer';

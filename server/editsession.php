@@ -28,7 +28,7 @@ if($uinfo==false)
 }
 else
 {
-	$esform = new editSession_form();
+    $esform = new editSession_form();
     if($esform->getStatus() == FORM_NOTSUBMITTED)
     {
         $esform->visible = true; // default to showing sessions.
@@ -37,7 +37,7 @@ else
     //$esform->disable('defaultQuActiveSecs');
     //$esform->disable('allowQuReview');
     $esform->disable('maxMessagelength');
-    $esform->disable('allowTeacherQu');
+    //$esform->disable('allowTeacherQu');
     if(requestSet('sessionID'))
     {
         $thisSession = session::retrieve_session(requestInt('sessionID'));
@@ -46,57 +46,57 @@ else
     {
         $thisSession = false;
     }
-	switch($esform->getStatus())
-	{
-	case FORM_NOTSUBMITTED:
-        if($thisSession)
-        {
-	        $esform->setData($thisSession);
-            $esform->sessionID = $thisSession->id;
-            if(isset($thisSession->extras['customScoring']))
-                $esform->customScoring = $thisSession->extras['customScoring'];
-            if(isset($thisSession->extras['allowFullReview']))
-                $esform->allowFullReview = $thisSession->extras['allowFullReview'];
-            $esform->teachers = implode(', ', $thisSession->getExtraTeacherIDs());
-        }
-        else
-        {
-        	$esform->maxMessagelength = 140;
-        }
-	    $template->pageData['mainBody'] = $esform->getHtml();
-	    break;
-	case FORM_SUBMITTED_INVALID:
-	    $template->pageData['mainBody'] = $esform->getHtml();
-	    break;
-	case FORM_SUBMITTED_VALID:
-        if(!$thisSession)
-        {
-            $thisSession = new session();
-            $thisSession->ownerID = $uinfo['uname'];
-        }
-	    $esform->getData($thisSession);
-        if(isset($esform->customScoring))
-	        $thisSession->extras['customScoring'] = $esform->customScoring;
-        else
-	        $thisSession->extras['customScoring'] = false;
-        $thisSession->extras['allowFullReview'] = $esform->allowFullReview;
-	    if($thisSession->id > 0)
-	        $thisSession->update();
-	    else
-	    {
-            $thisSession->created = time();
-	        $thisSession->id = $thisSession->insert();
-	    }
-        $thisSession->updateExtraTeachers($esform->teachers);
-        if(strlen($thisSession->courseIdentifier))
-            enrolStudents($thisSession->id, $thisSession->courseIdentifier);
-	    header('Location:index.php?sessionID='.$thisSession->id);
- 	    break;
-	case FORM_CANCELED:
-	    header('Location:index.php');
-	    break;
+    switch($esform->getStatus())
+    {
+        case FORM_NOTSUBMITTED:
+            if($thisSession)
+            {
+                $esform->setData($thisSession);
+                $esform->sessionID = $thisSession->id;
+                if(isset($thisSession->extras['customScoring']))
+                    $esform->customScoring = $thisSession->extras['customScoring'];
+                if(isset($thisSession->extras['allowFullReview']))
+                    $esform->allowFullReview = $thisSession->extras['allowFullReview'];
+                $esform->teachers = implode(', ', $thisSession->getExtraTeacherIDs());
+            }
+            else
+            {
+                $esform->maxMessagelength = 140;
+            }
+            $template->pageData['mainBody'] = $esform->getHtml();
+            break;
+        case FORM_SUBMITTED_INVALID:
+            $template->pageData['mainBody'] = $esform->getHtml();
+            break;
+        case FORM_SUBMITTED_VALID:
+            if(!$thisSession)
+            {
+                $thisSession = new session();
+                $thisSession->ownerID = $uinfo['uname'];
+            }
+            $esform->getData($thisSession);
+            if(isset($esform->customScoring))
+                $thisSession->extras['customScoring'] = $esform->customScoring;
+            else
+                $thisSession->extras['customScoring'] = false;
+            $thisSession->extras['allowFullReview'] = $esform->allowFullReview;
+            if($thisSession->id > 0)
+                $thisSession->update();
+            else
+            {
+                $thisSession->created = time();
+                $thisSession->id = $thisSession->insert();
+            }
+            $thisSession->updateExtraTeachers($esform->teachers);
+            if(strlen($thisSession->courseIdentifier))
+                enrolStudents($thisSession->id, $thisSession->courseIdentifier);
+            header('Location:index.php?sessionID='.$thisSession->id);
+            break;
+        case FORM_CANCELED:
+            header('Location:index.php');
+            break;
     }
-	$template->pageData['logoutLink'] = loginBox($uinfo);
+    $template->pageData['logoutLink'] = loginBox($uinfo);
 }
 
 if(($thisSession !== false)&&($ltiSessionID = getLTISessionID())&&(isLTIStaff()))

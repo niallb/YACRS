@@ -78,6 +78,12 @@ body {
   border-style:solid;
 }
 
+.bubble a {
+    color: #000;
+    text-decoration: none;
+    border-bottom: 1px dotted #000;
+}
+
 .comment.me .bubble:after {
   border-color: transparent #CCEC8C;
 }

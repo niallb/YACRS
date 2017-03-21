@@ -83,7 +83,7 @@ else
 
     $template->pageData['mainBody'] = "<h1 style='text-align:center;'>Session ID: {$thisSession->id}</h1>";
     $userCount = sessionMember::count("session_id", $thisSession->id);
-    $activeCount = sessionMember::countActive($thisSession->id);
+    $activeCount = sessionMember::countActiveLastMin($thisSession->id);
     $template->pageData['mainBody'] .= "<p><a href='sessionmembers.php?sessionID={$thisSession->id}'>Active users (total users): $activeCount ($userCount)</a></p>";
     $template->pageData['mainBody'] .= DaySelectForm($thisSession->id);
     $template->pageData['mainBody'] .= "<h2>Session Questions</h2>";
@@ -114,6 +114,7 @@ else
         $template->pageData['mainBody'] .= "<div><a href='switchmode.php?sessionID={$thisSession->id}'>Close question and switch to student paced (multi-question) mode.</a></div>";
     else
         $template->pageData['mainBody'] .= "<div><a href='switchmode.php?sessionID={$thisSession->id}'>Close questions and switch to teacher paced (single question) mode.</a></div>";
+    $template->pageData['mainBody'] .= "<div><a href='displayResponses.php?sessionID={$thisSession->id}' target='_new'>Display Latest Qu for students.</a></div>";
 
     if(sizeof($quTitles))
     {

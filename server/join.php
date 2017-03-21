@@ -73,7 +73,8 @@ elseif(($uinfo==false)&&(isset($_REQUEST['submit'])))
         else
         {
             $template->pageData['mainBody'] .= "<a href='vote.php?sessionID={$thisSession->id}'>Join session</a>";
-            header("Location: vote.php?sessionID={$thisSession->id}");
+            //YALIS update to redirect to session page
+            header("Location: session_page.php?sessionID={$thisSession->id}");
         }
     }
     else

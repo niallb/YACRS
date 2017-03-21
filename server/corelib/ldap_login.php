@@ -2,6 +2,8 @@
 function checkLogin($username, $password, &$error=false)
 {
 	global $CFG;
+    if(strlen(trim($password))==0)
+        return false;
     $error = false;
     $clrtime = time()+5; // For paranoid prevention of timing to narrow username/password guesses
 	$cookiehash = $CFG['cookiehash'];

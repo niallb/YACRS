@@ -157,6 +157,41 @@ class tag #0.2.0
    session session;
    message[] messages;
 }
+
+
+//YALIS update for database
+
+class yacrs_studentsQuestion{
+   primary key int id;
+   string[35] student_id;
+   int session_id;
+   string[240] question;
+   datetime timeadded;
+   int answer_id;
+   boolean viewed;
+   int pin_location;
+   int needs_attention;
+}
+
+class yacrs_chat_messages{
+   primary key int id;
+   int session_id;
+   int question_id;
+   string[35] student_id;
+   text message;
+   datetime posted;
+   boolean viewed;
+}
+
+class yacrs_question_liked{
+   primary key int id;
+   int session_id;
+   int question_id;
+   string[35] student_id;
+   boolean liked;
+   datetime posted;
+}
+
 */
 
 function initializeDataBase_yacrs()
@@ -189,6 +224,14 @@ function initializeDataBase_yacrs()
 	dataConnection::runQuery($query);
 	$query = "CREATE TABLE yacrs_tag(id INTEGER PRIMARY KEY AUTO_INCREMENT, text VARCHAR(20), session_id INTEGER);";
 	dataConnection::runQuery($query);
+
+    //YALIS update new tables added
+    $query = "CREATE TABLE yacrs_studentsQuestion(id INTEGER PRIMARY KEY AUTO_INCREMENT, student_id VARCHAR(35), session_id INTEGER, question VARCHAR(240), timeadded DATETIME, answer_id INTEGER, viewed INTEGER, pin_location INTEGER, needs_attention INTEGER);";
+    dataConnection::runQuery($query);
+    $query = "CREATE TABLE yacrs_chat_messages(id INTEGER PRIMARY KEY AUTO_INCREMENT, session_id INTEGER, question_id INTEGER, student_id VARCHAR(35), message TEXT, posted DATETIME, viewed INTEGER);";
+    dataConnection::runQuery($query);
+    $query = "CREATE TABLE yacrs_question_liked(id INTEGER PRIMARY KEY AUTO_INCREMENT, session_id INTEGER, question_id INTEGER, student_id VARCHAR(35), liked INTEGER, posted DATETIME);";
+    dataConnection::runQuery($query);
 }
 
 function updateDataBase_yacrs_v0_to_v0p2p0()
@@ -1273,6 +1316,20 @@ class userInfo
 	}
 
 
+	//H2 hack for fake login
+    static function retrieve_fakeUserInfo($id)
+    {
+        $query = "SELECT * FROM yacrs_userInfo WHERE id='".dataConnection::safe($id)."';";
+        $result = dataConnection::runQuery($query);
+        if(sizeof($result)!=0)
+        {
+            return $result[0];
+        }
+        else
+            return false;
+    }
+
+
 	static function retrieve_by_username($username)
 	{
 		$query = "SELECT * FROM yacrs_userInfo WHERE username='".dataConnection::safe($username)."';";
@@ -1473,7 +1530,7 @@ class question
 			return new question($result[0]);
 		}
 		else
-			return false;
+			return $result;
 	}
 
 	static function retrieve_question_matching($field, $value, $from=0, $count=-1, $sort=null)
@@ -2102,6 +2159,18 @@ class sessionMember
 			return $result['0']['count'];
 	}
 
+	//YALIS update - new function that counts active within one minute
+    static function countActiveLastMin($sessionID, $lastMin=1)
+    {
+        $since = dataConnection::time2db(time()-(60*$lastMin));
+        $query = "SELECT COUNT(*) AS count FROM yacrs_sessionMember WHERE session_id='".dataConnection::safe($sessionID)."' AND lastresponse > '$since';";
+        $result = dataConnection::runQuery($query);
+        if($result == false)
+            return 0;
+        else
+            return $result['0']['count'];
+    }
+
 	static function retrieveByMobileNo($mobileNo)
 	{
 	    $query = "SELECT * FROM yacrs_sessionMember WHERE mobile='".dataConnection::safe($mobileNo)."'";
@@ -2727,7 +2796,494 @@ class tag
 		return $out;
 	}
 	//[[USERCODE_tag]] Put code for custom class members in this block.
-
 	//[[USERCODE_tag]] WEnd of custom class members.
 }
 
+
+//YALIS updates below
+class studentsQuestion
+{
+    var $id; //primary key
+    var $student_id;
+    var $session_id;
+    var $question;
+    var $timeadded;
+    var $answer_id;
+    var $viewed;
+    var $pin_location;
+    var $needs_attention;
+
+    function studentsQuestion($asArray=null)
+    {
+        $this->id = null; //primary key
+        $this->student_id = "";
+        $this->session_id = "0";
+        $this->question = "";
+        $this->timeadded = time();
+        $this->answer_id = "0";
+        $this->viewed = false;
+        $this->pin_location = "0";
+        $this->needs_attention = "0";
+        if($asArray!==null)
+            $this->fromArray($asArray);
+    }
+
+    function fromArray($asArray)
+    {
+        $this->id = $asArray['id'];
+        $this->student_id = $asArray['student_id'];
+        $this->session_id = $asArray['session_id'];
+        $this->question = $asArray['question'];
+        $this->timeadded = dataConnection::db2time($asArray['timeadded']);
+        $this->answer_id = $asArray['answer_id'];
+        $this->viewed = ($asArray['viewed']==0)?true:false;
+        $this->pin_location = $asArray['pin_location'];
+        $this->needs_attention = $asArray['needs_attention'];
+    }
+
+    static function retrieve_sessionQuestions($id)
+    {
+        $query = "SELECT * FROM yacrs_studentsQuestion WHERE session_id='".dataConnection::safe($id)."' ORDER BY id ASC;";
+        $result = dataConnection::runQuery($query);
+        $question_array = [];
+
+        //if no result then return false
+        if(sizeof($result)==0) return false;
+
+        for ($i = 0; $i < sizeof($result); $i++) {
+            array_push($question_array, new studentsQuestion($result[$i]));
+        }
+
+        return $question_array;
+    }
+
+    static function retrieve_sessionNewQuestions($id,$afterID)
+    {
+        $query = "SELECT * FROM yacrs_studentsQuestion WHERE session_id='".dataConnection::safe($id)."' AND id > '".dataConnection::safe($afterID)."' ORDER BY id ASC;";
+        $result = dataConnection::runQuery($query);
+        $question_array = [];
+
+        //if no result then return false
+        if(sizeof($result)==0) return false;
+
+        for ($i = 0; $i < sizeof($result); $i++) {
+            array_push($question_array, new studentsQuestion($result[$i]));
+        }
+
+        return $question_array;
+    }
+
+    static function retrieve_studentQuestion($id)
+    {
+        $query = "SELECT * FROM yacrs_studentsQuestion WHERE id='".dataConnection::safe($id)."';";
+        $result = dataConnection::runQuery($query);
+        if(sizeof($result)!=0)
+        {
+            return new studentsQuestion($result[0]);
+        }
+        else
+            return false;
+    }
+
+    static function retrieve_studentsQuestion_matching($field, $value, $from=0, $count=-1, $sort=null)
+    {
+        if(preg_replace('/\W/','',$field)!== $field)
+            return false; // not a permitted field name;
+        $query = "SELECT * FROM yacrs_studentsQuestion WHERE $field='".dataConnection::safe($value)."'";
+        if(($sort !== null)&&(preg_replace('/\W/','',$sort)!== $sort))
+            $query .= " ORDER BY ".$sort;
+        if(($count != -1)&&(is_int($count))&&(is_int($from)))
+            $query .= " LIMIT ".$count." OFFSET ".$from;
+        $query .= ';';
+        $result = dataConnection::runQuery($query);
+        if(sizeof($result)!=0)
+        {
+            $output = array();
+            foreach($result as $r)
+                $output[] = new studentsQuestion($r);
+            return $output;
+        }
+        else
+            return false;
+    }
+
+    function insert()
+    {
+        //#Any required insert methods for foreign keys need to be called here.
+        $query = "INSERT INTO yacrs_studentsQuestion(student_id, session_id, question, timeadded, answer_id, viewed, pin_location, needs_attention) VALUES(";
+        $query .= "'".dataConnection::safe($this->student_id)."', ";
+        $query .= "'".dataConnection::safe($this->session_id)."', ";
+        $query .= "'".dataConnection::safe($this->question)."', ";
+        $query .= "'".dataConnection::time2db($this->timeadded)."', ";
+        $query .= "'".dataConnection::safe($this->answer_id)."', ";
+        $query .= "'".(($this->viewed===false)?0:1)."', ";
+        $query .= "'".dataConnection::safe($this->pin_location)."', ";
+        $query .= "'".dataConnection::safe($this->needs_attention)."');";
+        dataConnection::runQuery("BEGIN;");
+        $result = dataConnection::runQuery($query);
+        $result2 = dataConnection::runQuery("SELECT LAST_INSERT_ID() AS id;");
+        dataConnection::runQuery("COMMIT;");
+        $this->id = $result2[0]['id'];
+        return $this->id;
+    }
+
+    function update()
+    {
+        $query = "UPDATE yacrs_studentsQuestion ";
+        $query .= "SET student_id='".dataConnection::safe($this->student_id)."' ";
+        $query .= ", session_id='".dataConnection::safe($this->session_id)."' ";
+        $query .= ", question='".dataConnection::safe($this->question)."' ";
+        $query .= ", timeadded='".dataConnection::time2db($this->timeadded)."' ";
+        $query .= ", answer_id='".dataConnection::safe($this->answer_id)."' ";
+        $query .= ", viewed='".(($this->viewed===false)?0:1)."' ";
+        $query .= ", pin_location='".dataConnection::safe($this->pin_location)."' ";
+        $query .= ", needs_attention='".dataConnection::safe($this->needs_attention)."' ";
+        $query .= "WHERE id='".dataConnection::safe($this->id)."';";
+        return dataConnection::runQuery($query);
+    }
+
+    static function count($where_name=null, $equals_value=null)
+    {
+        $query = "SELECT COUNT(*) AS count FROM yacrs_studentsQuestion WHERE ";
+        if($where_name==null)
+            $query .= '1;';
+        else
+            $query .= "$where_name='".dataConnection::safe($equals_value)."';";
+        $result = dataConnection::runQuery($query);
+        if($result == false)
+            return 0;
+        else
+            return $result['0']['count'];
+    }
+
+    function toXML()
+    {
+        $out = "<yacrs_studentsQuestion>\n";
+        $out .= '<id>'.htmlentities($this->id)."</id>\n";
+        $out .= '<student_id>'.htmlentities($this->student_id)."</student_id>\n";
+        $out .= '<session_id>'.htmlentities($this->session_id)."</session_id>\n";
+        $out .= '<question>'.htmlentities($this->question)."</question>\n";
+        $out .= '<timeadded>'.htmlentities($this->timeadded)."</timeadded>\n";
+        $out .= '<answer_id>'.htmlentities($this->answer_id)."</answer_id>\n";
+        $out .= '<viewed>'.htmlentities($this->viewed)."</viewed>\n";
+        $out .= '<pin_location>'.htmlentities($this->pin_location)."</pin_location>\n";
+        $out .= '<needs_attention>'.htmlentities($this->needs_attention)."</needs_attention>\n";
+        $out .= "</yacrs_studentsQuestion>\n";
+        return $out;
+    }
+    //[[USERCODE_yacrs_studentsQuestion]] Put code for custom class members in this block.
+
+    function plusOneAttention($qId){
+        $query = "UPDATE yacrs_studentsQuestion SET needs_attention = needs_attention + 1 WHERE id='".dataConnection::safe($qId)."';";
+        return dataConnection::runQuery($query);
+    }
+
+    function minusOneAttention($qId){
+        $query = "UPDATE yacrs_studentsQuestion SET needs_attention = needs_attention - 1 WHERE id='".dataConnection::safe($qId)."';";
+        return dataConnection::runQuery($query);
+    }
+
+    function setBestAnswer($qID, $mID){
+        $query = "UPDATE yacrs_studentsQuestion SET answer_id='".dataConnection::safe($mID)."' WHERE id='".dataConnection::safe($qID)."';";
+        return dataConnection::runQuery($query);
+    }
+
+    function getBestAnswer($qID){
+        $query  = "SELECT answer_id FROM yacrs_studentsQuestion WHERE id='".dataConnection::safe($qID)."';";
+        $result = dataConnection::runQuery($query);
+        if($result){
+            $bestAnswer = chat_messages::retrieve_chat_messages_matching("id", $result[0]["answer_id"]);
+            return $bestAnswer;
+        }
+        return $result;
+    }
+
+    function setQuestionPoistion($question_id, $position){
+        $query = "UPDATE yacrs_studentsQuestion SET pin_location='".dataConnection::safe($position)."' WHERE id='".dataConnection::safe($question_id)."';";
+        return dataConnection::runQuery($query);
+    }
+
+    //[[USERCODE_yacrs_studentsQuestion]] WEnd of custom class members.
+}
+
+class chat_messages
+{
+    var $id; //primary key
+    var $session_id;
+    var $question_id;
+    var $student_id;
+    var $message;
+    var $posted;
+    var $viewed;
+
+    function chat_messages($asArray=null)
+    {
+        $this->id = null; //primary key
+        $this->session_id = "0";
+        $this->question_id = "0";
+        $this->student_id = "0";
+        $this->message = "";
+        $this->posted = time();
+        $this->viewed = false;
+        if($asArray!==null)
+            $this->fromArray($asArray);
+    }
+
+    function fromArray($asArray)
+    {
+        $this->id = $asArray['id'];
+        $this->session_id = $asArray['session_id'];
+        $this->question_id = $asArray['question_id'];
+        $this->student_id = $asArray['student_id'];
+        $this->message = $asArray['message'];
+        $this->posted = dataConnection::db2time($asArray['posted']);
+        $this->viewed = ($asArray['viewed']==0)?false:true;
+    }
+
+    static function retrieve_chat_messages($id)
+    {
+        $query = "SELECT * FROM yacrs_chat_messages WHERE id='".dataConnection::safe($id)."';";
+        $result = dataConnection::runQuery($query);
+        if(sizeof($result)!=0)
+        {
+            return new chat_messages($result[0]);
+        }
+        else
+            return false;
+    }
+
+    static function retrieve_chat_messages_matching($field, $value, $from=0, $count=-1, $sort=null)
+    {
+        if(preg_replace('/\W/','',$field)!== $field)
+            return false; // not a permitted field name;
+        $query = "SELECT * FROM yacrs_chat_messages WHERE $field='".dataConnection::safe($value)."'";
+        if(($sort !== null)&&(preg_replace('/\W/','',$sort)!== $sort))
+            $query .= " ORDER BY ".$sort;
+        if(($count != -1)&&(is_int($count))&&(is_int($from)))
+            $query .= " LIMIT ".$count." OFFSET ".$from;
+        $query .= ';';
+        $result = dataConnection::runQuery($query);
+        if(sizeof($result)!=0)
+        {
+            $output = array();
+            foreach($result as $r)
+                $output[] = new chat_messages($r);
+            return $output;
+        }
+        else
+            return false;
+    }
+
+    function insert()
+    {
+        //#Any required insert methods for foreign keys need to be called here.
+        $query = "INSERT INTO yacrs_chat_messages(session_id, question_id, student_id, message, posted, viewed) VALUES(";
+        $query .= "'".dataConnection::safe($this->session_id)."', ";
+        $query .= "'".dataConnection::safe($this->question_id)."', ";
+        $query .= "'".dataConnection::safe($this->student_id)."', ";
+        $query .= "'".dataConnection::safe($this->message)."', ";
+        $query .= "'".dataConnection::time2db($this->posted)."', ";
+        $query .= "'".(($this->viewed===false)?0:1)."');";
+        dataConnection::runQuery("BEGIN;");
+        $result = dataConnection::runQuery($query);
+        $result2 = dataConnection::runQuery("SELECT LAST_INSERT_ID() AS id;");
+        dataConnection::runQuery("COMMIT;");
+        $this->id = $result2[0]['id'];
+        return $this->id;
+    }
+
+    function update()
+    {
+        $query = "UPDATE chat_messages ";
+        $query .= "SET session_id='".dataConnection::safe($this->session_id)."' ";
+        $query .= ", question_id='".dataConnection::safe($this->question_id)."' ";
+        $query .= ", student_id='".dataConnection::safe($this->student_id)."' ";
+        $query .= ", message='".dataConnection::safe($this->message)."' ";
+        $query .= ", posted='".dataConnection::time2db($this->posted)."' ";
+        $query .= ", viewed='".(($this->viewed===false)?0:1)."' ";
+        $query .= "WHERE id='".dataConnection::safe($this->id)."';";
+        return dataConnection::runQuery($query);
+    }
+
+    static function count($where_name=null, $equals_value=null)
+    {
+        $query = "SELECT COUNT(*) AS count FROM yacrs_chat_messages WHERE ";
+        if($where_name==null)
+            $query .= '1;';
+        else
+            $query .= "$where_name='".dataConnection::safe($equals_value)."';";
+        $result = dataConnection::runQuery($query);
+        if($result == false)
+            return 0;
+        else
+            return $result['0']['count'];
+    }
+
+    function toXML()
+    {
+        $out = "<chat_messages>\n";
+        $out .= '<id>'.htmlentities($this->id)."</id>\n";
+        $out .= '<session_id>'.htmlentities($this->session_id)."</session_id>\n";
+        $out .= '<question_id>'.htmlentities($this->question_id)."</question_id>\n";
+        $out .= '<student_id>'.htmlentities($this->student_id)."</student_id>\n";
+        $out .= '<message>'.htmlentities($this->message)."</message>\n";
+        $out .= '<posted>'.htmlentities($this->posted)."</posted>\n";
+        $out .= '<viewed>'.htmlentities($this->viewed)."</viewed>\n";
+        $out .= "</chat_messages>\n";
+        return $out;
+    }
+    //[[USERCODE_chat_messages]] Put code for custom class members in this block.
+
+    //[[USERCODE_chat_messages]] WEnd of custom class members.
+}
+
+class question_liked
+{
+    var $id; //primary key
+    var $session_id;
+    var $question_id;
+    var $student_id;
+    var $liked;
+    var $posted;
+
+    function question_liked($asArray=null)
+    {
+        $this->id = null; //primary key
+        $this->session_id = "0";
+        $this->question_id = "0";
+        $this->student_id = "";
+        $this->liked = false;
+        $this->posted = time();
+        if($asArray!==null)
+            $this->fromArray($asArray);
+    }
+
+    function fromArray($asArray)
+    {
+        $this->id = $asArray['id'];
+        $this->session_id = $asArray['session_id'];
+        $this->question_id = $asArray['question_id'];
+        $this->student_id = $asArray['student_id'];
+        $this->liked = ($asArray['liked']==0)?false:true;
+        $this->posted = dataConnection::db2time($asArray['posted']);
+    }
+
+    static function retrieve_question_liked($id)
+    {
+        $query = "SELECT * FROM yacrs_question_liked WHERE id='".dataConnection::safe($id)."';";
+        $result = dataConnection::runQuery($query);
+        if(sizeof($result)!=0)
+        {
+            return new question_liked($result[0]);
+        }
+        else
+            return false;
+    }
+
+    static function retrieve_question_liked_matching($field, $value, $from=0, $count=-1, $sort=null)
+    {
+        if(preg_replace('/\W/','',$field)!== $field)
+            return false; // not a permitted field name;
+        $query = "SELECT * FROM yacrs_question_liked WHERE $field='".dataConnection::safe($value)."'";
+        if(($sort !== null)&&(preg_replace('/\W/','',$sort)!== $sort))
+            $query .= " ORDER BY ".$sort;
+        if(($count != -1)&&(is_int($count))&&(is_int($from)))
+            $query .= " LIMIT ".$count." OFFSET ".$from;
+        $query .= ';';
+        $result = dataConnection::runQuery($query);
+        if(sizeof($result)!=0)
+        {
+            $output = array();
+            foreach($result as $r)
+                $output[] = new question_liked($r);
+            return $output;
+        }
+        else
+            return false;
+    }
+
+    function insert()
+    {
+        //#Any required insert methods for foreign keys need to be called here.
+        $query = "INSERT INTO yacrs_question_liked(session_id, question_id, student_id, liked, posted) VALUES(";
+        $query .= "'".dataConnection::safe($this->session_id)."', ";
+        $query .= "'".dataConnection::safe($this->question_id)."', ";
+        $query .= "'".dataConnection::safe($this->student_id)."', ";
+        $query .= "'".(($this->liked===false)?0:1)."', ";
+        $query .= "'".dataConnection::time2db($this->posted)."');";
+        dataConnection::runQuery("BEGIN;");
+        $result = dataConnection::runQuery($query);
+        $result2 = dataConnection::runQuery("SELECT LAST_INSERT_ID() AS id;");
+        dataConnection::runQuery("COMMIT;");
+        $this->id = $result2[0]['id'];
+        return $this->id;
+    }
+
+    function update()
+    {
+        $query = "UPDATE yacrs_question_liked ";
+        $query .= "SET session_id='".dataConnection::safe($this->session_id)."' ";
+        $query .= ", question_id='".dataConnection::safe($this->question_id)."' ";
+        $query .= ", student_id='".dataConnection::safe($this->student_id)."' ";
+        $query .= ", liked='".(($this->liked===false)?0:1)."' ";
+        $query .= ", posted='".dataConnection::time2db($this->posted)."' ";
+        $query .= "WHERE id='".dataConnection::safe($this->id)."';";
+        return dataConnection::runQuery($query);
+    }
+
+    static function count($where_name=null, $equals_value=null)
+    {
+        $query = "SELECT COUNT(*) AS count FROM yacrs_question_liked WHERE ";
+        if($where_name==null)
+            $query .= '1;';
+        else
+            $query .= "$where_name='".dataConnection::safe($equals_value)."';";
+        $result = dataConnection::runQuery($query);
+        if($result == false)
+            return 0;
+        else
+            return $result['0']['count'];
+    }
+
+    function toXML()
+    {
+        $out = "<question_liked>\n";
+        $out .= '<id>'.htmlentities($this->id)."</id>\n";
+        $out .= '<session_id>'.htmlentities($this->session_id)."</session_id>\n";
+        $out .= '<question_id>'.htmlentities($this->question_id)."</question_id>\n";
+        $out .= '<student_id>'.htmlentities($this->student_id)."</student_id>\n";
+        $out .= '<liked>'.htmlentities($this->liked)."</liked>\n";
+        $out .= '<posted>'.htmlentities($this->posted)."</posted>\n";
+        $out .= "</question_liked>\n";
+        return $out;
+    }
+    //[[USERCODE_yacrs_question_liked]] Put code for custom class members in this block.
+
+    static function checkIfLiked($qId,$sId)
+    {
+        $query = "SELECT * FROM yacrs_question_liked WHERE question_id='".dataConnection::safe($qId)."' AND student_id='".dataConnection::safe($sId)."';";
+        $result = dataConnection::runQuery($query);
+        if(sizeof($result)!=0)
+        {
+            return true;
+        }
+        else
+            return false;
+    }
+
+    static function removeLiked($qId,$sId)
+    {
+        $query = "DELETE FROM yacrs_question_liked WHERE question_id='".dataConnection::safe($qId)."' AND student_id='".dataConnection::safe($sId)."';";
+        $result = dataConnection::runQuery($query);
+        return $result;
+    }
+
+    function getLastLikeID($sessionID, $afterID){
+        $query = "SELECT MAX(id) FROM yacrs_question_liked WHERE session_id='".dataConnection::safe($sessionID)."'  AND id > ".dataConnection::safe($afterID);
+        $result = dataConnection::runQuery($query);
+        return $result;
+    }
+
+
+    //[[USERCODE_yacrs_question_liked]] WEnd of custom class members.
+}

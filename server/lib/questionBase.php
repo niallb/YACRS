@@ -25,9 +25,14 @@ abstract class questionBase
         if($resp==false)
             return '(none)';
         else
-        	return $resp->value;
+            return $resp->value;
+    }
+
+    function getDisplayURL($qiID)
+    {
+        return "";
     }
 
     abstract function report($thisSession, $qi, $detailed = false);
-    abstract static function getEditForm();
+    //static function getEditForm();
 }

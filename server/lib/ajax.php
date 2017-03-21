@@ -33,8 +33,6 @@ function UpdatePosts(id)
 </script>";
 }
 
-
-
 function getLiveResponseUpdateAJAXScript($sessionID)
 {
 	return "<script lang=\"JavaScript\">

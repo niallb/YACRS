@@ -1,0 +1,16 @@
+#!/usr/bin/osascript
+
+on run argv
+  set theFile to first item of argv
+  my setWallpaper(theFile)
+end run
+
+on setWallpaper(theFile)
+  tell application "System Events"
+    set theDesktops to a reference to every desktop
+    repeat with aDesktop in theDesktops
+      set picture rotation of aDesktop to 0
+      set the picture of aDesktop to theFile
+    end repeat
+  end tell
+end setWallpaper

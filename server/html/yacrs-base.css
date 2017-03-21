@@ -265,7 +265,7 @@ h1, h2, h3, .adminSections > li, .adminSections > li a {
 .breadcrumb {
 	padding-left: 0;
 	margin-bottom: 20px;
-	color: #586776;
+	color: #4f5961;
 }
 
 .breadcrumb li {
@@ -284,7 +284,7 @@ h1, h2, h3, .adminSections > li, .adminSections > li a {
 }
 
 .breadcrumb a {
-	color: #586776;
+	color: #4f5961;
 	text-decoration: none;
 }
 
@@ -302,31 +302,6 @@ h1, h2, h3, .adminSections > li, .adminSections > li a {
 
 .user-search-form .form-group {
 	margin-bottom: 0;
-}
-
-.question-navigation {
-	color: #777;
-	margin-top: 20px;
-	margin-bottom: 0;
-	border-top: 1px solid #ddd;
-	padding-top: 20px;
-	text-align: center;
-	padding-left: 20em;
-	padding-right: 20em;
-}
-
-.question-nav.top {
-	overflow: hidden;
-	border-bottom: 1px solid #ddd;
-	padding-bottom: 10px;
-	margin-bottom: 20px;
-}
-
-.question-nav.bottom {
-	overflow: hidden;
-	border-top: 1px solid #ddd;
-	padding-top: 10px;
-	margin-top: 20px;
 }
 
 .table-striped td {
@@ -350,100 +325,207 @@ h1, h2, h3, .adminSections > li, .adminSections > li a {
 	height: 74px;
 }
 
-.comment, .info {
-	clear: both;
-	max-width: 70%;
+#add_questionChat {
 	margin-bottom: 20px;
+	overflow: hidden;
 }
 
-.comment .meta, .info .meta {
-	clear: both;
-	margin-left: 10px;
-	color: #777;
-	font-size: 0.85em;
-	margin-bottom: 0;
+#add_questionChat .submit {
+	height: 74px;
 }
 
-.meta .time {
-	margin-left: 0.5em;
+
+/* YALIS update - css for comments improved bottom */
+.submit-question{
+	position:absolute;
+	bottom:30px;
+	right:8px;
+	border: 0px solid transparent !important;
+	border-radius: 100px !important;
+	background-color: #197fcd !important;
+	background-image: url("icons/icon-send.png") !important;
+	background-repeat: no-repeat !important;
+	background-size: 24px 24px;
+	background-position: 11px 13px;
+	width: 48px !important;
+	height: 48px !important;
+	padding: 10px !important;
+	transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+	-webkit-box-shadow: 0px 3px 3px 0px rgba(124, 124, 124, 0.3) !important;
+	-moz-box-shadow:    0px 3px 3px 0px rgba(124, 124, 124, 0.3) !important;
+	box-shadow:         0px 3px 3px 0px rgba(124, 124, 124, 0.3) !important;
 }
 
-.meta .time:before {
-	content: "\00b7";
-	padding-right: 0.5em;
+.submit-question:hover {
+	background-position: 11px 13px !important;
+	box-shadow: 0 10px 12px rgba(124, 124, 124, 0.3) !important;
 }
 
-.comment .bubble, .info .bubble {
-	position: relative;
-	width: 100%;
-	background-color: #eee;
-	padding: 8px;
-	border-radius: 8px;
-	margin-left: 10px;
-	float: left;
-	margin-bottom: 5px;
-	box-shadow 0 0 2px #000;
-}
-
-.comment .bubble:after {
-  content:"";
-  position:absolute;
-  bottom: 8px;
-  left: -10px;
-  top: auto;
-  border-width:7px 10px 2px 0; /* vary these values to change the angle of the vertex */
-  border-style:solid;
-  border-color: transparent #eee;
-}
-
-.comment.me .bubble {
-	background-color: #CCEC8C;
-	margin-left: 0;
-	margin-right: 10px;
-}
-
-.info .bubble {
-	background-color: #AED7ED;
-}
-
-.info .bubble:after {
-  border-color: transparent #AED7ED;
-  content:"";
-  position:absolute;
-  bottom: 8px;
-  left: -10px;
-  top: auto;
-  border-width:7px 10px 2px 0; /* vary these values to change the angle of the vertex */
-  border-style:solid;
-}
-
-.comment.me .bubble:after {
-  border-color: transparent #CCEC8C;
-}
-
-.comment.me {
-	float: right;
-	margin-right: 10px;
-}
-
-.comment.me .meta {
-	text-align: right;
-}
-
-.comment.me .bubble:after {
-  content:"";
-  position:absolute;
-  bottom: 8px;
-  left: auto;
-  right: -10px;
-  top: auto;
-  border-width: 7px 0 2px 10px; /* vary these values to change the angle of the vertex */
-  border-style:solid;
-  border-color: transparent #CCEC8C;
+.submit-question:focus{
+	background-position: 11px 13px !important;
+	box-shadow: 0 10px 12px rgba(124, 124, 124, 0.3) !important;
 }
 
 .extra-bottom {
 	margin-bottom: 20px;
+}
+
+.question-active td:first-of-type {
+    border-left: 5px solid #84db00;
+}
+
+.question-inactive td:first-of-type {
+    border-left: 5px solid #e2e5e7;
+}
+
+.question-nav {
+    overflow: hidden;
+}
+
+.question-nav-top {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e5e5e5;
+    padding-bottom: 10px;
+}
+
+.question-nav-bottom {
+        margin-top: 20px;
+    border-top: 1px solid #e5e5e5;
+    padding-top: 10px;
+}
+
+.question-nav div {
+    text-align: center;
+}
+
+.question-nav div.question-prev {
+    text-align: left;
+}
+
+.question-nav div.question-next {
+    text-align: right;
+}
+
+/*YALIS Update*/
+.icon-ask-question{
+	float: right;
+	display: none;
+}
+
+.showChat{
+	margin-bottom: 0% !important;
+}
+
+.comment, .info {
+    clear: both;
+    max-width: 70%;
+    margin-bottom: 20px;
+}
+
+.comment .meta, .info .meta {
+    clear: both;
+    margin-left: 10px;
+    color: #777;
+    font-size: 0.85em;
+    margin-bottom: 0;
+}
+
+.meta .time {
+    margin-left: 0.5em;
+}
+
+.meta .time:before {
+    content: "\00b7";
+    padding-right: 0.5em;
+}
+
+.comment .bubble, .info .bubble {
+    position: relative;
+    width: 100%;
+    background-color: #CDDC39;
+    padding: 12px;
+    border-radius: 4px;
+    margin-left: 10px;
+    float: left;
+    margin-bottom: 5px;
+    -webkit-box-shadow: 0px 2px 2px 0px rgba(187,187,187,1);
+    -moz-box-shadow: 0px 2px 2px 0px rgba(187,187,187,1);
+    box-shadow: 0px 2px 2px 0px rgba(187,187,187,1);
+    border-radius: 2px 15px 15px 15px;
+}
+
+.comment.me .bubble {
+    background-color: #32a1ea;
+	color: white;
+    margin-left: 0;
+    margin-right: 10px;
+    border-radius: 15px 2px 15px 15px;
+}
+
+.info .bubble {
+    background-color: #EEE;
+}
+
+.comment.me .bubble:after {
+    border-color: transparent #CCEC8C;
+}
+
+.comment.me {
+    float: right;
+    margin-right: 10px;
+}
+
+.comment.me .meta {
+    text-align: right;
+}
+
+#add_questionChat .submit {
+    border-radius: 100px;
+}
+
+
+.submit-reply{
+	position: absolute;
+	bottom: 14px;
+	right: 20px;
+	border: 0px solid transparent !important;
+	border-radius: 100px !important;
+	background-color: #197fcd !important;
+	background-image: url("icons/icon-send.png") !important;
+	background-repeat: no-repeat !important;
+	background-size: 24px 24px;
+	background-position: 11px 13px;
+	width: 48px !important;
+	height: 48px !important;
+	padding: 10px !important;
+	transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+	-webkit-box-shadow: 0px 3px 3px 0px rgba(124, 124, 124, 0.3) !important;
+	-moz-box-shadow: 0px 3px 3px 0px rgba(124, 124, 124, 0.3) !important;
+	box-shadow: 0px 3px 3px 0px rgba(124, 124, 124, 0.3) !important;
+}
+
+.submit-reply:hover{
+	background-position: 11px 13px !important;
+	box-shadow: 0 10px 12px rgba(124, 124, 124, 0.3) !important;
+}
+
+.submit-reply:focus{
+	background-position: 11px 13px !important;
+	box-shadow: 0 10px 12px rgba(124, 124, 124, 0.3) !important;
+}
+
+
+.btn-best-answer{
+	border-radius: 100px;
+	float: right;
+}
+
+.correct-answer{
+	max-width: 100%;
+	padding-right: 40px;
+	padding-left: 40px;
+	border-radius: 10px;
+	font-size: 14px;
 }
 
 /* Overrides for Bootstrap's mobile theme */
@@ -466,14 +548,28 @@ h1, h2, h3, .adminSections > li, .adminSections > li a {
 		margin-top: 5px;
 	}
 	
-	#pageHeader .loginBox {
-		float: none;
-		margin-top: 20px;
-		margin-bottom: 20px;
+	#pageHeader {
+    	min-height: 42px;
 	}
 	
-	.logo {
-		display: none;
+	#pageHeader .loginBox {
+		float: none;
+		margin-top: 10px;
+		margin-bottom: 10px;
 	}
-
+	
+	#pageHeader .logo {
+    	height: auto !important;
+		background-image: none !important;
+		text-indent: 0;
+		font-size: inherit;
+		color: #fff;
+		font-weight: 400;
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+	
+	#pageHeader .col-xs-6:last-of-type {
+    	text-align: right;
+	}
 }

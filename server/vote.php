@@ -83,7 +83,7 @@ else
 	        {
                 $template->pageData['mainBody'] .= displayQuestion($thisSession->currentQuestion);
 	        }
-	        $template->pageData['mainBody'] .= "<div class='question-nav bottom'><a href='vote.php?sessionID={$thisSession->id}&continue=1' class='pull-right'>Continue to Next Question &rsaquo;</a></div>";
+	        $template->pageData['mainBody'] .= "<div class='question-nav question-nav-bottom'><div class='col-xs-4 col-xs-push-8 question-next'><a href='vote.php?sessionID={$thisSession->id}&continue=1'><span class='hidden-xs'>Continue to </span>Next<span class='hidden-xs'> Question</span> &rsaquo;</a></div>";
         }
         else
         {
@@ -97,19 +97,26 @@ else
 
 	            $positions = array_flip($thisSession->extras[currentQuestions]);
 	            $cidx = $positions[$cqiid];
-	            $template->pageData['mainBody'] .= "<p class='question-navigation'>";
-	            $template->pageData['mainBody'] .= 'Question '.($cidx+1).' of '.sizeof($thisSession->extras[currentQuestions]);
+	            
+	            $template->pageData['mainBody'] .= '<div class="row question-nav question-nav-bottom"><div class="col-xs-4 question-prev">';
 	            if($cidx > 0)
 	            {
 	                $prev = $thisSession->extras[currentQuestions][$cidx-1];
-		            $template->pageData['mainBody'] .= "<a href='vote.php?sessionID={$thisSession->id}&qiID={$prev}' class='pull-left'>&lsaquo; Back to Previous Quesiton</a> ";
+		            $template->pageData['mainBody'] .= "<a href='vote.php?sessionID={$thisSession->id}&qiID={$prev}'>&lsaquo; <span class='hidden-xs'>Back to </span>Previous<span class='hidden-xs'> Question</span></a> ";
 	            }
+                
+	            
+	            
+	            $template->pageData['mainBody'] .= '</div><div class="col-xs-4">';
+	            $template->pageData['mainBody'] .= 'Question '.($cidx+1).' of '.sizeof($thisSession->extras[currentQuestions]);
+                
+                $template->pageData['mainBody'] .= '</div><div class="col-xs-4 question-next">';
 	            if($cidx < sizeof($thisSession->extras[currentQuestions])-1)
 	            {
 	                $next = $thisSession->extras[currentQuestions][$cidx+1];
-		            $template->pageData['mainBody'] .= "<a href='vote.php?sessionID={$thisSession->id}&qiID={$next}' class='pull-right'>Continue to Next Question &rsaquo;</a>";
+		            $template->pageData['mainBody'] .= "<a href='vote.php?sessionID={$thisSession->id}&qiID={$next}'><span class='hidden-xs'>Continue to </span>Next<span class='hidden-xs'> Question</span> &rsaquo;</a>";
 	            }
-	            $template->pageData['mainBody'] .= "</p>";
+	            $template->pageData['mainBody'] .= "</div></div>";
                 // Display which ones done, and quick links.
                 $n = 0;
                 $disps = array();
@@ -155,7 +162,7 @@ function displayQuestion($qiid, $forceTitle=false)
      $resp = response::retrieve($smemb->id, $qi->id);
      if((isset($_REQUEST['continue']))&&($resp!==false))
      {
-         $out .= "<div class='alert alert-danger'>Sorry, the next queston is not active yet.</div>";
+         $out .= "<div class='alert alert-danger'>Sorry, the next question is not active yet.</div>";
          header( "Refresh: 10; url={$serverURL}?sessionID={$thisSession->id}" );
      }
      if((isset($_REQUEST['submitans']))&&(isset($_REQUEST['qiID']))&&($_REQUEST['qiID']!==$qi->id))
@@ -205,7 +212,7 @@ function displayQuestion($qiid, $forceTitle=false)
 	     $out .= $qu->definition->render($qi->title);
          if(($qu->definition->responseValue === false)||(($thisSession->allowQuReview)&&(isset($_REQUEST['doupdate']))))
          {
-             $out .= "<input type='submit' name='submitans' value='Save Answer' class='btn btn-primary' />";
+             $out .= "<input type='submit' id='saveBtn' name='submitans' value='Save Answer' class='btn btn-primary'/>";
          }
          elseif(($thisSession->allowQuReview)&&($qu->definition->allowReview()))
          {

@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>YACRSControl</title></head>
+<body><h1>YACRSControl</h1><h3>Teacher documentation</h3>
+<ul>
+<li><a href="yacrs.pdf">Download teacher documentation PDF</a></li>
+<li><a href="basic_yacrs_student_instructions_v2.doc">Download student documentation (Word document, edit to suit your needs)</a></li>
+</ul>
+basic_yacrs_student_instructions_v2.doc
+
+<h3>Download</h3><ul><li><a href="YACRSControl_v1p0p2.zip">Windows version 1.0.2</a>. (40 kB, this should work on modern versions of Windows with .NET installed.)&nbsp;
+<br>Unzip and double click on YACRScontrol.exe to run. It shoulds run from a USB drive attached to standard lecture theatre computers.&nbsp;</li>
+<li><a href="YACRSMac_20141022.zip">Mac version (0.4)</a> Install the <a href='http://www.mono-project.com/download/'>Mono Framework</a> for Mac first. (There
+is a significant delay (several minutes) at one point the first time
+this is run on a new computer, so test it before using it infront of a class.)</li>
+<li><a href="YACRSMac_20150915.zip">Mac version (version 1.0 beta 1)</a></li>
+</ul><h3>Instructions</h3>You
+need to connect to the web server running YACRS to use YACRSControl -
+the URL at the University of Glasgow is https://learn.gla.ac.uk/yacrs/
+- this needs to be typed precisely with the https:// prefix and
+trailing / in the current release. Type in your GUID and password
+to login. 
+<br><img style="width: 403px; height: 137px;" alt="Login dialog screenshot" src="login.png"><br><br>Once logged in, click on the "New session" button:<br><br><img style="width: 695px; height: 401px;" alt="Main YACRSControl Window" src="yacrscontrol.png"><br><br><ul><li>Select
+the 'question type' - With YACRSControl only very generic selections
+are appropriate, and the two current options are A-D or A-E.</li><li>Give
+the session a title - the default is the date, however sessions can be
+restarted, so a course name is probably more appropriate. </li><li>A course identifier can be added to automatically being in a classlist - this is the identifier from the <a href="http://www.gla.ac.uk/coursecatalogue/">course catalog</a>
+, e.g. COMPSCI1001. Classlists come from the feed that is used to
+autoenrol students in Moodle, and may be up to 24 hours behind
+registrations in MyCampus. </li><li>You can opt to allow guest users, the default is to require a login with a GUID. &nbsp;</li><li>If
+you tick the "Display on user's available sessions list" the students
+enrolled in the session will see a link when they login to YACRS. This
+is recomended if you have enrolled students using a classlist
+identifier.</li><li>YACRSControl requires the "Teacher Led" (default) question mode.</li><li>Deafult
+time limit allows you to set a default period for qustions being
+available - the teacher can always close a question early. 0 leaves it
+fully under the teacher's control.</li><li>Microblogging sets up a
+"room" within &nbsp;YACRS similar to todaysmeet.com, whic allows
+students to have a back channel. If using this with YACRSControl, it is
+probably wise to also have a GTA or volunteer student monitoring the
+back channel. "Allow anonymous questions for the teacher" is part of
+this back channel, and not yet implemented in YACRS so should be left
+unchecked. </li></ul>Once the session settings have been added click the Create button.<br><br>To start the session, Click the start session button. YACRSControl will shrink to be a small floating window:<br>&nbsp;<img style="width: 161px; height: 41px;" alt="YACRSControl in float mode" src="float.png"><br><br><ul><li>The ? button starts a new question, and also sends a screenshot of the computer to YACRS.</li><li>The graph button displays a bar chart of the votes for the most recent completed question.</li><li>The
+numbers on the right sumarise the users - when no question is active
+(as in the picture) this shows how many have interacted recently, and
+how many are registered in the session.&nbsp;When a question is active,
+the active users count is replaced by a count of responses to the
+question. </li><li>Unticking the checkbox onm the left ends the session.</li></ul><br></body></html>

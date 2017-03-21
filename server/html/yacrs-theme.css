@@ -1,16 +1,101 @@
+/* YALIS update, commented font-face because no font present*/
+/*@font-face {*/
+	/*font-family:		'Glasgow';*/
+	/*src:				url('ubuntu-normal.woff') format('woff');*/
+	/*font-weight:		500;*/
+	/*font-style:			normal;*/
+/*}*/
+
+/*@font-face {*/
+	/*font-family:		'Glasgow';*/
+	/*src:				url('ubuntu-normal-italic.woff') format('woff');*/
+	/*font-weight:		500;*/
+	/*font-style:			italic;*/
+/*}*/
+
+/*@font-face {*/
+	/*font-family:		'Glasgow';*/
+	/*src:				url('ubuntu-bold.woff') format('woff');*/
+	/*font-weight:		700;*/
+	/*font-style:			normal;*/
+/*}*/
+
+/*@font-face {*/
+	/*font-family:		'Glasgow';*/
+	/*src:				url('ubuntu-bold-italic.woff') format('woff');*/
+	/*font-weight:		700;*/
+	/*font-style:			italic;*/
+/*}*/
+
+body {
+	font-family: 'Glasgow', 'Trebuchet MS', sans-serif;
+	background: #f0f1f2;
+	color: #444;
+}
+
 #pageHeader {
 	background-color: #003865;
-	background: linear-gradient(to bottom, #004377 0%,#003865 100%); 
 	border-bottom-color: #011A31;
+	box-shadow: 0 1px 3px #4f5961;
 }
 
 #pageHeader .logo {
-	height: 80px;
+	height: 74px;
 	background-image: url('logo-gu.png');
 }
 
 #pageHeader .loginBox {
 	color: #6593BD;
+}
+
+#main #content {
+    border-color: #e2e5e7;
+}
+
+.page-section {
+	border-bottom-color: #e2e5e7;
+	background-color: #f0f1f2;
+}
+
+footer .glasgow {
+	color: #003865;
+	margin: 0;
+	margin-bottom: 10px;
+}
+
+footer p {
+	margin-bottom: 10px;
+}
+
+footer .container {
+	margin-top: 20px;
+}
+
+.footer-links h4 {
+	padding: 0;
+	font-size: 1em;
+	line-height:19px;
+	vertical-align: baseline;
+	color: #003865;
+	text-transform: uppercase;
+	font-weight: 700;
+	margin: 0;
+	margin-bottom: 10px;
+}
+
+.footer-links ul {
+	margin: 0;
+	margin-bottom: 20px;
+	padding-left: 0;
+}
+
+.footer-links li {
+	display: block;
+	margin-bottom: 5px;
+}
+
+.form-export-data, .table-striped>tbody>tr:nth-of-type(odd) {
+	background-color: #f5f5f5;
 }
 
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) { 

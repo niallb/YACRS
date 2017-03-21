@@ -1,0 +1,443 @@
+html{
+    height:100%;
+}
+
+body{
+    background-color: #466474 !important;
+    overflow: hidden;
+    height:100%;
+}
+
+#main {
+    padding-top: 0px !important;
+    padding-bottom: 20px;
+}
+
+#main #content {
+    background-color: transparent !important;
+    border: 0px solid #ccc !important;
+    padding: 0px !important;
+}
+
+#pageHeader{
+    display: none !important;
+}
+
+#content:after {
+    content:"";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    border-left: 4px solid #1DE9B6;
+}
+
+hr{
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+}
+
+
+.pin-container{
+    background: #f5f5f5;
+    position: absolute;
+    height: 100%;
+    width: 30%;
+    left: -30%;
+    z-index: 9999;
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    -webkit-box-shadow: 3px 0px 3px 0px rgba(0,0,0,0.5);
+    -moz-box-shadow: 3px 0px 3px 0px rgba(0,0,0,0.5);
+    box-shadow: 3px 0px 3px 0px rgba(0,0,0,0.5);
+}
+
+.inPinnedContainer{
+    bottom: auto !important;
+    width: 94% !important;
+}
+
+.message-container{
+    width: 100%;
+    left: 0;
+    padding: 10px 25%;
+    min-height: 0%;
+    position: absolute;
+    bottom: 0px;
+    /*background: red;*/
+}
+
+
+.form-container{
+    position: absolute;
+    width: 100%;
+    height: 10%;
+    left: 0;
+    bottom: 5%;
+    padding-right: 25%;
+    padding-left: 25%;
+}
+
+#add_studentsQuestion{
+    margin-bottom: 0px !important;
+}
+
+#add_studentsQuestion .form-group {
+    margin-bottom: 0px;
+}
+
+.ask-question-textarea{
+    width: 100% !important;
+    border: 0px solid !important;
+    border-radius: 5px !important;
+    -webkit-box-shadow: 0px 3px 3px 0px rgba(124, 124, 124, 0.3) !important;
+    -moz-box-shadow:    0px 3px 3px 0px rgba(124, 124, 124, 0.3) !important;
+    box-shadow:         0px 3px 3px 0px rgba(124, 124, 124, 0.3) !important;
+}
+
+.submit-question{
+    position:absolute;
+    bottom:23px;
+    right:8px;
+    border: 0px solid transparent !important;
+    border-radius: 100px !important;
+    background-color: #197fcd !important;
+    background-image: url("icons/icon-send.png") !important;
+    background-repeat: no-repeat !important;
+    background-size: 24px 24px;
+    background-position: 11px 13px;
+    width: 48px !important;
+    height: 48px !important;
+    padding: 10px !important;
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    -webkit-box-shadow: 0px 3px 3px 0px rgba(124, 124, 124, 0.3) !important;
+    -moz-box-shadow:    0px 3px 3px 0px rgba(124, 124, 124, 0.3) !important;
+    box-shadow:         0px 3px 3px 0px rgba(124, 124, 124, 0.3) !important;
+}
+
+.submit-question:hover{
+    background-position: 11px 13px !important;
+    box-shadow: 0 10px 12px rgba(124, 124, 124, 0.3) !important;
+}
+
+
+.submit-question:focus{
+    background-position: 11px 13px !important;
+    box-shadow: 0 10px 12px rgba(124, 124, 124, 0.3) !important;
+}
+
+.ask-question{
+    width: 45% !important;
+    background: white;
+    color: #3c3c3c;
+    padding: 10px 10px 0px 5px !important;
+    /*padding: 30px !important;*/
+    /*margin: 15px;*/
+    border: 1px solid #fafafa;
+    border-radius: 3px;
+    -webkit-box-shadow: 0px 5px 8px 0px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow:    0px 5px 8px 0px rgba(0, 0, 0, 0.3);
+    box-shadow:         0px 5px 8px 0px rgba(0, 0, 0, 0.3);
+    /*box-shadow: 0 4px 0 #90A4AE;*/
+    /*box-shadow: 0 4px 0 #1DE9B6;*/
+    /*animation look*/
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    cursor: pointer;
+    /*margin: 0 auto 20px;*/
+    /*margin: 5px;*/
+
+    /* give it timeline look */
+    /*margin-right: 15px;*/
+    /*margin-left: 15px;*/
+    /*margin-top: 12px*/
+
+    margin-right: 5px;
+    margin-left: 5px;
+    margin-top: 15px
+}
+
+.pin-container-question{
+    width: 96% !important;
+    background: white;
+    color: #3c3c3c;
+    padding: 10px !important;
+    border: 1px solid #fafafa;
+    border-radius: 3px;
+    -webkit-box-shadow: 0px 5px 8px 0px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow:    0px 5px 8px 0px rgba(0, 0, 0, 0.3);
+    box-shadow:         0px 5px 8px 0px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    cursor: pointer;
+    margin-right: 5px;
+    margin-left: 5px;
+    margin-top: 15px
+}
+
+.ask-question:hover{
+    /*z-index: 999;*/
+    /*transform:  scale(1.15,1.15);*/
+    /*box-shadow: 0 4px 0 #90A4AE;*/
+    /*box-shadow: 0 10px 12px rgba(124, 124, 124, 0.3);*/
+    -webkit-box-shadow: 0 10px 12px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow:    0 10px 12px rgba(0, 0, 0, 0.3);
+    box-shadow:         0 10px 12px rgba(0, 0, 0, 0.3);
+}
+
+.ask-question p {
+    padding-left: 8px;
+    padding-right: 8px;
+    text-decoration: none;
+}
+
+.ask-question .pin{
+    display: none;
+}
+
+.ask-question:hover .pin{
+    display: block;
+}
+
+.question-link{
+    color: #3e3e3e;
+    text-decoration: none;
+}
+
+.question-link:hover{
+    text-decoration: none;
+}
+
+.arrow-right{
+    position: absolute;
+    left:-9px;
+    top: 5px;
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right:10px solid white;
+}
+
+.arrow-left{
+    position: absolute;
+    right:-9px;
+    top: 5px;
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 10px solid white;
+}
+
+.card-buttons{
+    width: 50%;
+}
+
+.button-pressed{
+    color: #197fcd;
+    font-weight: 800;
+}
+
+.comments{
+    border-right: 1px solid #eee;
+    color: #888;
+    text-decoration: none
+}
+
+.bubble-for-badge{
+    position: absolute;
+    right: -10px;
+    top: -10px;
+    background: #197fcd;
+    border-radius: 100px;
+    padding: 5px;
+    z-index: 999;
+    -webkit-box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow:    0px 3px 3px 0px rgba(0, 0, 0, 0.3);
+    box-shadow:         0px 3px 3px 0px rgba(0, 0, 0, 0.3);
+}
+
+.pin-clear{
+    color: red;
+    font-size: 22px !important;
+    position: absolute;
+    right:  20px;
+}
+
+.card-badge{
+    width: 20px;
+    height: 20px;
+}
+
+/*jQuery toggles*/
+.hide-unImpQuestion{
+    float: none !important;
+    width: 32px !important;
+    height: 32px;
+    border-radius: 100px;
+    margin: 5px;
+    background-color: #3F51B5;
+    border: 0px;
+}
+
+.hide-unImpQuestion:hover{
+    transform:  scale(1.0,1.0) !important;
+}
+
+.link{
+    width: 50%;
+    border-right: 1px solid #eee;
+    color: #888;
+    text-decoration: none
+}
+
+.hide-card-details{
+    display: none;
+}
+
+.toggle-cards{
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 auto 12px !important;
+}
+
+.badge-toggle{
+    z-index: 10000;
+    right: 10px;
+    top: 10px;
+    padding: 15px;
+    background: #b41bb0;
+    -webkit-box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow:    0px 3px 3px 0px rgba(0, 0, 0, 0.3);
+    box-shadow:         0px 3px 3px 0px rgba(0, 0, 0, 0.3);
+}
+
+.badge-sort{
+    z-index: 102000;
+    right: 22px;
+    top: 80px;
+    padding: 10px;
+    background: #fff;
+    -webkit-box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow:    0px 3px 3px 0px rgba(0, 0, 0, 0.3);
+    box-shadow:         0px 3px 3px 0px rgba(0, 0, 0, 0.3);
+}
+
+.btn-session{
+    text-align: center;
+    font-size: 20px;
+    border: 1px solid #ccc;
+    margin-left: 30%;
+    margin-right: 30%;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.bottom{
+    bottom: auto !important;
+}
+
+.make-scrollable{
+    overflow-y: scroll;
+    height: 100%;
+}
+
+.pinned{
+    -webkit-box-shadow: inset 0px 0px 0px 0px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow:    inset 0px 0px 0px 0px rgba(0, 0, 0, 0.3);
+    box-shadow:         inset 0px 0px 0px 0px rgba(0, 0, 0, 0.3);
+}
+
+.pinned:hover{
+    transform: scale(1,1);
+    -webkit-box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow:    0px 0px 0px 0px rgba(0, 0, 0, 0.3);
+    box-shadow:         0px 0px 0px 0px rgba(0, 0, 0, 0.3);
+}
+
+/* Overrides for Bootstrap's mobile theme */
+
+@media (min-width: 768px) {
+
+}
+
+@media (max-width: 767px) {
+
+    .message-container{
+        padding-right: 8%;
+        padding-left: 8%;
+    }
+
+    .form-container{
+        bottom: 8%;
+        padding-right: 8%;
+        padding-left: 8%;
+    }
+
+    .card-badge{
+        width: 21px;
+        height: 21px;
+    }
+
+    .hide-unImpQuestion{
+        width: 32px !important;
+        height: 32px;
+        /*margin: 0 auto 12px;*/
+    }
+
+}
+
+/**********************************/
+/*PULSE ANIMATION FOR FONT AWESOME*/
+/**********************************/
+@-webkit-keyframes pulse {
+    0% {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+    }
+
+    50% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+
+    100% {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        -webkit-transform: scale(1.1);
+        -ms-transform: scale(1.1);
+        transform: scale(1.1);
+    }
+
+    50% {
+        -webkit-transform: scale(1);
+        -ms-transform: scale(1);
+        transform: scale(1);
+    }
+
+    100% {
+        -webkit-transform: scale(1.1);
+        -ms-transform: scale(1.1);
+        transform: scale(1.1);
+    }
+}
+
+.faa-pulse.animated,
+.faa-pulse.animated-hover:hover,
+.faa-parent.animated-hover:hover > .faa-pulse {
+    -webkit-animation: pulse 2s linear infinite;
+    animation: pulse 2s linear infinite;
+}
+
+/* SHAKE */
+
+.faa-shake.animated,
+.faa-shake.animated-hover:hover,
+.faa-parent.animated-hover:hover > .faa-shake {
+    -webkit-animation: wrench 2.5s ease infinite;
+    animation: wrench 2.5s ease infinite;
+}

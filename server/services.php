@@ -68,6 +68,12 @@ elseif($_REQUEST['action'] == 'login')
             createTextinputGlobalQuestion();
 	        $sqs = systemQuestionLookup::all();
         }
+        if(sizeof($sqs)<10)
+        {
+            createGlobalConfidenceQuestion("MC+C A-E", "A\nB\nC\nD\nE\n");
+            createGlobalConfidenceQuestion("MC+C A-H", "A\nB\nC\nD\nE\nF\nG\nH");
+	        $sqs = systemQuestionLookup::all();
+        }
         foreach($sqs as $sq)
         {
         	$data['serverInfo']['globalQuType'][] = array('attributes'=>array('id'=>$sq->qu_id), 0=>$sq->name);
@@ -192,6 +198,7 @@ else
             $qiID = $sess->currentQuestion;
         }
         $qi = questionInstance::retrieve_questionInstance($qiID);
+        $qu = question::retrieve_question($qi->theQuestion_id);
 	    $userCount = sessionMember::count("session_id", $_REQUEST['id']);
 	    $activeCount = sessionMember::countActive($_REQUEST['id']);
         if($qi===false)
@@ -201,8 +208,10 @@ else
         }
         else
         {
+            $questionClass = get_class($qu->definition);
+            $displayURL = $qu->definition->getDisplayURL($qiID);
 			$count = response::count('question_id', $qiID);
-	        $data['questionResponseInfo'] = array('attributes'=>array('questiontype'=>$qi->title, 'id'=>$qiID), 'activeUsers'=>$activeCount, 'totalUsers'=>$userCount, 'responseCount'=>$count);
+	        $data['questionResponseInfo'] = array('attributes'=>array('questiontype'=>$qi->title, 'id'=>$qiID, 'questionClass'=>$questionClass, 'displayURL'=>$displayURL), 'activeUsers'=>$activeCount, 'totalUsers'=>$userCount, 'responseCount'=>$count);
 	        if(($qi->starttime > 0)&&($qi->endtime > $qi->starttime))
 	        {
 	            $ttg = $qi->endtime - time();
@@ -237,7 +246,11 @@ else
 						    {
 						        if(strlen($r->value))
 						        {
-							        $votes = explode(',',$r->value);
+                                    if(strpos($r->value, '::'))
+                                        list($votes, $tmp) = explode('::', $r->value);
+                                    else
+                                        $votes = $r->value;
+							        $votes = explode(',',$votes);
 							        foreach($votes as $v)
 							        {
 						                $count[$v]++;
@@ -257,6 +270,7 @@ else
                 }
             }
         }
+        $data['questionResponseInfo']['studentQuInfo'] = studentsQuestion::count("session_id",$sess->id);
         break;
     case 'sessionlist':
    	    $sessions = session::retrieve_session_matching('ownerID', $uinfo['uname']);
@@ -372,7 +386,7 @@ function sendResponse($messageName, $errors, $data)
 {
  	header ("Content-Type:text/xml");
 	echo "<?xml version=\"1.0\"?>\n";
-	echo "<YACRSResponse version=\"1.0.0\"";
+	echo "<YACRSResponse version=\"1.1.0\"";
     if($messageName)
     {
     	echo " messageName='$messageName'";
@@ -477,6 +491,22 @@ function mymkdir($dir)
 		return false;
     else
     	return true;
+}
+
+function createGlobalConfidenceQuestion($title, $definition)
+{
+    $qu = new confidenceQuestion($title, false, $definition);
+    $theQu = new question();
+    $qu->displayStem = false;
+    $qu->stem = "";
+	$theQu->title = $title;
+	$theQu->multiuse = true;
+    $theQu->definition = $qu;
+    $theQu->insert();
+    $qlu = new systemQuestionLookup();
+    $qlu->qu_id = $theQu->id;
+    $qlu->name = $theQu->title;
+    $qlu->insert();
 }
 
 function createBasicGlobalQuestion($title, $definition)

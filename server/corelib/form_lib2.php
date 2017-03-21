@@ -50,12 +50,14 @@ abstract class nbform
     	return $this->formStatus;
     }
 
-	function formStart($target=false, $method='POST', $enctype='')
+    //YALIS update - changed definitions of form builders, more dynamic now
+
+    function formStart($target=false, $method='POST', $enctype='', $id='')
 	{
     	$this->inFieldset = false;
 		if(!$target)
 	    	$target = $_SERVER['PHP_SELF'];
-	    $out = '<form action="'.$target.'" method="'.$method.'"';
+	    $out = '<form action="'.$target.'" method="'.$method.'" id="'.$id.'"';
         if($enctype != '')
         	$out .= ' enctype="'.$enctype.'"';
         $out .= ' class="form-horizontal">';
@@ -90,7 +92,18 @@ abstract class nbform
 	    return $out;
 	}
 
-	function getFormInput($name, $default=false)
+    function submitNewInput($name, $value1, $value2=null, $class="")
+    {
+        $out = "<div class=\"col-sm-8 col-sm-offset-4\">";
+        $out .= '<input class="submit btn btn-success '.$class.'" name="'.$name.'" type="submit" value="'.$value1.'" />';
+        if($value2)
+            $out .= '<input class="submit btn btn-link '.$class.'" name="'.$name.'" type="submit" value="'.$value2.'" />';
+        $out .= "</div>";
+        return $out;
+    }
+
+
+    function getFormInput($name, $default=false)
 	{
 		if(requestSet($name))
 			return trim(strip_tags(requestRaw($name)));
@@ -337,7 +350,7 @@ abstract class nbform
         if($required)
         	$out .= '<span style="color: Red;">*</span>';
 	    $out .= '</label>';
-	    $out .= '<div class="col-sm-8">';
+	    $out .= '<div class="col-sm-12">';
 	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
 	        $out .= "<div class=\"alert alert-error\">{$validateMsgs[$name]}</div>";
 	    $out .= "<textarea name=\"$name\" class=\"form-control\" rows=\"$height\"";
@@ -348,6 +361,26 @@ abstract class nbform
 	    $out .= "</textarea></div></div>";
 	    return $out;
 	}
+
+	//YALIS update below
+    function textareaNewInput($caption, $name, $value="", $validateMsgs=null, $width=70, $height=3, $required=false, $class="")
+    {
+        $out = "<div class=\"form-group\">";
+        $out .= "<label for=\"$name\" class='control-label col-sm-4'>$caption";
+        if($required)
+            $out .= '<span style="color: Red;">*</span>';
+        $out .= '</label>';
+        $out .= '<div class="col-sm-12">';
+        if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
+            $out .= "<div class=\"alert alert-error\">{$validateMsgs[$name]}</div>";
+        $out .= "<textarea name=\"$name\" class=\"form-control $class\" maxlength='240' placeholder=\"Please add question here...\" rows=\"$height\"";
+        if((isset($this->disabled[$name]))&&($this->disabled[$name]))
+            $out .= ' disabled="disabled" ';
+        $out .= ">";
+        $out .= $value;
+        $out .= "</textarea></div></div>";
+        return $out;
+    }
 
 	function passwordInput($caption, $name, $value="", $validateMsgs=null, $width=12, $required=false)
 	{

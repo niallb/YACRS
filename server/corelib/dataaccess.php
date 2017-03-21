@@ -76,7 +76,7 @@ class dataConnection
 	    list($dt, $ti) = explode(" ",$in);
 	    list($y,$m,$d) = explode("-",$dt);
 	    list($hh,$mm,$ss) = explode(":",$ti);
-	    return mktime($hh,$mm,$ss,$m,$d,$y);
+	    return mktime(intval($hh),$mm,$ss,$m,$d,intval($y));
 	}
 
 	public static function time2db($in)

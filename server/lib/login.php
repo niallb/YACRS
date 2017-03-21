@@ -3,33 +3,36 @@ require_once('corelib/ldap_login.php');
 
 function checkLoggedInUser($allowLogin = true, &$error = false)
 {
-/*# In future I think the cookie should just contain a user ID, and the rest of uinfo
-    should be replaced by the userInfo class... Maybe this is quicker for students though...
-*/
-	global $CFG;
+    /*# In future I think the cookie should just contain a user ID, and the rest of uinfo
+        should be replaced by the userInfo class... Maybe this is quicker for students though...
+    */
+    global $CFG;
+    $error = false;
     $uinfo = false;
-	if(($allowLogin )&&(isset($_REQUEST['uname']))&&(isset($_REQUEST['pwd'])))
+    if(($allowLogin )&&(isset($_REQUEST['uname']))&&(isset($_REQUEST['pwd'])))
     {
         if(session_id()!=='')
-   	        session_destroy(); // Just to clear out old LTI info.
+            session_destroy(); // Just to clear out old LTI info.
         if((isset($CFG['adminname']))&&($CFG['adminname']==$_REQUEST['uname'])&&(isset($CFG['adminpwd']))&&($CFG['adminpwd']!=''))
             $uinfo = checkSuperLogin($_REQUEST['uname'], $_REQUEST['pwd']);
         else
+            //H2 hack for fake logins
+            //$uinfo = userInfo::retrieve_fakeUserInfo(5);
             $uinfo = checkLogin($_REQUEST['uname'], $_REQUEST['pwd']);
         if($uinfo)
         {
-           //# Should also check by e-mail
-           //#Some thinking & probably refactoring needed to make sure LTI and OpenID
-           //# logins can be supported.
-        	$user = userInfo::retrieve_by_username($uinfo['uname']);
+            //# Should also check by e-mail
+            //#Some thinking & probably refactoring needed to make sure LTI and OpenID
+            //# logins can be supported.
+            $user = userInfo::retrieve_by_username($uinfo['uname']);
             if($user == false)
             {
-            	$user = new userInfo();
+                $user = new userInfo();
                 $user->username = $uinfo['uname'];
                 $user->name = $uinfo['gn'].' '.$uinfo['sn'];
                 $user->email = $uinfo['email'];
                 if(isset($uinfo['sessionCreator']))
-	                $user->sessionCreator = $uinfo['sessionCreator'];
+                    $user->sessionCreator = $uinfo['sessionCreator'];
                 else
                     $user->sessionCreator = false;
                 $user->Insert();
@@ -38,7 +41,7 @@ function checkLoggedInUser($allowLogin = true, &$error = false)
             {
                 if(isset($uinfo['sessionCreator']))  // sessionCreator defined by local login, e.g. staff flag in LDAP
                 {
-                	$uinfo['sessionCreator'] = $user->sessionCreator||$uinfo['sessionCreator'];
+                    $uinfo['sessionCreator'] = $user->sessionCreator||$uinfo['sessionCreator'];
                     if($uinfo['sessionCreator'] != $user->sessionCreator)
                     {
                         $user->sessionCreator = $uinfo['sessionCreator'];
@@ -62,7 +65,7 @@ function checkLoggedInUser($allowLogin = true, &$error = false)
         else
         {
             $_REQUEST['pwd'] = "";
-        	$error = "Incorrect username or password.";
+            $error = "Incorrect username or password.";
         }
     }
     elseif(isset($_REQUEST['logout']))
@@ -76,19 +79,19 @@ function checkLoggedInUser($allowLogin = true, &$error = false)
     }
     if($uinfo)
     {
-      	setcookie($CFG['appname'].'_login',CreateLoginCookie($uinfo), 0, '', '', false, true);
+        setcookie($CFG['appname'].'_login',CreateLoginCookie($uinfo), 0, '', '', false, true);
         $uinfo['user']=userInfo::retrieve_by_username($uinfo['uname']);
         return $uinfo;
     }
     else
     {
-    	return false;
+        return false;
     }
 }
 
 function CreateLoginCookie($uinfo)
 {
-	global $CFG;
+    global $CFG;
     $cookieinfo = base64_encode(serialize($uinfo));
     $cookie = implode('@', array($cookieinfo,time()+$CFG['cookietimelimit']));
     $cookie = $cookie .'::'.md5($cookie.$CFG['cookiehash']);
@@ -97,69 +100,70 @@ function CreateLoginCookie($uinfo)
 
 function CheckValidLoginCookie($cookie)
 {
-	global $CFG;
-  	list($cookie,$hash) = explode('::',$cookie,2);
+    global $CFG;
+    list($cookie,$hash) = explode('::',$cookie,2);
     if(trim(md5($cookie.$CFG['cookiehash']))==trim($hash))
     {
-      	list($cookieinfo, $t) = explode('@',$cookie,2);
-      	if(intval($t) > time())
+        list($cookieinfo, $t) = explode('@',$cookie,2);
+        if(intval($t) > time())
         {
             return unserialize(base64_decode($cookieinfo));
         }
     }
-   	return false;
+    return false;
 }
 
 function loginBox($uinfo, $error = '')
 {
-	$out ='<div class="loginBox">';
+    $out ='<div class="loginBox">';
     if((isset($_SERVER['HTTPS']))&&($_SERVER['HTTPS']=='on'))
         $protocol = 'https';
     else
         $protocol = 'http';
     if($uinfo==false)
     {
-		$out .= "<form method='POST' action='$protocol://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF']."' class='form-horizontal'>";
+        $out .= "<form method='POST' action='$protocol://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF']."' class='form-horizontal'>";
         if(strlen($error))
         {
-	        $out .= "<div class='form-group'><div class='col-sm-8 col-sm-push-4'><div class='alert alert-danger'>$error</div></div></div>";
+            $out .= "<div class='form-group'><div class='col-sm-8 col-sm-push-4'><div class='alert alert-danger'>$error</div></div></div>";
         }
-		$out .= "<div class='form-group'><label for='uname' class='col-sm-4 control-label'>Username</label>";
-		$out .= "<div class='col-sm-8'>";
-		$out .= "<input type='text' name='uname' id='uname' class='form-control' /></div></div>";
-		$out .= "<div class='form-group'><label for='pwd' class='col-sm-4 control-label'>Password</label>";
-		$out .= "<div class='col-sm-8'><input type='password' name='pwd' id='pwd' class='form-control'/></div></div>";
-        
+        $out .= "<div class='form-group'><label for='uname' class='col-sm-4 control-label'>Username</label>";
+        $out .= "<div class='col-sm-8'>";
+        $out .= "<input type='text' name='uname' id='uname' class='form-control' /></div></div>";
+        $out .= "<div class='form-group'><label for='pwd' class='col-sm-4 control-label'>Password</label>";
+        $out .= "<div class='col-sm-8'><input type='password' name='pwd' id='pwd' class='form-control'/></div></div>";
+
         foreach($_REQUEST as $k=>$v)
         {
-            $out .= "<input type='hidden' name='$k' value='$v'/>";
+            if(($k != 'pwd')&&($k != 'uname'))
+                $out .= "<input type='hidden' name='$k' value='$v'/>";
         }
-        
-		$out .= "<div class='form-group'><div class='col-sm-4 col-sm-push-4'><input type='submit' name='submit' value='Log in' class='btn btn-block btn-success'/></div><div class='col-sm-4 col-sm-push-4'><a href='join.php' class='btn btn-link btn-block'>Anonymous Guest Access</a></div></div>";
-	    $out .= "</form>";
+
+        $out .= "<div class='form-group'><div class='col-sm-4 col-sm-push-4'><input type='submit' name='submit' value='Log in' class='btn btn-block btn-success'/></div><div class='col-sm-4 col-sm-push-4'><a href='join.php' class='btn btn-link btn-block'>Anonymous Guest Access</a></div></div>";
+        $out .= "</form>";
     }
     else
-    	$out .= "{$uinfo['gn']} {$uinfo['sn']} <a href='{$_SERVER['PHP_SELF']}?logout=1'><i class='fa fa-lock'></i> Log out</a>";
+        $out .= "{$uinfo['gn']} {$uinfo['sn']} <a href='{$_SERVER['PHP_SELF']}?logout=1'><i class='fa fa-lock'></i> Log out</a>";
     $out .= '</div>';
     return $out;
 }
 
 function checkSuperLogin($username, $password, &$error=false)
 {
-	global $CFG;
+    global $CFG;
     $error = false;
     $clrtime = time()+5; // For paranoid prevention of timing to narrow username/password guesses
     $testpwd = md5($CFG['cookiehash'].$password);
-	if(($CFG['adminname'] == $username)&&(($CFG['adminpwd'] == $testpwd)||($CFG['adminpwd'] == $password)))
+    if(($CFG['adminname'] == $username)&&(($CFG['adminpwd'] == $testpwd)||($CFG['adminpwd'] == $password)))
     {
-	    $uinfo = array();
-	    //echo '<pre>'; print_r($record); echo '</pre>';
-	    $uinfo['uname'] = $username;
-	    $uinfo['gn'] = $username;
-	    $uinfo['sn'] = '(Admin user)';
-	    $uinfo['email'] = '';
-	    $uinfo['isAdmin'] = true;
-	    $uinfo['sessionCreator'] = true;
+        $uinfo = array();
+        //echo '<pre>'; print_r($record); echo '</pre>';
+        $uinfo['uname'] = $username;
+        $uinfo['gn'] = $username;
+        $uinfo['sn'] = '(Admin user)';
+        $uinfo['email'] = '';
+        $uinfo['isAdmin'] = true;
+        $uinfo['sessionCreator'] = true;
         return $uinfo;
     }
     else

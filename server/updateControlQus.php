@@ -53,4 +53,22 @@ function createBasicGlobalQuestion($title, $definition)
     $qlu->insert();
 }
 
+function createGlobalConfidenceQuestion($title, $definition)
+{
+    $qu = new confidenceQuestion($title, false, $definition);
+    $theQu = new question();
+    $qu->displayStem = false;
+    $qu->stem = "";
+	$theQu->title = $title;
+	$theQu->multiuse = true;
+    $theQu->definition = $qu;
+    $theQu->insert();
+    $qlu = new systemQuestionLookup();
+    $qlu->qu_id = $theQu->id;
+    $qlu->name = $theQu->title;
+    $qlu->insert();
+}
+
+
+
 ?>

@@ -46,6 +46,15 @@ memo[60,6] definition "Options:";
 boolean multiuse "This is a generic question to be made available in all my sessions.";
 okcancel 'Create' 'Cancel';
 
+//YALIS update for new form
+#form add_studentsQuestion;
+hidden sessionID '0';
+memo[60,4] qu "";
+
+#form add_questionChat;
+hidden question_id "";
+memo[60,3] chatMessage "";
+
 */
 
 class editSession_form extends nbform
@@ -483,3 +492,178 @@ function sessionCodeinput($target='vote.php', $sessionID=false)
     return $out;
 }
 
+
+class add_studentsQuestion extends nbform
+{
+    var $form_magic_id = 'c80902ef8af0bc68c12e98ddbacc1655';
+    var $session_id; //hidden
+    var $question; //memo
+    var $validateMessages;
+
+    function __construct($readform=true)
+    {
+        parent::__construct();
+        $this->validateMessages = array();
+        if($readform)
+        {
+            $this->readAndValidate();
+        }
+    }
+
+    function setData($data)
+    {
+        $this->session_id = $data->session_id;
+        $this->question = $data->question;
+    }
+
+    function getData(&$data)
+    {
+        $data->session_id = $this->session_id;
+        $data->question = $this->question;
+        return $data;
+    }
+
+    function readAndValidate()
+    {
+        $isCanceled=false;
+        if((isset($_REQUEST['add_studentsQuestion_code']))&&($_REQUEST['add_studentsQuestion_code'] == $this->form_magic_id))
+        {
+            $this->session_id = $_REQUEST['session_id'];
+            $this->question = stripslashes($_REQUEST['question']);
+            if("Clear" == $_REQUEST['submit'])
+                $isCanceled = true;
+            $isValid = $this->validate();
+            if($isCanceled)
+                $this->formStatus = FORM_CANCELED;
+            elseif($isValid)
+                $this->formStatus = FORM_SUBMITTED_VALID;
+            else
+                $this->formStatus = FORM_SUBMITTED_INVALID;
+        }
+        else
+            $this->formStatus = FORM_NOTSUBMITTED;
+    }
+
+    function validate()
+    {
+        $this->validateMessages = array();
+        // Put custom code to validate $this->session_id here (to stop hackers using this as a way in.)
+        // Put custom code to validate $this->question here. Put error message in $this->validateMessages['question']
+        if(sizeof($this->validateMessages)==0)
+            return true;
+        else
+            return false;
+    }
+
+    function getHtml()
+    {
+        $out = '';
+        $out .= $this->formStart(true,'POST','','add_studentsQuestion');
+        $out .= $this->hiddenInput('add_studentsQuestion_code', $this->form_magic_id);
+        $out .= $this->hiddenInput('session_id', $this->session_id);
+        $out .= $this->textareaNewInput('', 'question', $this->question, $this->validateMessages, 60 , 4, false, "ask-question-textarea");
+        $out .= $this->submitNewInput('submit', "", "", "submit-question");
+        $out .= $this->formEnd(false);
+        return $out;
+    }
+
+    function post_it()
+    {
+        $http = new Http();
+        $http->useCurl(false);
+        $formdata=array('thanks_url'=>'none', 'mymode'=>'webform1.0', 'datafile'=>'add_studentsQuestion', 'coderef'=>'nsb2x');
+        $formdata['session_id'] = $this->session_id;
+        $formdata['question'] = $this->question;
+
+        $http->execute('http://culrain.cent.gla.ac.uk/cgi-bin/qh/qhc','','POST',$formdata);
+        return ($http->error) ? $http->error : $http->result;
+    }
+
+}
+
+class add_questionChat extends nbform
+{
+    var $form_magic_id = 'fd6bb9bc715275267354cdf60fdbca15';
+    var $question_id; //hidden
+    var $chatMessage; //memo
+    var $validateMessages;
+
+    function __construct($readform=true)
+    {
+        parent::__construct();
+        $this->validateMessages = array();
+        if($readform)
+        {
+            $this->readAndValidate();
+        }
+    }
+
+    function setData($data)
+    {
+        $this->question_id = $data->question_id;
+        $this->chatMessage = $data->chatMessage;
+    }
+
+    function getData(&$data)
+    {
+        $data->question_id = $this->question_id;
+        $data->chatMessage = $this->chatMessage;
+        return $data;
+    }
+
+    function readAndValidate()
+    {
+        $isCanceled=false;
+        if((isset($_REQUEST['add_questionChat_code']))&&($_REQUEST['add_questionChat_code'] == $this->form_magic_id))
+        {
+            $this->question_id = $_REQUEST['question_id'];
+            $this->chatMessage = stripslashes($_REQUEST['chatMessage']);
+            $isValid = $this->validate();
+            if($isCanceled)
+                $this->formStatus = FORM_CANCELED;
+            elseif($isValid)
+                $this->formStatus = FORM_SUBMITTED_VALID;
+            else
+                $this->formStatus = FORM_SUBMITTED_INVALID;
+        }
+        else
+            $this->formStatus = FORM_NOTSUBMITTED;
+    }
+
+    function validate()
+    {
+        $this->validateMessages = array();
+        // Put custom code to validate $this->question_id here (to stop hackers using this as a way in.)
+        // Put custom code to validate $this->session_id here (to stop hackers using this as a way in.)
+        // Put custom code to validate $this->chatMessage here. Put error message in $this->validateMessages['chatMessage']
+        if(sizeof($this->validateMessages)==0)
+            return true;
+        else
+            return false;
+    }
+
+    function getHtml()
+    {
+        $out = '';
+        $out .= $this->formStart(true, "POST","","add_questionChat");
+        $out .= $this->hiddenInput('add_questionChat_code', $this->form_magic_id);
+        $out .= $this->hiddenInput('question_id', $this->question_id);
+        $out .= $this->textareaInput('', 'chatMessage', $this->chatMessage, $this->validateMessages, 60 , 3);
+        $out .= $this->submitNewInput('submit', "", "", "submit-question");
+        $out .= $this->formEnd(false);
+        return $out;
+    }
+
+    function post_it()
+    {
+        $http = new Http();
+        $http->useCurl(false);
+        $formdata=array('thanks_url'=>'none', 'mymode'=>'webform1.0', 'datafile'=>'add_questionChat', 'coderef'=>'nsb2x');
+        $formdata['question_id'] = $this->question_id;
+        $formdata['chatMessage'] = $this->chatMessage;
+
+        $http->execute('http://culrain.cent.gla.ac.uk/cgi-bin/qh/qhc','','POST',$formdata);
+        return ($http->error) ? $http->error : $http->result;
+    }
+
+}
