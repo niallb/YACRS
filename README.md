@@ -16,3 +16,8 @@ Some files distributed with YACRS have other copyright and/or licensing.
 * PHP files in the lib/PHP_Word_Cloud-master folder are Copyright (c) 2010-2011 dreamcraft.ch, were obtained from https://github.com/sixty-nine/PHP_Word_Cloud and are licensed under the MIT license.
 * ttf files in the lib/PHP_Word_Cloud-master folder were obtained from https://fedorahosted.org/liberation-fonts/ and are Licensed under the SIL Open Font License, Version 1.1. 
 * Files in the phpqrcode folder are Copyright (C) 2010 Dominik Dzienia <deltalab at poczta dot fm> and Licensed under the LGPL licence version 3. 
+
+<hr/>
+To cite this software in a publication plese use something like this:
+
+Barr, Niall S. F. (2015). YACRS: Yet Another Class Response System : University of Glasgow. Available at: https://github.com/niallb/YACRS [Accessed dd Mon. yyyy].
