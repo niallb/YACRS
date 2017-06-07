@@ -18,6 +18,6 @@ Some files distributed with YACRS have other copyright and/or licensing.
 * Files in the phpqrcode folder are Copyright (C) 2010 Dominik Dzienia <deltalab at poczta dot fm> and Licensed under the LGPL licence version 3. 
 
 <hr/>
-To cite this software in a publication plese use something like this:
+To cite this software in a publication please use something like this:
 
 Barr, Niall S. F. (2015). YACRS: Yet Another Class Response System : University of Glasgow. Available at: https://github.com/niallb/YACRS [Accessed dd Mon. yyyy].
