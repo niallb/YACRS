@@ -346,7 +346,8 @@ class basicQuestion extends questionBase
 		        foreach($responses as $r)
 		        {
 		        	$member = sessionMember::retrieve_sessionMember($r->user_id);
-			        $out .= "<tr><td>{$member->userID}</td><td>{$member->name}</td><td>{$r->value}</td></tr>";
+			        $out .= "<tr><td>{$member->userID}</td><td>{$member->name}</td><td>{$r->value}</td><td>{$r->time}</td></tr>";
+			        //$out .= "<tr><td>{$member->userID}</td><td>{$member->name}</td><td>{$r->value}</td></tr>";
 		        }
 	        }
 		    $out .= "</table>";

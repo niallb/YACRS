@@ -28,6 +28,18 @@ abstract class questionBase
         	return $resp->value;
     }
 
-    abstract function report($thisSession, $qi, $detailed = false);
-    abstract static function getEditForm();
+    function getDisplayURL($qiID)
+    {
+        return "";
+    }
+
+    function report($thisSession, $qi, $detailed = false)
+    {
+        return "";
+    }
+
+    static function getEditForm()
+    {
+        return false;
+    }
 }

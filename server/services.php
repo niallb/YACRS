@@ -70,7 +70,10 @@ elseif($_REQUEST['action'] == 'login')
         }
         foreach($sqs as $sq)
         {
-        	$data['serverInfo']['globalQuType'][] = array('attributes'=>array('id'=>$sq->qu_id), 0=>$sq->name);
+            if(isset($sq->title))
+            	$data['serverInfo']['globalQuType'][] = array('attributes'=>array('id'=>$sq->qu_id), 0=>$sq->title);
+            else
+            	$data['serverInfo']['globalQuType'][] = array('attributes'=>array('id'=>$sq->qu_id), 0=>$sq->name);
         }
         sendResponse('login', $errors, $data);
     }
@@ -183,6 +186,59 @@ else
             }
         }
         break;
+    case 'quinfoshort':    // lightweight version of 'quinfo' for faster check of response count, doesn't support dynamic graphs. {07Jun2013 NSFB}
+        if(isset($_REQUEST['qiID']))
+            $qiID = $_REQUEST['qiID'];
+        else
+        {
+        	$sess = session::retrieve_session($_REQUEST['id']);
+            $qiID = $sess->currentQuestion;
+        }
+	    //$responses = response::retrieve_response_matching('question_id', $qiID);
+        $qi = questionInstance::retrieve_questionInstance($qiID);
+
+	    $userCount = sessionMember::count("session_id", $_REQUEST['id']);
+	    $activeCount = sessionMember::countActive($_REQUEST['id']);
+        if($qi===false)
+        {
+            $errors[] = "No active question or invalid question instance ID (qiID).";
+	        $data['questionResponseInfo'] = array('attributes'=>array('questiontype'=>'none', 'id'=>0), 'activeUsers'=>$activeCount, 'totalUsers'=>$userCount);
+        }
+        else
+        {
+			$count = response::count('question_id', $qiID);
+            /*/TESTING only - Never put this bit on a production server
+            if($count > 10)
+            {
+            	$delay = rand(0,4) >= 3;
+                if($delay)
+                {
+                	$et = time()+20;
+                    while(time() < $et)
+                    {
+                     	sleep(1);
+                    }
+                }
+            }
+            //End of testing only bit.*/
+	        $data['questionResponseInfo'] = array('attributes'=>array('questiontype'=>$qi->title, 'id'=>$qiID, 'questionClass'=>$questionClass,
+                        'displayURL'=>$displayURL), 'activeUsers'=>$activeCount, 'totalUsers'=>$userCount, 'responseCount'=>$count);
+	        if(($qi->starttime > 0)&&($qi->endtime > $qi->starttime))
+	        {
+	            $ttg = $qi->endtime - time();
+	            if($ttg < 0)
+	                $ttg=0;
+	            $data['questionResponseInfo']['timeToGo'] = $ttg;
+	        }
+            elseif(($qi->starttime > 0)&&($qi->endtime <= $qi->starttime))
+	        {
+	            $tg = time()-$qi->starttime;
+	            if($tg < 0)
+	                $tg=0;
+	            $data['questionResponseInfo']['timeGone'] = $tg;
+	        }
+        }
+        break;      //*/
     case 'quinfo':
         if(isset($_REQUEST['qiID']))
             $qiID = $_REQUEST['qiID'];
@@ -192,17 +248,20 @@ else
             $qiID = $sess->currentQuestion;
         }
         $qi = questionInstance::retrieve_questionInstance($qiID);
+        $qu = question::retrieve_question($qi->theQuestion_id);
 	    $userCount = sessionMember::count("session_id", $_REQUEST['id']);
 	    $activeCount = sessionMember::countActive($_REQUEST['id']);
         if($qi===false)
         {
-            //$errors[] = "No active question or invalid question instance ID (qiID).";
+            $errors[] = "No active question or invalid question instance ID (qiID).";
 	        $data['questionResponseInfo'] = array('attributes'=>array('questiontype'=>'none', 'id'=>0), 'activeUsers'=>$activeCount, 'totalUsers'=>$userCount);
         }
         else
         {
+            $questionClass = get_class($qu->definition);
+            $displayURL = $qu->definition->getDisplayURL($qiID);
 			$count = response::count('question_id', $qiID);
-	        $data['questionResponseInfo'] = array('attributes'=>array('questiontype'=>$qi->title, 'id'=>$qiID), 'activeUsers'=>$activeCount, 'totalUsers'=>$userCount, 'responseCount'=>$count);
+	        $data['questionResponseInfo'] = array('attributes'=>array('questiontype'=>$qi->title, 'id'=>$qiID, 'questionClass'=>$questionClass, 'displayURL'=>$displayURL), 'activeUsers'=>$activeCount, 'totalUsers'=>$userCount, 'responseCount'=>$count);
 	        if(($qi->starttime > 0)&&($qi->endtime > $qi->starttime))
 	        {
 	            $ttg = $qi->endtime - time();
@@ -237,7 +296,11 @@ else
 						    {
 						        if(strlen($r->value))
 						        {
-							        $votes = explode(',',$r->value);
+                                    if(strpos($r->value, '::'))
+                                        list($votes, $tmp) = explode('::', $r->value);
+                                    else
+                                        $votes = $r->value;
+							        $votes = explode(',',$votes);
 							        foreach($votes as $v)
 							        {
 						                $count[$v]++;
@@ -372,7 +435,7 @@ function sendResponse($messageName, $errors, $data)
 {
  	header ("Content-Type:text/xml");
 	echo "<?xml version=\"1.0\"?>\n";
-	echo "<YACRSResponse version=\"1.0.0\"";
+	echo "<YACRSResponse version=\"1.2.1\"";
     if($messageName)
     {
     	echo " messageName='$messageName'";
@@ -477,6 +540,22 @@ function mymkdir($dir)
 		return false;
     else
     	return true;
+}
+
+function createGlobalConfidenceQuestion($title, $definition)
+{
+    $qu = new confidenceQuestion($title, false, $definition);
+    $theQu = new question();
+    $qu->displayStem = false;
+    $qu->stem = "";
+	$theQu->title = $title;
+	$theQu->multiuse = true;
+    $theQu->definition = $qu;
+    $theQu->insert();
+    $qlu = new systemQuestionLookup();
+    $qlu->qu_id = $theQu->id;
+    $qlu->name = $theQu->title;
+    $qlu->insert();
 }
 
 function createBasicGlobalQuestion($title, $definition)

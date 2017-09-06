@@ -7,6 +7,7 @@ function checkLoggedInUser($allowLogin = true, &$error = false)
     should be replaced by the userInfo class... Maybe this is quicker for students though...
 */
 	global $CFG;
+    $error = false;
     $uinfo = false;
 	if(($allowLogin )&&(isset($_REQUEST['uname']))&&(isset($_REQUEST['pwd'])))
     {
@@ -132,7 +133,8 @@ function loginBox($uinfo, $error = '')
         
         foreach($_REQUEST as $k=>$v)
         {
-            $out .= "<input type='hidden' name='$k' value='$v'/>";
+            if(($k != 'pwd')&&($k != 'uname'))
+                $out .= "<input type='hidden' name='$k' value='$v'/>";
         }
         
 		$out .= "<div class='form-group'><div class='col-sm-4 col-sm-push-4'><input type='submit' name='submit' value='Log in' class='btn btn-block btn-success'/></div><div class='col-sm-4 col-sm-push-4'><a href='join.php' class='btn btn-link btn-block'>Anonymous Guest Access</a></div></div>";

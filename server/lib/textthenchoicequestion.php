@@ -173,6 +173,11 @@ class ttcQuestion1 extends questionBase
         return $out;
     }
 
+    function getDisplayURL($qiID)
+    {
+        return "chartWrap.php?qiID={$qiID}";
+    }
+
     static function getEditForm()
     {
     	$form = new editTTCQuestion_form();

@@ -2,23 +2,25 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title><%section name="pagetitle"%></title>
 		<link rel="stylesheet" type="text/css" media="Screen" href="html/bootstrap.css" />
 		<link rel="stylesheet" type="text/css" media="Screen" href="html/bootstrap-theme.css" />
 		<link rel="stylesheet" type="text/css" media="Screen" href="html/font-awesome.css" />
 		<link rel="stylesheet" type="text/css" media="Screen" href="html/yacrs-base.css" />
-		<link rel="stylesheet" type="text/css" media="Screen" href="html/yacrs-theme.css" />
+        <!--Uncomment the following to get the University of Glasgow theme.-->
+		<!--<link rel="stylesheet" type="text/css" media="Screen" href="html/yacrs-theme.css" />-->
     </head>
 	<body>
 				<div id="pageHeader">
 			<div class="container">
 				<div class="row">
-					<div class="col-sm-6">
+					<div class="col-xs-6">
 					<div id="branding">
-							<h1 class="logo">YACRS</h1>
+							<h1 class="logo">Class Response</h1>
 						</div>
 					</div>
-					<div class="col-sm-6">
+					<div class="col-xs-6">
 						<%section name="logoutLink" div_id="logoutLink"%>
 					</div>
 				</div>
@@ -42,7 +44,7 @@
 			<div class="container">
 			</div>
 		</div>
-					<%section name="modechoice" div_id="modechoice2"%>
+		<div class="container">
   <%section name="afterContent"%>
 	</body>
 </html>

@@ -268,7 +268,7 @@ class lticonsumer
 	var $name;
 	var $secret;
 
-	function lticonsumer($asArray=null)
+	function __construct($asArray=null)
 	{
 		$this->id = null; //primary key
 		$this->keyHash = "";
@@ -450,7 +450,7 @@ class session
 	var $defaultQuActiveSecs;
 	var $extras;
 
-	function session($asArray=null)
+	function __construct($asArray=null)
 	{
 		$this->id = null; //primary key
 		$this->ownerID = "";
@@ -811,9 +811,9 @@ class session
 	            }
 	        }
         }
-        foreach($teachers as $t)
+        foreach($teachers as &$t)
         {
-        	if(!in_array($t, $ktIDs))
+           	if((strlen($t))&&(!in_array($t, $ktIDs)))
             {
             	$kt = new extraTeachers();
                 $kt->teacherID = $t;
@@ -835,12 +835,17 @@ class session
 		$ets = extraTeachers::retrieve_extraTeachers_matching('teacherID', $teacherID);
         if(is_array($ets))
         {
+            $done = array();  // This is because a bug in an earlier version of YACRS occasionaly created duplicate entries.
             foreach($ets as $s)
             {
-                $ses = session::retrieve_session($s->session_id);
-                if($ses !== false)
+                if(!in_array($s->session_id, $done))
                 {
-                    $sessions[] = $ses;
+                    $done[] = $s->session_id;
+	                $ses = session::retrieve_session($s->session_id);
+	                if($ses !== false)
+	                {
+	                    $sessions[] = $ses;
+	                }
                 }
             }
         }
@@ -856,7 +861,7 @@ class extraTeachers
 	var $session_id; //foreign key
 	var $teacherID;
 
-	function extraTeachers($asArray=null)
+	function __construct($asArray=null)
 	{
 		$this->id = null; //primary key
 		$this->session_id = null; // foreign key, needs dealt with.
@@ -968,7 +973,7 @@ class subsession
 	var $starttime;
 	var $endtime;
 
-	function subsession($asArray=null)
+	function __construct($asArray=null)
 	{
 		$this->id = null; //primary key
 		$this->session_id = null; // foreign key, needs dealt with.
@@ -1089,7 +1094,7 @@ class ltisessionlink
 	var $resource_link_id;
 	var $session_id; //foreign key
 
-	function ltisessionlink($asArray=null)
+	function __construct($asArray=null)
 	{
 		$this->id = null; //primary key
 		$this->client_id = null; // foreign key, needs dealt with.
@@ -1232,7 +1237,7 @@ class userInfo
 	var $isAdmin;
 	var $teacherPrefs;
 
-	function userInfo($asArray=null)
+	function __construct($asArray=null)
 	{
 		$this->id = null; //primary key
 		$this->username = "";
@@ -1440,7 +1445,7 @@ class question
 	var $responsetype;
 	var $multiuse;
 
-	function question($asArray=null)
+	function __construct($asArray=null)
 	{
 		$this->id = null; //primary key
 		$this->ownerID = "";
@@ -1604,7 +1609,20 @@ class question
 	    return $output;
     }
 
-
+    static function delete($id)
+    {
+        //Get the session
+        $q = question::retrieve_question($id);
+        //Check there are no instances
+        $count = questionInstance::count('theQuestion_id',$id);
+        if($count > 0)
+            return false;
+        $query = "DELETE FROM yacrs_systemQuestionLookup WHERE qu_id='".dataConnection::safe($id)."';";
+		dataConnection::runQuery($query);
+		$query = "DELETE FROM yacrs_question WHERE id='".dataConnection::safe($id)."';";
+		dataConnection::runQuery($query);
+        return true;
+    }
 
 	//[[USERCODE_question]] WEnd of custom class members.
 }
@@ -1615,7 +1633,7 @@ class systemQuestionLookup
 	var $qu_id; //foreign key
 	var $name;
 
-	function systemQuestionLookup($asArray=null)
+	function __construct($asArray=null)
 	{
 		$this->id = null; //primary key
 		$this->qu_id = null; // foreign key, needs dealt with.
@@ -1629,6 +1647,8 @@ class systemQuestionLookup
 		$this->id = $asArray['id'];
 		$this->qu_id = $asArray['qu_id']; // foreign key, check code
 		$this->name = $asArray['name'];
+        if(isset($asArray['title']))
+		    $this->title = $asArray['title'];
 	}
 
 	static function retrieve_systemQuestionLookup($id)
@@ -1730,17 +1750,32 @@ class systemQuestionLookup
 	//[[USERCODE_systemQuestionLookup]] Put code for custom class members in this block.
 	static function all()
 	{
-		$query = "SELECT * FROM yacrs_systemQuestionLookup WHERE 1;";
+        $query = "SELECT yacrs_systemquestionlookup.*, title FROM yacrs_systemquestionlookup LEFT JOIN (yacrs_question) ON (yacrs_systemquestionlookup.qu_id = yacrs_question.id) WHERE 1 ORDER BY title ASC;";
+		//$query = "SELECT * FROM yacrs_systemQuestionLookup WHERE 1 ORDER BY name ASC;";
 		$result = dataConnection::runQuery($query);
         $output = array();
 	    if(sizeof($result)!=0)
 	    {
 	        foreach($result as $r)
+            {
 	            $output[] = new systemQuestionLookup($r);
+            }
 	    }
         return $output;
 	}
 
+    static function deleteFor($quid)
+    {
+  		$query = "DELETE FROM yacrs_systemQuestionLookup WHERE qu_id='".dataConnection::safe($quid)."';";
+        return dataConnection::runQuery($query);
+    }
+
+    static function nameLengthLimit()
+    {
+        $query = "SELECT  character_maximum_length FROM information_schema.columns WHERE table_name = 'yacrs_systemQuestionLookup' AND column_name = 'name';";
+		$result = dataConnection::runQuery($query);
+        return $result[0]['character_maximum_length'];
+    }
 
 	//[[USERCODE_systemQuestionLookup]] WEnd of custom class members.
 }
@@ -1757,7 +1792,7 @@ class questionInstance
 	var $screenshot;
 	var $extras;
 
-	function questionInstance($asArray=null)
+	function __construct($asArray=null)
 	{
 		$this->id = null; //primary key
 		$this->title = "";
@@ -1938,7 +1973,7 @@ class sessionMember
 	var $lastresponse;
 	var $mobile;
 
-	function sessionMember($asArray=null)
+	function __construct($asArray=null)
 	{
 		$this->id = null; //primary key
 		$this->session_id = null; // foreign key, needs dealt with.
@@ -2128,7 +2163,7 @@ class response
 	var $isPartial;
 	var $time;
 
-	function response($asArray=null)
+	function __construct($asArray=null)
 	{
 		$this->id = null; //primary key
 		$this->user_id = null; // foreign key, needs dealt with.
@@ -2314,7 +2349,7 @@ class message
 	var $message;
 	var $replyTo_id; //foreign key
 
-	function message($asArray=null)
+	function __construct($asArray=null)
 	{
 		$this->id = null; //primary key
 		$this->user_id = null; // foreign key, needs dealt with.
@@ -2562,7 +2597,7 @@ class tag
 	var $text;
 	var $session_id; //foreign key
 
-	function tag($asArray=null)
+	function __construct($asArray=null)
 	{
 		$this->id = null; //primary key
 		$this->text = "";

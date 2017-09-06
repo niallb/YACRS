@@ -83,10 +83,11 @@ class WordCloud {
         'color' => $palette[$i % count($palette)],
         'box' => isset($boxes[$key]) ? $boxes[$key] : '',
       );
-      imagettftext($this->image, $val->size, $val->angle, $cx, $cy, $palette[$i % count($palette)], $this->font, $key);
+      imagettftext($this->image, $val->size, $val->angle, $cx, $cy, $palette[$i % count($palette)], $this->font, $val->word);
       $this->mask->add(new Box($cx, $cy, $val->box));
       $i++;
     }
+       // exit('<pre>'.print_r($this->table, true).'</pre>');
 
     // Crop the image
     list($x1, $y1, $x2, $y2) = $this->mask->get_bounding_box();

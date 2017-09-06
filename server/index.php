@@ -103,8 +103,12 @@ else
 	    {
 	        $template->pageData['mainBody'] .= "<div class='row'><div class='col-sm-8 col-sm-push-4'><a class='btn btn-primary' href='editsession.php'><i class='fa fa-plus-circle'></i> Create a new clicker session</a></div></div>";
 		    $sessions = session::retrieve_session_matching('ownerID', $uinfo['uname']);
+	        if($sessions === false)
+	            $sessions = array();
+	        $sessions = array_merge($sessions, session::teacherExtraSessions($uinfo['uname']));
+            //exit('<pre>'.print_r(session::teacherExtraSessions($uinfo['uname']), true).'</pre>');
 		    $template->pageData['mainBody'] .= '<h2 class="page-section">My sessions (staff)</h2>';
-		    if($sessions == false)
+		    if(sizeof($sessions) == 0)
 		    {
 		        $template->pageData['mainBody'] .= "<p>No sessions found</p>";
 		    }

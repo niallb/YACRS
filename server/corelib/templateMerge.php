@@ -23,7 +23,7 @@ class templateMerge {//start class
   var $dataNames;
   var $pageData;
 
-  function templateMerge($templateFile) {// start templateMerge()
+  function __construct($templateFile) {// start templateMerge()
     $this->pageData=array();
     $src=file_get_contents($templateFile);
     $tmpfields=explode("<%", $src);

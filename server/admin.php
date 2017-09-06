@@ -69,7 +69,7 @@ else
             $nextLink = adminLink(' <i class="fa fa-angle-right"></i>', array('disp'=>'sessions', 'page'=>$page+1), true);
         else
         	$nextLink = '';
-        $template->pageData['mainBody'] .= "<li>Sessions <span class='badge'>{$prevLink}Page $pageDisp of $pageCount {$nextLink}</span></li>";
+        $template->pageData['mainBody'] .= "<li><b>Sessions</b> ".adminLink('close', array('disp'=>''), true)."<span class='badge'>{$prevLink}Page $pageDisp of $pageCount {$nextLink}</span></li>";
         $template->pageData['mainBody'] .= listSessions($page);
     }
     else
@@ -88,7 +88,7 @@ else
 	        	$prevLink = '';
 	        if($pageDisp < $pageCount)
             	$nextLink = adminLink(' <i class="fa fa-angle-right"></i>', array('disp'=>'users', 'page'=>$page+1, 'searchval'=>$searchval), true);
-	        $template->pageData['mainBody'] .= "<li>Users <span class='badge'>{$prevLink} Page $pageDisp {$nextLink}</span></li>";
+	        $template->pageData['mainBody'] .= "<li><b>Users</b> <span class='badge'>{$prevLink} Page $pageDisp {$nextLink}</span></li>";
 
 	        $template->pageData['mainBody'] .= listUsers($page, $searchval);
 
@@ -125,7 +125,7 @@ else
     $template->pageData['mainBody'] .= '</form>';
     if($disp == 'lti')
     {
-        $template->pageData['mainBody'] .= '<li>LTI Consumers <span class="badge">'.lticonsumer::count().'</span></li>';
+        $template->pageData['mainBody'] .= '<li><b>LTI Consumers</b> '.adminLink('close', array('disp'=>''), true).'<span class="badge">'.lticonsumer::count().'</span></li>';
         $add = requestInt('add', 0);
         $name = '';
         $consumer_key = '';
@@ -191,6 +191,74 @@ else
     else
     {
         $template->pageData['mainBody'] .= '<li><b>'.adminLink('LTI Consumers', array('disp'=>'lti'), true).'</b> <span class="badge">'.lticonsumer::count().'</span></li>';
+    }
+    if($disp == 'qus')
+    {
+        $delqu = requestInt('delqu');
+        $actsys = requestInt('actsys');
+        $delsys = requestInt('delsys');
+        if($delqu)
+        {
+            question::delete($delqu);
+        }
+        if($delsys)
+        {
+            systemQuestionLookup::deleteFor($delsys);
+        }
+        if($actsys)
+        {
+            $qudef = question::retrieve_question($actsys);
+            $newsq = new systemQuestionLookup();
+            $newsq->name = substr($qudef->title, 0, systemQuestionLookup::nameLengthLimit());
+            $newsq->qu_id = $qudef->id;
+            $newsq->insert();
+        }
+	    $template->pageData['mainBody'] .= '<li><b>Default generic questions </b>'.adminLink('close', array('disp'=>''), true).'</li>';
+        $possqus = question::retrieve_question_matching('ownerID', false, 'name ASC');
+	    //$template->pageData['mainBody'] .= '<li><b>'.adminLink('Pos generic questions', array('disp'=>'qus'), true).'</b> <span class="badge">'.sizeof($possqus).'</span></li>';
+        //$template->pageData['mainBody'] .= '<pre>'.print_r($possqus, true).'</pre>';
+        $squs = systemQuestionLookup::all();
+        $nameLengthLimit = systemQuestionLookup::nameLengthLimit();
+        $template->pageData['mainBody'] .=  '<ul>';
+        $activeIDs = array();
+        foreach($squs as $squ)
+        {
+            $qudef = question::retrieve_question($squ->qu_id);
+            $activeIDs[] = $qudef->id;
+            $template->pageData['mainBody'] .=  "<li>{$qudef->title} (".get_class($qudef->definition).") <span style='color:green;'>Active</span>";
+            $count = questionInstance::count('theQuestion_id',$qudef->id);
+            $template->pageData['mainBody'] .=  " ($count instances)";
+            $template->pageData['mainBody'] .=  " <a href='admin.php?disp=qus&delsys={$qudef->id}'>Deactivate</a>";
+            $template->pageData['mainBody'] .=  "</li>";
+            //$template->pageData['mainBody'] .= '<pre>'.print_r($qudef, true).'</pre>';
+        }
+        foreach($possqus as $qudef)
+        {
+            if(!in_array($qudef->id, $activeIDs))
+            {
+                $template->pageData['mainBody'] .=  "<li>{$qudef->title} (".get_class($qudef->definition).") <span style='color:red;'>Inactive</span>";
+                $count = questionInstance::count('theQuestion_id',$qudef->id);
+                $template->pageData['mainBody'] .=  " ($count instances)";
+	            if($count == 0)
+	                $template->pageData['mainBody'] .=  " <a href='admin.php?disp=qus&delqu={$qudef->id}'>Delete</a>";
+                $template->pageData['mainBody'] .=  " <a href='admin.php?disp=qus&actsys={$qudef->id}'>Activate</a>";
+	            $template->pageData['mainBody'] .=  "</li>";
+            }
+            //$template->pageData['mainBody'] .= '<pre>'.print_r($qudef, true).'</pre>';
+        }
+        $template->pageData['mainBody'] .=  '</ul>';
+        //$template->pageData['mainBody'] .= '<pre>'.print_r($squs, true).'</pre>';
+        $template->pageData['mainBody'] .=  '<hr/><ul>';
+        global $questionTypes;
+        foreach($questionTypes as $key=>$val)
+        {
+            $template->pageData['mainBody'] .=  "<li><a href='addsysqu.php?qu={$key}'>Add a new {$val['name']}.</a></li>";
+        }
+        $template->pageData['mainBody'] .=  '</ul>';
+    }
+    else
+    {
+	    $template->pageData['mainBody'] .= '<li><b>'.adminLink('Default generic questions', array('disp'=>'qus'), true).'</b> <span class="badge">'.sizeof(systemQuestionLookup::all()).'</span></li>';
     }
     $template->pageData['mainBody'] .= '</ul>';
     $template->pageData['mainBody'] .= "<p>Student responses in last hour: ".response::countAllInLastHour().'</p>';

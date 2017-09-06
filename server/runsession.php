@@ -114,6 +114,7 @@ else
         $template->pageData['mainBody'] .= "<div><a href='switchmode.php?sessionID={$thisSession->id}'>Close question and switch to student paced (multi-question) mode.</a></div>";
     else
         $template->pageData['mainBody'] .= "<div><a href='switchmode.php?sessionID={$thisSession->id}'>Close questions and switch to teacher paced (single question) mode.</a></div>";
+    $template->pageData['mainBody'] .= "<div><a href='displayResponses.php?sessionID={$thisSession->id}' target='_new'>Display Latest Qu for students.</a></div>";
 
     if(sizeof($quTitles))
     {

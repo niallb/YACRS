@@ -14,18 +14,17 @@ class dataConnection
         $username=$DBCFG['username']; // Mysql username
         $password=$DBCFG['password']; // Mysql password
         $db_name=$DBCFG['db_name']; // Database name
-        self::$dblink = mysql_connect("$host", "$username", "$password")or die("cannot connect");
-        self::$dbconn = mysql_select_db($db_name, self::$dblink) or die(mysql_error());
+        self::$dblink = mysqli_connect("$host", "$username", "$password", $db_name)or die("cannot connect");
     }
 
     public static function runQuery($query)
     {
         if(self::$dblink==null)
             dataConnection::connect();
-        $result = mysql_query($query, self::$dblink);
+        $result = mysqli_query(self::$dblink, $query);
         if (!$result)
         {
-            $message  = 'Invalid query: ' . mysql_error() . "\n";
+            $message  = 'Invalid query: ' . mysqli_error(self::$dblink) . "\n";
             $message .= 'Whole query: ' . $query;
             die($message);
         }
@@ -34,7 +33,7 @@ class dataConnection
         else
         {
             $output = array();
-            while ($row = mysql_fetch_array($result, MYSQL_ASSOC))
+            while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC))
             {
                $output[] = $row;
             }
@@ -45,7 +44,7 @@ class dataConnection
     public static function close()
     {
         if(self::$dblink!=null)
-            mysql_close(self::$dblink);
+            mysqli_close(self::$dblink);
         self::$dblink = null;
     }
 
@@ -55,7 +54,7 @@ class dataConnection
     	{
 	    	dataConnection::connect();
 		}
-	  	return mysql_real_escape_string($in);
+	  	return mysqli_real_escape_string(self::$dblink, $in);
 	}
 
 	public static function db2date($in)
