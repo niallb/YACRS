@@ -58,7 +58,6 @@ if((isset($thisSession->extras['customScoring']))
           &&(file_exists('locallib/customscoring/'.$thisSession->extras['customScoring'])))
 {
     include_once('locallib/customscoring/'.$thisSession->extras['customScoring']);
-    exit($thisSession->extras['customScoring']);
 }
 
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
@@ -122,13 +121,12 @@ else
 	    //$resp = response::retrieve($smemb->id, $qi->id);
         if((class_exists(get_class($questions[$qi->id]->definition)))&&(get_class($questions[$qi->id]->definition)!='__PHP_Incomplete_Class'))
         {
-
-	    $dresp = $questions[$qi->id]->definition->getResponseForDisplay($responses[$qi->id]);
-        if(($questions[$qi->id]->definition->getCorrectStr($qi)==false)||($questions[$qi->id]->definition->getCorrectStr($qi)==''))
-            $correct = 'n/a';
-        else
-	        $correct = $questions[$qi->id]->definition->score($qi, $responses[$qi->id]) > 0 ? 'yes' : 'no';
-            }
+    	    $dresp = $questions[$qi->id]->definition->getResponseForDisplay($responses[$qi->id]);
+            if(($questions[$qi->id]->definition->getCorrectStr($qi)==false)||($questions[$qi->id]->definition->getCorrectStr($qi)==''))
+                $correct = 'n/a';
+            else
+	            $correct = $questions[$qi->id]->definition->score($qi, $responses[$qi->id]) > 0 ? 'yes' : 'no';
+        }
         $allowShowCorrect = $correct=='no' ? '&asc=1':'';
         $userField = $viewUser ? "&user={$viewUser}" : '';
 	    $template->pageData['mainBody'] .= "<tr><td><a href='review.php?qiID={$qi->id}&sessionID={$thisSession->id}{$allowShowCorrect}{$userField}'>{$qi->title}</a></td><td>$cat</td><td>$dresp</td><td>$correct</td></tr>";

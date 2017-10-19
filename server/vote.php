@@ -77,6 +77,8 @@ else
 	        if($thisSession->currentQuestion == 0)
 	        {
 	            header( "Refresh: 10; url={$serverURL}?sessionID={$thisSession->id}" );
+			     if((isset($_REQUEST['submitans']))&&(isset($_REQUEST['qiID'])))
+			         $template->pageData['mainBody'] .= "<div class='alert alert-danger'>Sorry, your answer was submitted after the question closed, so has been ignored.</div>";
 	            $template->pageData['mainBody'] .= "<div class='alert alert-warning'>No active question.</div>";
 	        }
 	        else
@@ -135,7 +137,7 @@ else
         }
         if($thisSession->ublogRoom)
         {
-	        $template->pageData['mainBody'] .= "<a class='btn btn-success btn-block page-bottom-button' href='chat.php?sessionID={$thisSession->id}'><i class='fa fa-comments'></i> Discuss This Question</a>";
+	        $template->pageData['mainBody'] .= "<a class='btn btn-success btn-block page-bottom-button' href='chat.php?sessionID={$thisSession->id}'><i class='fa fa-comments'></i> Discuss this class</a>";
         }
     }
 	//$template->pageData['mainBody'] .= '<pre>'.print_r($uinfo,1).'</pre>';
@@ -185,6 +187,14 @@ function displayQuestion($qiid, $forceTitle=false)
 	         $resp->update();
 	         $smemb->lastresponse = time();
 	         $smemb->update();
+         }
+         //To ensure that the student sees what is in the db.
+         if(isset($_REQUEST['submitans']))
+         {
+             // Retrieve what the database has as the response
+             $resp = response::retrieve($smemb->id, $qi->id);
+             if($resp !== false)
+                 $qu->definition->responseValue = $resp->value;
          }
 	     //$qu->definition
         $out .= '<fieldset>';

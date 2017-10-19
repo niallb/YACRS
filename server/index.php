@@ -106,7 +106,6 @@ else
 	        if($sessions === false)
 	            $sessions = array();
 	        $sessions = array_merge($sessions, session::teacherExtraSessions($uinfo['uname']));
-            //exit('<pre>'.print_r(session::teacherExtraSessions($uinfo['uname']), true).'</pre>');
 		    $template->pageData['mainBody'] .= '<h2 class="page-section">My sessions (staff)</h2>';
 		    if(sizeof($sessions) == 0)
 		    {
