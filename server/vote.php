@@ -78,7 +78,7 @@ else
 	        {
 	            header( "Refresh: 10; url={$serverURL}?sessionID={$thisSession->id}" );
 			     if((isset($_REQUEST['submitans']))&&(isset($_REQUEST['qiID'])))
-			         $template->pageData['mainBody'] .= "<div class='alert alert-danger'>Sorry, your answer was submitted after the question closed, so has been ignored.</div>";
+			         $template->pageData['mainBody'] .= "<div class='alert alert-danger'>Sorry, your answer was received after the question closed, so has been ignored.</div>";
 	            $template->pageData['mainBody'] .= "<div class='alert alert-warning'>No active question.</div>";
 	        }
 	        else
