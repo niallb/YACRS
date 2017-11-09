@@ -22,7 +22,9 @@ $template->pageData['breadcrumb'] = "<a href='http://www.gla.ac.uk/'>University 
 $template->pageData['breadcrumb'] .= '| <a href="index.php">YACRS</a>';
 $template->pageData['breadcrumb'] .= '| Create/Edit a session';
 
-if($uinfo==false)
+$thisSession = isset($_REQUEST['sessionID'])? session::retrieve_session($_REQUEST['sessionID']):false;
+
+if(!checkPermission($uinfo, $thisSession))
 {
     header("Location: index.php");
 }
