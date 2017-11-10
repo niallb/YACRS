@@ -101,3 +101,4 @@ function uinfoFromLDAP($record)
     }
     return $uinfo;
 }
+
