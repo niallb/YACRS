@@ -24,7 +24,7 @@ $template->pageData['breadcrumb'] .= '| Create/Edit a session';
 
 $thisSession = isset($_REQUEST['sessionID'])? session::retrieve_session($_REQUEST['sessionID']):false;
 
-if(!checkPermission($uinfo, $thisSession))
+if(!$uinfo["sessionCreator"]) {
 {
     header("Location: index.php");
 }
