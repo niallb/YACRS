@@ -25,15 +25,7 @@ function checkLoggedInUser($allowLogin = true, &$error = false)
         	$user = userInfo::retrieve_by_username($uinfo['uname']);
             if($user == false)
             {
-            	$user = new userInfo();
-                $user->username = $uinfo['uname'];
-                $user->name = $uinfo['gn'].' '.$uinfo['sn'];
-                $user->email = $uinfo['email'];
-                if(isset($uinfo['sessionCreator']))
-	                $user->sessionCreator = $uinfo['sessionCreator'];
-                else
-                    $user->sessionCreator = false;
-                $user->Insert();
+                $user = CreateUser($uinfo);
             }
             else
             {
@@ -79,12 +71,31 @@ function checkLoggedInUser($allowLogin = true, &$error = false)
     {
       	setcookie($CFG['appname'].'_login',CreateLoginCookie($uinfo), 0, '', '', false, true);
         $uinfo['user']=userInfo::retrieve_by_username($uinfo['uname']);
+        if($uinfo['user']==false)
+            $uinfo['user'] = CreateUser($uinfo); // To support OpenID logins
+        //# Also to support OpenID logins, need to refactor to tidy this up.
+        if($uinfo['user']->sessionCreator) 
+            $uinfo['sessionCreator'] = true;
         return $uinfo;
     }
     else
     {
     	return false;
     }
+}
+
+function CreateUser($uinfo)
+{
+    $user = new userInfo();
+    $user->username = $uinfo['uname'];
+    $user->name = $uinfo['gn'].' '.$uinfo['sn'];
+    $user->email = $uinfo['email'];
+    if(isset($uinfo['sessionCreator']))
+        $user->sessionCreator = $uinfo['sessionCreator'];
+    else
+        $user->sessionCreator = false;
+    $user->Insert();
+    return $user;
 }
 
 function CreateLoginCookie($uinfo)

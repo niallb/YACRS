@@ -41,9 +41,14 @@ $template->pageData['breadcrumb'] .= '</ul>';
 if($uinfo==false)
 {
 	$template->pageData['headings'] = "<h1  style='text-align:center; padding:10px;'>Login</h1>";
+    $template->pageData['loginBox'] = '';
+    if((isset($CFG['MicrosoftClientID']))&&($CFG['MicrosoftClientID']!=''))
+    {
+        $template->pageData['loginBox'] .= '<div class="loginLink" style="text-align:center; padding:10px;"><a href="oidc.php" class="btn btn-primary">Login with Microsoft</a><div><hr/>';
+    }
     if((isset($CFG['ldaphost']))&&($CFG['ldaphost']!=''))
     {
-        $template->pageData['loginBox'] = loginBox($uinfo, $loginError);
+        $template->pageData['loginBox'] .= loginBox($uinfo, $loginError);
     }
     if(file_exists('logininfo.htm'))
 	    $template->pageData['mainBody'] = file_get_contents('logininfo.htm').'<br/>';
