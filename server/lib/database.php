@@ -1,6 +1,7 @@
 <?php
 require_once('corelib/dataaccess.php');
 
+
 /*
 //Database code generated using http://www.nbwebsites.com/wizards2/dbwiz/index.php
 //Some manual aditions will need restored following regeneration.
@@ -1750,7 +1751,7 @@ class systemQuestionLookup
 	//[[USERCODE_systemQuestionLookup]] Put code for custom class members in this block.
 	static function all()
 	{
-        $query = "SELECT yacrs_systemquestionlookup.*, title FROM yacrs_systemquestionlookup LEFT JOIN (yacrs_question) ON (yacrs_systemquestionlookup.qu_id = yacrs_question.id) WHERE 1 ORDER BY title ASC;";
+        $query = "SELECT yacrs_systemQuestionLookup.*, title FROM yacrs_systemQuestionLookup LEFT JOIN (yacrs_question) ON (yacrs_systemQuestionLookup.qu_id = yacrs_question.id) WHERE 1 ORDER BY title ASC;";
 		//$query = "SELECT * FROM yacrs_systemQuestionLookup WHERE 1 ORDER BY name ASC;";
 		$result = dataConnection::runQuery($query);
         $output = array();
