@@ -36,8 +36,8 @@ $uinfo = checkLoggedInUser();
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
 $template->pageData['breadcrumb'] = $CFG['breadCrumb'];
-$template->pageData['breadcrumb'] .= '<li><a href="index.php">YACRS</a></li>';
-$template->pageData['breadcrumb'] .= '<li>Administration</li>';
+$template->pageData['breadcrumb'] .= '<li><a href="index.php"><i class="fa fa-home"></i>'.$CFG['sitetitle'].'</a></li>';
+$template->pageData['breadcrumb'] .= '<li><i class="fa fa-wrench"></i>Administration</li>';
 $template->pageData['breadcrumb'] .= '</ul>';
 
 if($uinfo==false)

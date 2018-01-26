@@ -18,7 +18,7 @@ $uinfo = checkLoggedInUser();
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
 $template->pageData['breadcrumb'] = $CFG['breadCrumb'];
-$template->pageData['breadcrumb'] .= '<li><a href="index.php">YACRS</a></li>';
+$template->pageData['breadcrumb'] .= '<li><a href="index.php"><i class="fa fa-home"></i>'.$CFG['sitetitle'].'</a></li>';
 
 
 if((isset($_SERVER['HTTPS']))&&($_SERVER['HTTPS']=='on'))
@@ -68,7 +68,7 @@ else
 			$smemb->update();
         }
 
-		$template->pageData['breadcrumb'] .= "<li>{$thisSession->title}</li>";
+		$template->pageData['breadcrumb'] .= "<li><i class='fa fa-question-circle'></i>{$thisSession->title}</li>";
 		
 		$template->pageData['breadcrumb'] .= '</ul>';
 		

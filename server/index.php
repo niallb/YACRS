@@ -36,7 +36,7 @@ $uinfo = checkLoggedInUser(true, $loginError);
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
 $template->pageData['breadcrumb'] = $CFG['breadCrumb'];
-$template->pageData['breadcrumb'] .= '<li>YACRS</li>';
+$template->pageData['breadcrumb'] .= '<li><i class="fa fa-home"></i>'.$CFG['sitetitle'].'</li>';
 $template->pageData['breadcrumb'] .= '</ul>';
 if($uinfo==false)
 {
@@ -52,7 +52,7 @@ if($uinfo==false)
     }
     if(file_exists('logininfo.htm'))
 	    $template->pageData['mainBody'] = file_get_contents('logininfo.htm').'<br/>';
-    $template->pageData['logoutLink'] = "<p style='text-align:right;'><a href='join.php'>Or click here for guest/anonymous access</a></p>";
+    $template->pageData['logoutLink'] = "";
 }
 else
 {

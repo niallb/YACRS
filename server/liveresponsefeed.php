@@ -43,7 +43,11 @@ if($thisSession->questionMode == 0)
         //echo '<pre>'.print_r($responses, 1).'</pre>';
         foreach($responses as $r)
         {
-    	     echo '<div class="comment"><p class="bubble">'.$r->value.'</p><p class="meta"><span class="time">'.ago($r->time).'</span></p></div>';
+            $cleanCommentText = strip_tags($r->value);
+            
+            if(!empty($cleanCommentText)) {
+                echo '<div class="comment"><p class="bubble">'.$cleanCommentText.'</p><p class="meta"><span class="time">'.ago($r->time).'</span></p></div>';
+            }
         }
     }
 }

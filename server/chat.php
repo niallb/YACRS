@@ -16,7 +16,7 @@ $uinfo = checkLoggedInUser();
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
 $template->pageData['breadcrumb'] = $CFG['breadCrumb'];
-$template->pageData['breadcrumb'] .= '<li><a href="index.php">YACRS</a></li>';
+$template->pageData['breadcrumb'] .= '<li><a href="index.php"><i class="fa fa-home"></i>'.$CFG['sitetitle'].'</a></li>';
 if((isset($_SERVER['HTTPS']))&&($_SERVER['HTTPS']=='on'))
 {
 	$serverURL = 'https://'.$_SERVER['HTTP_HOST'];
@@ -81,9 +81,9 @@ else
             }
         }
 		$template->pageData['afterContent'] = getAJAXScript($thisSession->id);
-        $template->pageData['breadcrumb'] .= "<li><a href='vote.php?sessionID={$thisSession->id}'>{$thisSession->title}</a></li>";
-		$template->pageData['breadcrumb'] .= "<li>Discussion</li>";
-		$template->pageData['mainBody'] .= '<h2 class="page-section extra-bottom">Discuss<span class="hidden-xs"> This Question</span><a class="pull-right" href="vote.php?sessionID='.$thisSession->id.'&continue=1">Back<span class="hidden-xs"> to Questions</span></a></h2>';
+        $template->pageData['breadcrumb'] .= "<li><a href='vote.php?sessionID={$thisSession->id}'><i class='fa fa-question-circle'></i>{$thisSession->title}</a></li>";
+		$template->pageData['breadcrumb'] .= "<li><i class='fa fa-comments'></i>Discussion</li>";
+		$template->pageData['mainBody'] .= '<h2 class="page-section extra-bottom">Discuss<span class="hidden-xs"> This Question</span><ul class="links"><li><a href="vote.php?sessionID='.$thisSession->id.'&continue=1"><i class="fa fa-arrow-left"></i>Back<span class="hidden-xs"> to Questions</span></a><li></ul></h2>';
         $template->pageData['mainBody'] .= "<form id='mublogForm' method='POST' action='chat.php' class='form-horizontal'><div class='form-group'>";
         $template->pageData['mainBody'] .= "<div class='col-sm-10 col-xs-9'><input type='hidden' name='sessionID' value='{$thisSession->id}' />";
         $template->pageData['mainBody'] .= "<textarea name='mublog' rows='3' class='form-control'></textarea></div>";

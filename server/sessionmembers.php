@@ -19,10 +19,11 @@ $uinfo = checkLoggedInUser();
 
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
-$template->pageData['breadcrumb'] = "<a href='http://www.gla.ac.uk/'>University of Glasgow</a> | <a href='http://www.gla.ac.uk/services/learningteaching/'>Learning & Teaching Centre</a> ";
-$template->pageData['breadcrumb'] .= '| <a href="index.php">YACRS</a>';
-$template->pageData['breadcrumb'] .= "| <a href='runsession.php?sessionID={$_REQUEST['sessionID']}'>Session {$_REQUEST['sessionID']}</a>";
-$template->pageData['breadcrumb'] .= '| Responses';
+$template->pageData['breadcrumb'] = $CFG['breadCrumb'];
+$template->pageData['breadcrumb'] .= '<li><a href="index.php"><i class="fa fa-home"></i>'.$CFG['sitetitle'].'</a></li>';
+$template->pageData['breadcrumb'] .= "<li><a href='runsession.php?sessionID={$_REQUEST['sessionID']}'><i class='fa fa-play'></i>Session {$_REQUEST['sessionID']}</a></li>";
+$template->pageData['breadcrumb'] .= '<li><i class="fa fa-users"></i>Members</li>';
+$template->pageData['breadcrumb'] .= '</ul>';
 
 $thisSession = isset($_REQUEST['sessionID'])? session::retrieve_session($_REQUEST['sessionID']):false;
 //if(($uinfo==false)||($thisSession == false)||(!$thisSession->isStaffInSession($uinfo['uname'])))
@@ -38,14 +39,15 @@ else
     $removeMode = (isset($_REQUEST['display']))&&($_REQUEST['display']=='remove');
     $members = sessionMember::retrieve_sessionMember_matching('session_id', $thisSession->id);
     $template->pageData['mainBody'] = "<h2>{$thisSession->title}</h2>";
+    $template->pageData['mainBody'] .= "<div class='btn-toolbar'>";
     if($detail)
-		$template->pageData['mainBody'] .= "<p><a href='sessionmembers.php?sessionID={$thisSession->id}'>Hide responses</a></p>";
+		$template->pageData['mainBody'] .= "<a href='sessionmembers.php?sessionID={$thisSession->id}' class='btn btn-info mr-3'><i class='fa fa-eye'></i>Hide Responses</a>";
     else
     {
-		$template->pageData['mainBody'] .= "<p><a href='sessionmembers.php?sessionID={$thisSession->id}&display=detail'>Show responses</a>";
+		$template->pageData['mainBody'] .= "<a href='sessionmembers.php?sessionID={$thisSession->id}&display=detail' class='btn btn-info mr-3'><i class='fa fa-eye'></i>Show Responses</a>";
         if(!$removeMode)
-    		$template->pageData['mainBody'] .= " | <a href='sessionmembers.php?sessionID={$thisSession->id}&display=remove'>Select and remove members.</a>";
-        $template->pageData['mainBody'] .= "</p>";
+    		$template->pageData['mainBody'] .= "<a href='sessionmembers.php?sessionID={$thisSession->id}&display=remove' class='btn btn-danger mr-3'><i class='fa fa-user-times'></i>Remove Members</a>";
+        $template->pageData['mainBody'] .= "</div>";
     }
     if($removeMode)
     {
@@ -71,14 +73,14 @@ else
             $selForRemoval = getRemoveList($thisSession, $removeChoice, $notActiveDays, $members);
         }
         $template->pageData['mainBody'] .= show_selectForRemoval($removeChoice, $notActiveDays);
-        $template->pageData['mainBody'] .=  '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">';
+        $template->pageData['mainBody'] .=  '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" class="form-horizontal">';
         $template->pageData['mainBody'] .=  '<div class="formfield">';
-        $template->pageData['mainBody'] .=  '<input class="submit" name="remove_submit" type="submit" value="Remove Selected Members" />';
+        $template->pageData['mainBody'] .=  '<input class="submit btn btn-danger" name="remove_submit" type="submit" value="Remove Selected Members" />';
         $template->pageData['mainBody'] .=  "</div>";
         $template->pageData['mainBody'] .=  '<input type="hidden" name="display" value="remove"/>';
         $template->pageData['mainBody'] .=  '<input type="hidden" name="sessionID" value="'.$thisSession->id.'"/>';
     }
-    $template->pageData['mainBody'] .= "<table border='1'><thead><tr><th>User</th><th>Name</th><th>Last active</th>";
+    $template->pageData['mainBody'] .= "<table class='table table-striped'><thead><tr><th>User</th><th>Name</th><th>Last active</th>";
     if($detail)
     {
         $qiIDs = explode(',',$thisSession->questions);
@@ -175,14 +177,12 @@ okcancel "Select" 'cancel';
 function show_selectForRemoval($choice, $natime)
 {
     global $thisSession;
-    $out = '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">';
-    $out .= '<fieldset><legend>Select members for removal (You will get a chance to confirm the selection before they are removed.)</legend>';
+    $out = '<form action="'.$_SERVER['PHP_SELF'].'" method="POST" class="form-removal form-horizontal">';
     $out .= '<input type="hidden" name="selectForRemoval_code" value="'.selectForRemoval_magic.'"/>';
-
-    $out .= '<div class="formfield">';
-    $out .= '<label for="choice">Select:';
+    $out .= '<div class="form-group">';
+    $out .= '<label for="choice" class="col-sm-4 control-label">Select';
     $out .= '</label>';
-    $out .= '<span class="forminput"><select name="choice"/>';
+    $out .= '<div class="col-sm-8"><select name="choice" class="form-control" />';
     $options = array('all'=>"All users", 'notcl'=>'Users not in classlist');
 	foreach($options as $nm => $v)
 	{
@@ -191,19 +191,17 @@ function show_selectForRemoval($choice, $natime)
 		    $out .= " selected=\"1\"";
 		$out .= " value='$nm'>{$v}</option>\n";
 	}
-    $out .= "</select></span></div>\n";
-    $out .= '<div class="formfield">';
-    $out .= '<label for="natime">not active in the last:';
+    $out .= "</select></div></div>";
+    $out .= '<div class="form-group">';
+    $out .= '<label class="col-sm-4 control-label" for="natime">Not active in the last';
     $out .= '</label>';
-    $out .= '<span class="forminput"><input type="text" name="natime" value="'.$natime.'" size="8"';
-    $out .= "/> days.</span></div>\n";
-    $out .= '<input type="hidden" name="display" value="remove"/>';
+    $out .= '<div class="col-sm-2"><input type="text" name="natime" value="'.$natime.'" size="8" class="form-control"';
+    $out .= "/></div><div class='col-sm-2'><p class='form-control-static'>days</p></div>";
+    $out .= '<div class="col-sm-4"><input type="hidden" name="display" value="remove"/>';
     $out .= '<input type="hidden" name="sessionID" value="'.$thisSession->id.'"/>';
 
-    $out .= '<div class="formfield">';
-    $out .= '<input class="submit" name="selectForRemoval_submit" type="submit" value="Select" />';
-    $out .= "</div>";
-    $out .= '</fieldset>';
+    $out .= '<input class="submit btn btn-block btn-success" name="selectForRemoval_submit" type="submit" value="Select Users" />';
+    $out .= "</div></div>";
     $out .= '</form>';
     return $out;
 }

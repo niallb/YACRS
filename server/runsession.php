@@ -19,8 +19,8 @@ $uinfo = checkLoggedInUser();
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
 $template->pageData['breadcrumb'] = $CFG['breadCrumb'];
-$template->pageData['breadcrumb'] .= '<li><a href="index.php">YACRS</a></li>';
-$template->pageData['breadcrumb'] .= '<li>Run a Session</li>';
+$template->pageData['breadcrumb'] .= '<li><a href="index.php"><i class="fa fa-home"></i>'.$CFG['sitetitle'].'</a></li>';
+$template->pageData['breadcrumb'] .= '<li><i class="fa fa-play"></i>Run a Session</li>';
 $template->pageData['breadcrumb'] .= '</ul>';
 
 
@@ -152,14 +152,14 @@ else
         $template->pageData['mainBody'] .= "<div class='checkbox'><label><input type='checkbox' name='catsco'  value='1' checked='checked'/> Category Scores</label></div>";
         $template->pageData['mainBody'] .= "<div class='checkbox'><label><input type='checkbox' name='custrep'  value='1'/> Custom Report</label></div></div></div>";
 
-        $template->pageData['mainBody'] .= "<div class='control-group'><div class='col-sm-8 col-sm-push-4'><input type='submit' class='btn btn-primary' value='Export'/></div></div></div></div></form>";
+        $template->pageData['mainBody'] .= "<div class='control-group'><div class='col-sm-8 col-sm-push-4'><input type='submit' class='btn btn-primary' value='Export'/></div></div></div></form>";
 
     }
 
     if($thisSession->ublogRoom)
     {
-	    $template->pageData['mainBody'] .= "<h2 class='page-section'>Chat</h2><a href='chatviewer.php?sessionID={$thisSession->id}' target='_new'>QR code and chat display</a>";
-	    $template->pageData['mainBody'] .= " | <a href='chatlisting.php?sessionID={$thisSession->id}'>Download full chat list</a>";
+	    $template->pageData['mainBody'] .= "<h2 class='page-section'>Chat<ul class='links'><li><a href='chatviewer.php?sessionID={$thisSession->id}' target='_new'><i class='fa fa-tv'></i> Chat Wall</a></li>";
+	    $template->pageData['mainBody'] .= "<li><a href='chatlisting.php?sessionID={$thisSession->id}'><i class='fa fa-download'></i> Download Chat Log</a></li></ul></h2>";
 	    $template->pageData['mainBody'] .= "<div id='messages'></div>";
         $template->pageData['afterContent'] .= getUBlogUpdateAJAXScript($thisSession->id);
     }
@@ -320,7 +320,7 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
             if($qu)
             {
                 if(in_array($qiID, $thisSession->extras[currentQuestions]))
-	                $out .= "\n<tr style='background-color: palegreen;'><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
+	                $out .= "\n<<tr class='question-active'><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
                 else
 	                $out .= "\n<tr><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
                 if($qi->endtime > 0)
@@ -406,7 +406,7 @@ function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
             if($qu)
             {
                 if($thisSession->currentQuestion == $qiID)
-	                $out .= "\n<tr style='background-color: palegreen;'><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
+	                $out .= "\n<tr class='question-active'><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
                 else
 	                $out .= "\n<tr><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
                 if($qi->endtime > 0)
