@@ -6,12 +6,8 @@ require_once('config.php');
 require_once('lib/forms.php');
 require_once('lib/database.php');
 require_once('lib/questionTypes.php');
-include_once('corelib/mobile.php');
+ 
 $template = new templateMerge($TEMPLATE);
-if($deviceType=='mobile')
-    $template->pageData['modechoice'] = "<a href='{$_SERVER['PHP_SELF']}?mode=computer'>Use computer mode</a>";
-else
-    $template->pageData['modechoice'] = "<a href='{$_SERVER['PHP_SELF']}?mode=mobile'>Use mobile mode</a>";
 
 $uinfo = checkLoggedInUser();
 

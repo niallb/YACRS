@@ -68,19 +68,6 @@ color: #404040;
 	border-right: 2px solid #778899;
 }
 
-#modechoice
-{
-	float:right;
-    margin: 20px;
-    color:white;
-    margin-top:10px;
-    font: 110% Helvetica, Arial, sans-serif;
-}
-#modechoice a
-{
-    color: #404040;
-}
-
 #loginBox
 {
 	width: 40%;

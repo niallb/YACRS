@@ -5,13 +5,9 @@ require_once('config.php');
 require_once('lib/database.php');
 require_once('lib/forms.php');
 require_once('lib/ajax.php');
-include_once('corelib/mobile.php');
 $template = new templateMerge($TEMPLATE);
 $sessionID = requestInt('sessionID');
-if($deviceType=='mobile')
-    $template->pageData['modechoice'] = "<a href='{$_SERVER['PHP_SELF']}?sessionID={$sessionID}&mode=computer'>Use computer mode</a>";
-else
-    $template->pageData['modechoice'] = "<a href='{$_SERVER['PHP_SELF']}?sessionID={$sessionID}&mode=mobile'>Use mobile mode</a>";
+
 $uinfo = checkLoggedInUser();
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];

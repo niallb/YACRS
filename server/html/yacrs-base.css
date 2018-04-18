@@ -84,19 +84,6 @@ body {
 	margin-top: 0;
 }
 
-#modechoice
-{
-	float:right;
-    margin: 20px;
-    color:white;
-    margin-top:10px;
-    font: 110% Helvetica, Arial, sans-serif;
-}
-#modechoice a
-{
-    color: #404040;
-}
-
 #main h1:first-child, #main h2:first-child, #main h3:first-child {
 	margin-top: 0;
 }

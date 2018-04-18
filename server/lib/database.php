@@ -133,6 +133,7 @@ class response
    sessionMember user;
    questionInstance question;
    memo value;
+   // isPartial was related to deprecated multipart questions, and is no longer needed.
    boolean isPartial #0.3.2;
    datetime time;
 }

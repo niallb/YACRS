@@ -6,12 +6,8 @@ require_once('config.php');
 require_once('lib/database.php');
 require_once('lib/forms.php');
 require_once('lib/questionTypes.php');
-include_once('corelib/mobile.php');
+ 
 $template = new templateMerge($TEMPLATE);
-if($deviceType=='mobile')
-    $template->pageData['modechoice'] = "<a href='{$_SERVER['PHP_SELF']}?sessionID={$_REQUEST['sessionID']}&mode=computer'>Use computer mode</a>";
-else
-    $template->pageData['modechoice'] = "<a href='{$_SERVER['PHP_SELF']}?sessionID={$_REQUEST['sessionID']}&mode=mobile'>Use mobile mode</a>";
 
 $uinfo = checkLoggedInUser();
 
@@ -172,10 +168,6 @@ function displayQuestion($qiid, $forceTitle=false)
 	         $resp->user_id = $smemb->id;
 	         $resp->question_id = $qi->id;
 	         $resp->value = $qu->definition->responseValue;
-	         if(isset($qu->definition->partialResponse))
-	             $resp->isPartial = $qu->definition->partialResponse;
-	         else
-	             $resp->isPartial = false;
 	         $resp->insert();
 	         $smemb->lastresponse = time();
 	         $smemb->update();
@@ -198,7 +190,7 @@ function displayQuestion($qiid, $forceTitle=false)
          }
 	     //$qu->definition
         $out .= '<fieldset>';
-        if(($resp == false)||($resp->isPartial))
+        if($resp == false)
             $out .= '<legend>Input:</legend>';
         elseif(isset($_REQUEST['doupdate']))
             $out .= '<legend>Update answer:</legend>';

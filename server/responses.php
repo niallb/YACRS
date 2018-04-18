@@ -8,7 +8,7 @@ require_once('lib/forms.php');
 require_once('lib/database.php');
 require_once('lib/questionTypes.php');
 require_once('lib/shared_funcs.php');
-include_once('corelib/mobile.php');
+ 
 $template = new templateMerge($TEMPLATE);
 
 $uinfo = checkLoggedInUser();

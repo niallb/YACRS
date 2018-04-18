@@ -16,18 +16,6 @@ background: #5c5940 url(http://www.gla.ac.uk/0t4/generic/images/background/arch1
 	padding-bottom: 10em;
 }
 
-#modechoice
-{
-	float:right;
-    color:white;
-    margin-top:10px;
-    font: 110% Helvetica, Arial, sans-serif;
-}
-#modechoice a
-{
-    color:white;
-}
-
 #pageHeader {
 	width: 880px; 
 	height: 78px;

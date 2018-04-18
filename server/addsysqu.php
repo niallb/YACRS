@@ -22,7 +22,7 @@ error_reporting(E_ALL);
 require_once('config.php');
 require_once('lib/database.php');
 require_once('lib/forms.php');
-include_once('corelib/mobile.php');
+ 
 $template = new templateMerge($TEMPLATE);
 
 $uinfo = checkLoggedInUser();

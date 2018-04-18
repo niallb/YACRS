@@ -26,11 +26,9 @@
     <Compile Include="corelib\templateMerge.php" />
     <Compile Include="html\logo_large.png" />
     <Compile Include="html\logo_med.png" />
-    <Compile Include="html\mtemplate.html" />
     <Compile Include="html\template.html" />
     <Compile Include="html\yacrs.css" />
     <Compile Include="html\yacrs1.css" />
-    <Compile Include="html\yacrsmobile.css" />
     <Compile Include="lib\PHP_Word_Cloud-master\meta\LICENSE" />
     <Compile Include="lib\PHP_Word_Cloud-master\box.php" />
     <Compile Include="lib\PHP_Word_Cloud-master\frequency_table.php" />

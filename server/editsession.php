@@ -5,14 +5,10 @@ error_reporting(E_ALL);
 require_once('config.php');
 require_once('lib/forms.php');
 require_once('lib/database.php');
-include_once('corelib/mobile.php');
+ 
 require_once('lib/shared_funcs.php');
 include_once('lib/lti_funcs.php');
 $template = new templateMerge($TEMPLATE);
-if($deviceType=='mobile')
-    $template->pageData['modechoice'] = "<a href='{$_SERVER['PHP_SELF']}?mode=computer'>Use computer mode</a>";
-else
-    $template->pageData['modechoice'] = "<a href='{$_SERVER['PHP_SELF']}?mode=mobile'>Use mobile mode</a>";
 
 $uinfo = checkLoggedInUser();
 
