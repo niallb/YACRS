@@ -464,7 +464,7 @@ class session
 		$this->endtime = time();
 		$this->sessionstarttime = time();
 		$this->sessionOpen = false;
-		$this->activeSubsession_id = null; // foreign key, needs dealt with.
+		$this->activeSubsession_id = 0; // foreign key, needs dealt with.
 		$this->sessionendtime = time();
 		$this->visible = false;
 		$this->allowGuests = false;
@@ -588,7 +588,7 @@ class session
 		$query .= ", endtime='".dataConnection::time2db($this->endtime)."' ";
 		$query .= ", sessionstarttime='".dataConnection::time2db($this->sessionstarttime)."' ";
 		$query .= ", sessionOpen='".(($this->sessionOpen===false)?0:1)."' ";
-		$query .= ", activeSubsession_id='".dataConnection::safe($this->activeSubsession_id)."' ";
+		//$query .= ", activeSubsession_id='".dataConnection::safe($this->activeSubsession_id)."' ";
 		$query .= ", sessionendtime='".dataConnection::time2db($this->sessionendtime)."' ";
 		$query .= ", visible='".(($this->visible===false)?0:1)."' ";
 		$query .= ", allowGuests='".(($this->allowGuests===false)?0:1)."' ";
@@ -1891,7 +1891,7 @@ class questionInstance
 		$query .= "SET title='".dataConnection::safe($this->title)."' ";
 		$query .= ", theQuestion_id='".dataConnection::safe($this->theQuestion_id)."' ";
 		$query .= ", inSession_id='".dataConnection::safe($this->inSession_id)."' ";
-		$query .= ", subsession_id='".dataConnection::safe($this->subsession_id)."' ";
+		//$query .= ", subsession_id='".dataConnection::safe($this->subsession_id)."' ";
 		$query .= ", starttime='".dataConnection::time2db($this->starttime)."' ";
 		$query .= ", endtime='".dataConnection::time2db($this->endtime)."' ";
 		$query .= ", screenshot='".dataConnection::safe($this->screenshot)."' ";
@@ -1983,7 +1983,7 @@ class sessionMember
 		$this->name = "";
 		$this->nickname = "";
 		$this->email = "";
-		$this->user_id = null; // foreign key, needs dealt with.
+		$this->user_id = 0; // foreign key, needs dealt with.
 		$this->joined = time();
 		$this->lastresponse = time();
 		$this->mobile = "";
@@ -2074,6 +2074,7 @@ class sessionMember
 		$query .= ", name='".dataConnection::safe($this->name)."' ";
 		$query .= ", nickname='".dataConnection::safe($this->nickname)."' ";
 		$query .= ", email='".dataConnection::safe($this->email)."' ";
+        if($this->user_id != null)
 		$query .= ", user_id='".dataConnection::safe($this->user_id)."' ";
 		$query .= ", joined='".dataConnection::time2db($this->joined)."' ";
 		$query .= ", lastresponse='".dataConnection::time2db($this->lastresponse)."' ";

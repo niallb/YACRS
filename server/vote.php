@@ -47,6 +47,7 @@ else
     else
     {
         $smemb = sessionMember::retrieve($uinfo['uname'], $thisSession->id);
+
         if($smemb == false)
         {
         	$smemb = new sessionMember();
@@ -54,6 +55,10 @@ else
 			$smemb->userID = $uinfo['uname'];
 			$smemb->name = $uinfo['gn'].' '.$uinfo['sn'];
 			$smemb->email = $uinfo['email'];
+            if(isset($uinfo['user']->id))
+                $smemb->user_id = $uinfo['user']->id;
+            else
+                $smemb->user_id = 0;
 			$smemb->joined = time();
 			$smemb->lastresponse = time();
 			$smemb->insert();
