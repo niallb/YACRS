@@ -16,20 +16,40 @@ if($qu !== false)
 	$labels = $qu->definition->getGraphLabels();
 	$count = array_fill_keys(array_keys($labels), 0);
 	$responses = response::retrieve_response_matching('question_id', $qiID);
-	if($responses)
-	{
-   		foreach($responses as $r)
-		{
-			if(strlen($r->value))
+    //exit('<pre>'.print_r($qu, true).'</pre>');
+    if((isset($qu->definition->categories))&&(is_array($qu->definition->categories)))
+    {
+        foreach($count as &$c)
+            $c = array_fill_keys(array_keys($qu->definition->categories), 0);
+        if($responses)
+	    {
+	   		foreach($responses as $r)
 			{
-				$votes = explode(',',$r->value);
-				foreach($votes as $v)
+				if(strlen($r->value))
 				{
-					$count[$v]++;
+					list($ch, $conf) = explode('::',$r->value);
+    				$count[$ch][$conf]++;
+				}
+			}
+	    }
+    }
+    else
+    {
+		if($responses)
+		{
+	   		foreach($responses as $r)
+			{
+				if(strlen($r->value))
+				{
+					$votes = explode(',',$r->value);
+					foreach($votes as $v)
+					{
+						$count[$v]++;
+					}
 				}
 			}
 		}
-	}
+    }
     $chartData = array();
     $chartShowAsCorrect = array();
     $correctData = explode('; ', $qu->definition->getCorrectStr($qi));
@@ -41,7 +61,11 @@ if($qu !== false)
         else
             $chartShowAsCorrect[$labels[$label]] = false;
     }
-    drawChart($chartData, $chartShowAsCorrect);
+    //exit('<pre>'.print_r($chartData, 1).'</pre>');
+    if((isset($qu->definition->categories))&&(is_array($qu->definition->categories)))
+        drawConfChart($chartData, $chartShowAsCorrect, $qu->definition->categories);
+    else
+        drawChart($chartData, $chartShowAsCorrect);
 }
 
 
@@ -88,6 +112,74 @@ function drawChart($data, $showAsCorrect=false)
 
 }
 
+function drawConfChart($data, $showAsCorrect=false, $categories=array())
+{
+    //exit('<pre>'.print_r($categories, true).'</pre>');
+    $maxval = 0;
+    $catCount = 1;
+    foreach($data as $d)
+    {
+        $dtot = array_sum($d);
+        $maxval = $maxval>$dtot?$maxval:$dtot;
+        $catCount = $catCount>sizeof($d)?$catCount:sizeof($d);
+    }
+    $colCount = sizeof($data);
+    $colWidth = intval(IMGWIDTH / ($colCount+2));
+
+    $catHeight = sizeof($categories) * getTextHeight("Ay", 2) * 1.5;
+
+    $baseLine = IMGHEIGHT - (2 * getTextHeight("Ay", 5)) - $catHeight;
+    $hightMultiplier = (IMGHEIGHT - $catHeight - (4 * getTextHeight("Ay", 5))) / $maxval;
+
+	$graph = new MyImage(IMGWIDTH, IMGHEIGHT, 255, 255, 255, $catCount);
+
+    if($catHeight > 0)
+    {
+        $lh = getTextHeight("Ay", 2);
+        foreach($categories as $n => $txt)
+        {
+            //$x1, $y1, $x2, $y2, $highlight = false, $shade = false
+	        $graph->filledborderrectangle(5, IMGHEIGHT - ($n * $lh * 1.5) - ($lh * 2), 25, IMGHEIGHT - ($n * $lh * 1.5) - $lh, false, $n);
+			$graph->string(2, 30, IMGHEIGHT - (($n+1) * $lh * 1.5) - $lh, $txt);
+        }
+    }
+
+	$graph->line($colWidth, $baseLine, $colWidth * ($colCount+1), $baseLine);
+	$graph->line($colWidth, $baseLine, $colWidth, $baseLine - ($hightMultiplier * $maxval));
+	$graph->line($colWidth-5, $baseLine - ($hightMultiplier * $maxval), $colWidth, $baseLine - ($hightMultiplier * $maxval));
+    $lxpos = $colWidth - getTextWidth($maxval, 5) - 10;
+    $lypos =  $baseLine - ($hightMultiplier * $maxval) - (getTextHeight($maxval, 5)/2);
+	$graph->string(5, $lxpos, $lypos, $maxval);
+    $colPos = 0;
+    foreach($data as $t=>$d)
+    {
+        $colPos += $colWidth;
+        $colCentre = intval($colPos + $colWidth/2);
+	    $lxpos = $colCentre - intval(getTextWidth($t, 5)/2);
+	    $lypos =  $baseLine + intval(getTextHeight("Ay", 5)/4);
+		$graph->string(5, $lxpos, $lypos, $t);
+        if(array_sum($d) > 0)
+        {
+            $cBaseLine = $baseLine;
+            for($n=0; $n<sizeof($d); $n++)
+            {
+                if($d[$n] > 0)
+                {
+		            if(($showAsCorrect!==false)&&($showAsCorrect[$t]))
+		            	$graph->filledborderrectangle($colPos, $cBaseLine, $colPos + $colWidth, $cBaseLine-($d[$n]*$hightMultiplier), true, $n);
+		            else
+		            	$graph->filledborderrectangle($colPos, $cBaseLine, $colPos + $colWidth, $cBaseLine-($d[$n]*$hightMultiplier), false, $n);
+	                $cBaseLine -= ($d[$n]*$hightMultiplier);
+                }
+            }
+        }
+    }
+
+
+	$graph->render();
+
+}
+
 function getTextWidth($text, $font)
 {
     $width  = array(1 => 5, 6, 7, 8, 9);
@@ -107,7 +199,7 @@ class MyImage
     var $background;
     var $fillColour;
 
-	function MyImage($width,$height, $bgr=255, $bgg=255, $bgb=255)
+	function MyImage($width,$height, $bgr=255, $bgg=255, $bgb=255, $shades=0)
     {
 		$this->imgWidth=$width;
 		$this->imgHeight=$height;
@@ -121,6 +213,19 @@ class MyImage
 		$this->yellow = imagecolorallocate($this->image, 255, 255, 0);
 		$this->blue = imagecolorallocate($this->image, 0, 0, 255);
 		$this->lightblue = imagecolorallocate($this->image, 128, 128, 255);
+        if($shades > 1)
+        {
+             $inc = intval(192 / ($shades-1));
+             $this->greenShade[$n] = array();
+             $this->yellowShade[$n] = array();
+             $this->blueShade[$n] = array();
+             for($n=0; $n<$shades; $n++)
+             {
+				$this->greenShade[$n] = imagecolorallocate($this->image, 32+$n*$inc, 255, 32+$n*$inc);
+				$this->yellowShade[$n] = imagecolorallocate($this->image, 255, 255, 32+$n*$inc);
+				$this->blueShade[$n] = imagecolorallocate($this->image, 32+$n*$inc, 32+$n*$inc, 255);
+             }
+        }
         $this->lineColour = $this->black;
         $this->fillColour = $this->grey;
        	$style = array($this->black, $this->black, $this->black, $this->black, $this->black, $this->black, $this->white, $this->white, $this->white, $this->white);
@@ -150,13 +255,23 @@ class MyImage
         imagefilledrectangle($this->image, $x1 , $y1 , $x2 ,  $y2 , $this->fillColour);
     }
 
-    function filledborderrectangle($x1, $y1, $x2, $y2, $highlight = false)
+    function filledborderrectangle($x1, $y1, $x2, $y2, $highlight = false, $shade = false)
     {
         imagefilledrectangle($this->image, $x1 , $y1 , $x2 ,  $y2 , $this->black);
-        if($highlight)
-	        return imagefilledrectangle($this->image, $x1+1 , $y1-1 , $x2-1 ,  $y2+1 , $this->green);
+        if($shade !== false)
+        {
+	        if($highlight)
+		        return imagefilledrectangle($this->image, $x1+1 , $y1-1 , $x2-1 ,  $y2+1 , $this->greenShade[$shade]);
+	        else
+		        return imagefilledrectangle($this->image, $x1+1 , $y1-1 , $x2-1 ,  $y2+1 , $this->blueShade[$shade]);
+        }
         else
-	        return imagefilledrectangle($this->image, $x1+1 , $y1-1 , $x2-1 ,  $y2+1 , $this->lightblue);
+        {
+	        if($highlight)
+		        return imagefilledrectangle($this->image, $x1+1 , $y1-1 , $x2-1 ,  $y2+1 , $this->green);
+	        else
+		        return imagefilledrectangle($this->image, $x1+1 , $y1-1 , $x2-1 ,  $y2+1 , $this->lightblue);
+        }
     }
 
     function line($x1, $y1, $x2, $y2)

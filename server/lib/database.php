@@ -2336,6 +2336,29 @@ class response
 			return $result['0']['count'];
 	}
 
+    static function CreateOrUpdate($userid, $qiid, $responseValue)
+    {
+        $query = "LOCK TABLES yacrs_response WRITE;";
+        dataConnection::runQuery($query);
+        $the_response = response::retrieve($userid, $qiid);
+        if($the_response == false)
+        {
+            $the_response = new response();
+	        $the_response->user_id = $userid;
+	        $the_response->question_id = $qiid;
+            $the_response->value = $responseValue;
+            $the_response->insert();
+        }
+        else
+        {
+            $the_response->value = $responseValue;
+            $the_response->update();
+        }
+        $query = "UNLOCK TABLES;";
+        dataConnection::runQuery($query);
+        return $the_response;
+    }
+
 	//[[USERCODE_response]] WEnd of custom class members.
 }
 

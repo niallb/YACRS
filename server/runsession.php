@@ -390,6 +390,7 @@ function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
         $qunum = 0;
         if(isset($_REQUEST['move']))
             $moveMode = 'before';
+
         foreach($qiIDs as $qiID)
         {
             $qunum++;

@@ -1,3 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -6,6 +7,8 @@
     <RootNamespace>yacrs</RootNamespace>
     <OutputType>Library</OutputType>
     <ProjectTypeGuids>{A0786B88-2ADB-4C21-ABE8-AA2D79766269}</ProjectTypeGuids>
+    <Runtime>PHP</Runtime>
+    <RuntimeVersion>7.1</RuntimeVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <IncludeDebugInformation>true</IncludeDebugInformation>
@@ -45,7 +48,6 @@
     <Compile Include="lib\database.php" />
     <Compile Include="lib\forms.php" />
     <Compile Include="lib\login.php" />
-    <Compile Include="lib\multipartquestion.php" />
     <Compile Include="lib\questionBase.php" />
     <Compile Include="lib\questionTypes.php" />
     <Compile Include="lib\shared_funcs.php" />
@@ -74,7 +76,6 @@
     <Compile Include="responseCounter.php" />
     <Compile Include="responses.php" />
     <Compile Include="runsession.php" />
-    <Compile Include="runsession_partmultiq.php" />
     <Compile Include="services.php" />
     <Compile Include="sessionmembers.php" />
     <Compile Include="smsin.php" />

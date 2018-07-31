@@ -147,7 +147,7 @@ echo $template->render();
 function displayQuestion($qiid, $forceTitle=false)
 {
     global $thisSession, $smemb;
-    $out = '';
+    $out = '<div id="questionBlock">';
      $qi = questionInstance::retrieve_questionInstance($qiid);
      $qu = question::retrieve_question($qi->theQuestion_id);
      $resp = response::retrieve($smemb->id, $qi->id);
@@ -162,7 +162,9 @@ function displayQuestion($qiid, $forceTitle=false)
      {
 	     $qu->definition->checkResponse($qi->id, $resp);
 	     // New & replacement responses added here, partial responses for questions that support it done by checkResponse
-	     if(($resp == false)&&($qu->definition->responseValue !== false))
+         if($qu->definition->responseValue !== false)
+             $resp == response::CreateOrUpdate($smemb->id, $qi->id, $qu->definition->responseValue);
+	     /*if(($resp == false)&&($qu->definition->responseValue !== false))
 	     {
 	         $resp = new response();
 	         $resp->user_id = $smemb->id;
@@ -187,7 +189,7 @@ function displayQuestion($qiid, $forceTitle=false)
              $resp = response::retrieve($smemb->id, $qi->id);
              if($resp !== false)
                  $qu->definition->responseValue = $resp->value;
-         }
+         } */
 	     //$qu->definition
         $out .= '<fieldset>';
         if($resp == false)
@@ -207,15 +209,16 @@ function displayQuestion($qiid, $forceTitle=false)
 	     $out .= $qu->definition->render($qi->title);
          if(($qu->definition->responseValue === false)||(($thisSession->allowQuReview)&&(isset($_REQUEST['doupdate']))))
          {
-             $out .= "<input type='submit' name='submitans' value='Save Answer' class='btn btn-primary' />";
+             $out .= "<input id='submitButton' type='submit' name='submitans' value='Save Answer' class='btn btn-primary' />";
          }
          elseif(($thisSession->allowQuReview)&&($qu->definition->allowReview()))
          {
-             $out .= "<a href='vote.php?sessionID={$thisSession->id}&qiID={$qi->id}&doupdate=1' class='btn btn-success'>Change Answer</a>";
+             $out .= "<a href='vote.php?sessionID={$thisSession->id}&qiID={$qi->id}&doupdate=1' id='changeButton' class='btn btn-success'>Change Answer</a>";
          }
          $out .= '</fieldset>';
 	     $out .= "</form>";
      }
+    $out .= '</div>';
 //$template->pageData['mainBody'] .= '<pre>'.print_r($qu,1).'</pre>';
     return $out;
 }

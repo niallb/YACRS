@@ -111,6 +111,15 @@ class templateMerge
                     $out .= "<script src=\"{$s}\" type=\"text/javascript\" charset=\"utf-8\"></script>\n";
                 }
                 break;
+            case 'autoscript':
+                $fullpath = dirname($_SERVER['SCRIPT_FILENAME']).'/';
+                //$webpath = dirname($_SERVER['REQUEST_URI']).'/';
+                $scriptname = basename($_SERVER['SCRIPT_FILENAME'], '.php').'.js';
+                if(file_exists($fullpath.'scripts/'.$scriptname))
+                    $out .= "<script src=\"scripts/{$scriptname}\" type=\"text/javascript\" charset=\"utf-8\"></script>\n";
+                elseif(file_exists($fullpath.$scriptname))
+                    $out .= "<script src=\"{$scriptname}\" type=\"text/javascript\" charset=\"utf-8\"></script>\n";
+                break;
 	        case 'echo':
 	            $out = $this->fields[$i]['value'];
 	            break;

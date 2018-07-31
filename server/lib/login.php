@@ -49,9 +49,7 @@ function checkLoggedInUser($allowLogin = true, &$error = false)
                     $uinfo['isAdmin'] = true;
             }
         }
-        elseif($uinfo = checkLTISessionUser($_REQUEST['uname'], $_REQUEST['pwd']))
-        {
-        }
+        //elseif($uinfo = checkLTISessionUser($_REQUEST['uname'], $_REQUEST['pwd']))    {  }   //#Todo
         else
         {
             $_REQUEST['pwd'] = "";
@@ -131,7 +129,7 @@ function loginBox($uinfo, $error = '')
         $protocol = 'http';
     if($uinfo==false)
     {
-		$out .= "<form method='POST' action='$protocol://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF']."' class='form-horizontal'>";
+		$out .= "<form method='POST' action='$protocol://".$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].$_SERVER['PHP_SELF']."' class='form-horizontal'>";
         if(strlen($error))
         {
 	        $out .= "<div class='form-group'><div class='col-sm-8 col-sm-push-4'><div class='alert alert-danger'>$error</div></div></div>";

@@ -3,5 +3,6 @@
   <PropertyGroup>
     <StartAction>SpecificPage</StartAction>
     <SpecificPageValue>index.php</SpecificPageValue>
+    <RuntimePath>C:\Program Files (x86)\IIS Express\PHP\v7.1\php.exe</RuntimePath>
   </PropertyGroup>
 </Project>
