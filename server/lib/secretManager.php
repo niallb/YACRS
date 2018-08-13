@@ -1,5 +1,5 @@
 <?php
-include_once('lib/database.php');
+include_once(ROOT_PATH.'lib/database.php');
 
 class secretManager extends ltiSecretManager
 {

@@ -17,7 +17,7 @@ Copyright 2005-2012 Niall S F Barr
    See the License for the specific language governing permissions and
    limitations under the License.
 *****************************************************************************/
-require_once('corelib/safeRequestFunctions.php');
+require_once(ROOT_PATH.'corelib/safeRequestFunctions.php');
 define('FORM_NOTSUBMITTED',0);
 define('FORM_SUBMITTED_VALID', 1);
 define('FORM_SUBMITTED_INVALID', 2);

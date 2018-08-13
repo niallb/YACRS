@@ -1,6 +1,6 @@
 <?php
-require_once('corelib/form_lib2.php');
-require_once('lib/questionTypes.php');
+require_once(ROOT_PATH.'corelib/form_lib2.php');
+require_once(ROOT_PATH.'lib/questionTypes.php');
 
 //Do not regenerate and overwrite! Carefull merge needed because addQuestion_form has been customized, and extra functions added
 

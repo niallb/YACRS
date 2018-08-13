@@ -1,5 +1,5 @@
 <?php
-require_once('corelib/dataaccess.php');
+require_once(ROOT_PATH.'corelib/dataaccess.php');
 
 
 /*

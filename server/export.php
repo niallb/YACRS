@@ -23,7 +23,7 @@ if(!checkPermission($uinfo, $thisSession))
     header("Location: index.php");
     exit();
 }
-if((isset($thisSession->extras['customScoring']))&&(file_exists('locallib/customscoring/'.$thisSession->extras['customScoring'])))
+if((isset($thisSession->extras['customScoring']))&&(strlen($thisSession->extras['customScoring']))&&(file_exists('locallib/customscoring/'.$thisSession->extras['customScoring'])))
 {
     include_once('locallib/customscoring/'.$thisSession->extras['customScoring']);
 }
@@ -165,7 +165,7 @@ foreach($members as $m)
 {
     $respCount = 0;
     $catScore=$catScoreTmpl;
-    echo preg_replace('/([\\\\"])/e', '\\\\\\1', $m->userID).','.preg_replace('/([\\\\"])/e', '\\\\\\1', $m->name);
+    echo preg_replace('/([\\\\"])/', '\\\\\\1', $m->userID).','.preg_replace('/([\\\\"])/', '\\\\\\1', $m->name);
 
     $qiids = array();
 	foreach($questionInsts as $q)

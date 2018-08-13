@@ -9,6 +9,8 @@
     <ProjectTypeGuids>{A0786B88-2ADB-4C21-ABE8-AA2D79766269}</ProjectTypeGuids>
     <Runtime>PHP</Runtime>
     <RuntimeVersion>7.1</RuntimeVersion>
+    <SpecificPageValue>index.php</SpecificPageValue>
+    <StartAction>SpecificPage</StartAction>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <IncludeDebugInformation>true</IncludeDebugInformation>
@@ -17,14 +19,12 @@
     <IncludeDebugInformation>false</IncludeDebugInformation>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="corelib\basicpage.php" />
+    <Compile Include="ajax\vote.php" />
     <Compile Include="corelib\dataaccess.php" />
     <Compile Include="corelib\dataaccess_lite.php" />
     <Compile Include="corelib\force_ssl.php" />
     <Compile Include="corelib\form_lib2.php" />
     <Compile Include="corelib\ldap_login.php" />
-    <Compile Include="corelib\mobile.php" />
-    <Compile Include="corelib\Mobile_Detect.php" />
     <Compile Include="corelib\safeRequestFunctions.php" />
     <Compile Include="corelib\templateMerge.php" />
     <Compile Include="html\logo_large.png" />
@@ -52,6 +52,7 @@
     <Compile Include="lib\questionTypes.php" />
     <Compile Include="lib\shared_funcs.php" />
     <Compile Include="lib\textthenchoicequestion.php" />
+    <Compile Include="lib\vote_lib.php" />
     <Compile Include="phpqrcode\LICENSE" />
     <Compile Include="phpqrcode\phpqrcode.php" />
     <Compile Include="phpqrcode\README" />
@@ -62,7 +63,6 @@
     <Compile Include="chatlisting.php" />
     <Compile Include="chatviewer.php" />
     <Compile Include="config.php" />
-    <Compile Include="config_mysql.php" />
     <Compile Include="editquestion.php" />
     <Compile Include="editsession.php" />
     <Compile Include="export.php" />
@@ -85,6 +85,7 @@
     <Compile Include="wordwall.php" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="ajax\" />
     <Folder Include="corelib" />
     <Folder Include="html" />
     <Folder Include="lib\PHP_Word_Cloud-master\meta" />
@@ -92,6 +93,10 @@
     <Folder Include="lib" />
     <Folder Include="locallib" />
     <Folder Include="phpqrcode" />
+    <Folder Include="scripts\" />
     <Folder Include="userimages" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="scripts\vote.js" />
   </ItemGroup>
 </Project>

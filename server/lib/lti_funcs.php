@@ -1,5 +1,5 @@
 <?php
-include_once('corelib/lti_session.php');
+include_once(ROOT_PATH.'corelib/lti_session.php');
 
 function getLTISessionID()
 {
