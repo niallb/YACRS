@@ -39,7 +39,8 @@ function onSubmit(e)
                     try
                     {
                         var response = JSON.parse(xmlHttp.responseText);
-                        processAjaxResponse(response);                    
+                        processAjaxResponse(response);
+                        clearTimeout(timeoutID);
                     } catch (e)
                     {
                         alert("JSON parse error in ajaxLinkClick\n\n" + e + "\n\n" + xmlHttp.responseText);
@@ -52,12 +53,12 @@ function onSubmit(e)
                 document.body.style.cursor = '';
             }
         }
-        setTimeout(timeOutWarning, 15000);
+        timeoutID = setTimeout(timeOutWarning, 15000);
         xmlHttp.open("POST", "ajax/vote.php", true);
         xmlHttp.send(data);
         if (document.getElementById('quStatusMsg') == undefined)
             document.getElementById('questionBlock').innerHTML += "<div id='quStatusMsg'></div>";
-        document.getElementById('quStatusMsg').innerHTML = "<div id='submitedMsg' class='alert alert-warning'>Response submitted. Plase wait.</div>";
+        document.getElementById('quStatusMsg').innerHTML = "<div id='submitedMsg' class='alert alert-warning'>Response submitted. Please wait.</div>";
     }
     return false;
 }
