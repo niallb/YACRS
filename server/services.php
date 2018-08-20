@@ -147,6 +147,8 @@ else
                 $session->currentQuestion = 0;
         		$session->update();
                 $qi->endtime = time();
+                $count = response::countCompleted($cqi->id);
+                $qi->responseCount = response::countCompleted($qi->id);
                 $qi->update();
             }
         }

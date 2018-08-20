@@ -12,7 +12,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 include('config.php');
-include('lib/database.php');
+require_once('lib/database.php');
 require_once('lib/forms.php');
 require_once('lib/shared_funcs.php');
 require_once('lib/questionTypes.php');

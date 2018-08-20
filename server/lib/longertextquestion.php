@@ -75,7 +75,7 @@ class TextQuestion extends questionBase
         return $out;
     }
 
-    function report($thisSession, $qi, $detailed = false)
+    function report($thisSession, $qi, $detailed = false, $anonymous=false)
     {
 	    //$label = $this->getGraphLabels();
         global $uinfo;
@@ -101,13 +101,19 @@ class TextQuestion extends questionBase
 		    	$out .= "<p><b>".sizeof($responses)." response(s).</b></p>";
 	            $out .= "<img src='wordwall.php?qiID={$qi->id}'/><br/>";
 	        }
-		    $out .= "<table border='1'><thead><tr><th>User</th><th>Name</th><th>Response</th></thead><tbody>";
+		    $out .= "<table border='1'><thead>";
+            if(!$anonymous)
+                $out .= "<tr><th>User</th><th>Name</th>";
+            $out .= "<th>Response</th></thead><tbody>";
 	        if($responses)
 	        {
 		        foreach($responses as $r)
 		        {
 		        	$member = sessionMember::retrieve_sessionMember($r->user_id);
-			        $out .= "<tr><td>{$member->userID}</td><td>{$member->name}</td><td>{$r->value}</td></tr>";
+			        $out .= "<tr>";
+                    if(!$anonymous)
+                        $out .= "<td>{$member->userID}</td><td>{$member->name}</td>";
+                    $out .= "<td>{$r->value}</td></tr>";
 		        }
 	        }
 		    $out .= "</table>";
@@ -136,6 +142,7 @@ class editTextQuestion_form extends nbform
 	var $characterLimit; //integer
 	var $wordLimit; //integer
 	var $multiuse; //boolean
+    var $anonymous; //boolean
 	var $validateMessages;
 
 	function __construct($readform=true)
@@ -161,6 +168,7 @@ class editTextQuestion_form extends nbform
 		$this->characterLimit = $data->characterLimit;
 		$this->wordLimit = $data->wordLimit;
 		$this->multiuse = $data->multiuse;
+		$this->anonymous = $data->anonymous;
 	}
 
 	function getData(&$data)
@@ -172,6 +180,7 @@ class editTextQuestion_form extends nbform
 		$data->characterLimit = $this->characterLimit;
 		$data->wordLimit = $this->wordLimit;
 		$data->multiuse = $this->multiuse;
+		$data->anonymous = $this->anonymous;
 		return $data;
 	}
 
@@ -187,6 +196,7 @@ class editTextQuestion_form extends nbform
 			$this->characterLimit = intval($_REQUEST['characterLimit']);
 			$this->wordLimit = intval($_REQUEST['wordLimit']);
 			$this->multiuse = (isset($_REQUEST['multiuse'])&&($_REQUEST['multiuse']==1)) ? true : false;
+			$this->anonymous = (isset($_REQUEST['anonymous'])&&($_REQUEST['anonymous']==1)) ? true : false;
 			if('Cancel' == $_REQUEST['submit'])
 				$isCanceled = true;
 			$isValid = $this->validate();
@@ -242,6 +252,7 @@ class editTextQuestion_form extends nbform
 		$out .= $this->textInput('Maximum response length (characters, blank or 0 for unlimited)', 'characterLimit', $this->characterLimit, $this->validateMessages, 8);
 		$out .= $this->textInput('Maximum response length (words, blank or 0 for unlimited)', 'wordLimit', $this->wordLimit, $this->validateMessages, 8);
 		$out .= $this->checkboxInput('This is a generic question to be made available in all my sessions.', 'multiuse', $this->multiuse, $this->validateMessages);
+		$out .= $this->checkboxInput('This is a psudo-anonymous question where the teacher will not see who gave each response.', 'anonymous', $this->anonymous, $this->validateMessages);
 		$out .= $this->submitInput('submit', 'Create', 'Cancel');
 		$out .= $this->formEnd(false);
 		return $out;

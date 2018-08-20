@@ -19,6 +19,11 @@ class dataConnection
 
     public static function runQuery($query)
     {
+        global $CFG;
+        if((isset($CFG['db_debug_log']))&&($CFG['db_debug_log']==1))
+        {
+            file_put_contents('db_debug_log.txt', time().': '.$query.PHP_EOL , FILE_APPEND | LOCK_EX);
+        }
         if(self::$dblink==null)
             dataConnection::connect();
         $result = mysqli_query(self::$dblink, $query);

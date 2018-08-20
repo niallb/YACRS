@@ -380,7 +380,7 @@ class confidenceQuestion extends questionBase
         return implode('; ',$ca)." (Conf: $confval)";
     }
 
-    function report($thisSession, $qi, $detailed = false)
+    function report($thisSession, $qi, $detailed = false, $anonymous=false)
     {
 	    if(isset($_REQUEST['updateAnotation']))
 	    {
@@ -448,7 +448,10 @@ class confidenceQuestion extends questionBase
 		        foreach($responses as $r)
 		        {
 		        	$member = sessionMember::retrieve_sessionMember($r->user_id);
-			        $out .= "<tr><td>{$member->userID}</td><td>{$member->name}</td><td>{$r->value}</td></tr>";
+                    if($anonymous)
+			            $out .= "<tr><td>&nbsp</td><td>&nbsp</td><td>{$r->value}</td></tr>";
+                    else
+			            $out .= "<tr><td>{$member->userID}</td><td>{$member->name}</td><td>{$r->value}</td></tr>";
 		        }
 	        }
 		    $out .= "</table>";
@@ -526,6 +529,7 @@ class editConfidenceQuestion_form extends nbform
 	var $displayStem; //boolean
 	var $definition; //memo
 	var $multiuse; //boolean
+    var $anonymous; //boolean
 	var $validateMessages;
     static $briefHelp = "<div class='alert alert-block alert-info'><h3>Instructions</h3><p>Add one option per line on the form. If you wish to define a 'correct' option precede it with with a *</p>
             <p>If no options or more than one option are preceded with a * the question will be treated as having no correct or incorrect answer with a single selection available.</p>
@@ -555,6 +559,7 @@ class editConfidenceQuestion_form extends nbform
 		$this->displayStem = $data->displayStem;
 		$this->definition = $data->definition;
 		$this->multiuse = $data->multiuse;
+		$this->anonymous = $data->anonymous;
 	}
 
 	function getData(&$data)
@@ -565,6 +570,7 @@ class editConfidenceQuestion_form extends nbform
 		$data->displayStem = $this->displayStem;
 		$data->definition = $this->definition;
 		$data->multiuse = $this->multiuse;
+		$data->anonymous = $this->anonymous;
 		return $data;
 	}
 
@@ -579,6 +585,7 @@ class editConfidenceQuestion_form extends nbform
 			$this->displayStem = (isset($_REQUEST['displayStem'])&&($_REQUEST['displayStem']==1)) ? true : false;
 			$this->definition = stripslashes($_REQUEST['definition']);
 			$this->multiuse = (isset($_REQUEST['multiuse'])&&($_REQUEST['multiuse']==1)) ? true : false;
+			$this->anonymous = (isset($_REQUEST['anonymous'])&&($_REQUEST['anonymous']==1)) ? true : false;
 			if('Cancel' == $_REQUEST['submit'])
 				$isCanceled = true;
 			$isValid = $this->validate();
@@ -624,6 +631,7 @@ class editConfidenceQuestion_form extends nbform
 		$out .= $this->checkboxInput('Display stem to participants.', 'displayStem', $this->displayStem, $this->validateMessages);
 		$out .= $this->textareaInput('Options', 'definition', $this->definition, $this->validateMessages, 60 , 6);
 		$out .= $this->checkboxInput('This is a generic question to be made available in all my sessions.', 'multiuse', $this->multiuse, $this->validateMessages);
+		$out .= $this->checkboxInput('This is a pseudo-anonymous question where the teacher will not see who gave each response.', 'anonymous', $this->anonymous, $this->validateMessages);
 		$out .= $this->submitInput('submit', 'Create', 'Cancel');
 		$out .= $this->formEnd(false);
         $out .= editBasicQuestion_form::$briefHelp;

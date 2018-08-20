@@ -41,6 +41,7 @@ else
         }
         else
         {
+            updateRespCountsAndEndtime($thisSession->extras[currentQuestions], $_REQUEST['qiid']);
 	        $thisSession->extras[currentQuestions] = $_REQUEST['qiid'];
             $thisSession->update();
         }
@@ -56,6 +57,7 @@ else
     }
     elseif(isset($_REQUEST['deactivate']))
     {
+        updateRespCountsAndEndtime($thisSession->extras[currentQuestions]);
 	    $thisSession->extras[currentQuestions] = array();
         $thisSession->update();
     }
@@ -279,6 +281,8 @@ function activateSingleQu(&$thisSession, $activate)
     {
     	$cqi = questionInstance::retrieve_questionInstance($thisSession->currentQuestion);
         $cqi->endtime = time();
+        $count = response::countCompleted($cqi->id);
+        $cqi->responseCount = $count;
         $cqi->update();
     }
     $thisSession->currentQuestion = $activate;
@@ -289,6 +293,25 @@ function activateSingleQu(&$thisSession, $activate)
         $cqi->update();
     }
     $thisSession->update();
+}
+
+function updateRespCountsAndEndtime($quids, $exclude=array())
+{
+    if($exclude == null)
+        $exclude = array();
+    if(!is_array($exclude))         // if there's just one it's not an array
+         $exclude = array($exclude);
+    foreach($quids as $quid)
+    {
+    	if(!in_array($quid, $exclude))
+        {
+	    	$cqi = questionInstance::retrieve_questionInstance($quid);
+	        $cqi->endtime = time();
+	        $count = response::countCompleted($cqi->id);
+	        $cqi->responseCount = $count;
+	        $cqi->update();
+        }
+    }
 }
 
 function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
@@ -304,15 +327,26 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
         $qunum = 0;
         if(isset($_REQUEST['move']))
             $moveMode = 'before';
+
+        $quinstances = $thisSession->retrieveQuestionInstances();
+        $qudefs = array();
+        foreach($quinstances as $qui)
+        {
+            if(!isset($qudefs[$qui->theQuestion_id]))
+            {
+                $qudefs[$qui->theQuestion_id] = question::retrieve_question($qui->theQuestion_id);
+            }
+        }
+
         foreach($qiIDs as $qiID)
         {
             $qunum++;
-            $qi = questionInstance::retrieve_questionInstance($qiID);
-            if(($showday == 0)||(($qi->endtime >= $showday)&&($qi->endtime < $showday+3600*24)))
+            $qi = $quinstances[$qiID];//questionInstance::retrieve_questionInstance($qiID);
+            if(($showday == 0)||(($qi->endtime >= $showday)&&($qi->endtime < $showday+3600*24))||(in_array($qiID, $thisSession->extras[currentQuestions])))
             {
             $day = strftime("%a %d %b %Y", ((floor($qi->endtime / (3600*24)) * 3600 * 24)+3600));
             $quTitles[] = array('id'=>$qi->id, 'title'=>$qi->title, 'day'=>$day);
-            $qu = question::retrieve_question($qi->theQuestion_id);
+            $qu = $qudefs[$qi->theQuestion_id];//question::retrieve_question($qi->theQuestion_id);
             if($qu)
             {
                 if(in_array($qiID, $thisSession->extras[currentQuestions]))
@@ -331,6 +365,18 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
                 if(in_array($qiID, $thisSession->extras[currentQuestions]))
                     $out .= " checked='checked'";
                 $out .= "/></td>";
+
+                if(($qi->responseCount == -1)||(in_array($qiID, $thisSession->extras[currentQuestions])))
+                {
+	                $count = response::countCompleted($qi->id);
+                    $qi->responseCount = $count;
+                    $qi->update();
+                }
+                else
+                {
+                    $count = $qi->responseCount;
+                }
+
                 $count = response::countCompleted($qi->id);
                 if(($count == 0)&&(!in_array($qiID, $thisSession->extras[currentQuestions])))
 	            	$out .= "<td>No responses</td>";
@@ -391,15 +437,25 @@ function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
         if(isset($_REQUEST['move']))
             $moveMode = 'before';
 
+        $quinstances = $thisSession->retrieveQuestionInstances();
+        $qudefs = array();
+        foreach($quinstances as $qui)
+        {
+            if(!isset($qudefs[$qui->theQuestion_id]))
+            {
+                $qudefs[$qui->theQuestion_id] = question::retrieve_question($qui->theQuestion_id);
+            }
+            //$qui->theQuestion_id
+        }
         foreach($qiIDs as $qiID)
         {
             $qunum++;
-            $qi = questionInstance::retrieve_questionInstance($qiID);
-            if(($showday == 0)||(($qi->endtime >= $showday)&&($qi->endtime < $showday+3600*24)))
+            $qi = $quinstances[$qiID];// questionInstance::retrieve_questionInstance($qiID);
+            if(($showday == 0)||(($qi->endtime >= $showday)&&($qi->endtime < $showday+3600*24))||($thisSession->currentQuestion == $qiID))
             {
             $day = strftime("%a %d %b %Y", ((floor($qi->endtime / (3600*24)) * 3600 * 24)+3600));
             $quTitles[] = array('id'=>$qi->id, 'title'=>$qi->title, 'day'=>$day);
-            $qu = question::retrieve_question($qi->theQuestion_id);
+            $qu = $qudefs[$qi->theQuestion_id];//question::retrieve_question($qi->theQuestion_id);
             if($qu)
             {
                 if($thisSession->currentQuestion == $qiID)
@@ -429,7 +485,16 @@ function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
                 }
                 //DEBUG
 	                //$out.="<td>{$qi->id}</td>";
-                $count = response::countCompleted($qi->id);
+                if(($qi->responseCount == -1)||($thisSession->currentQuestion == $qiID))
+                {
+	                $count = response::countCompleted($qi->id);
+                    $qi->responseCount = $count;
+                    $qi->update();
+                }
+                else
+                {
+                    $count = $qi->responseCount;
+                }
                 if(($count == 0)&&($thisSession->currentQuestion != $qiID))
 	            	$out .= "<td>No responses</td>";
                 else

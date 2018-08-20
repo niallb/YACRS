@@ -76,7 +76,7 @@ function CheckDaySelect($sessionID=false, $includeAll=true, $includeToday=true)
 {
     if($sessionID)
     {
-        $days = getSessionDates($sessionID, $includeToday, $includeAll);
+        $days = array_keys(getSessionDates($sessionID, $includeToday, $includeAll));
         $defDay = (sizeof($days)) ? $days[sizeof($days)-1] : 0;
     }
     else
@@ -100,10 +100,10 @@ function DaySelectForm($sessionID, $includeAll=true, $includeToday=true, $extraF
     if(sizeof($days) <= 1)
         return '';
     $out = "<div style='float:right;'><form class='form-inline'><label for='day'>Display day</label> <select name='day' class='form-control'>";
-    foreach($days as $day)
+    foreach($days as $day => $count)
     {
         $selected = $_SESSION['showday']==$day ? "selected='selected'":'';
-        $out .= "<option value='$day'{$selected}>".strftime("%a %d %b %Y", $day).'</option>';
+        $out .= "<option value='$day'{$selected}>".strftime("%a %d %b %Y", $day)." ($count Qus)</option>";
     }
     foreach($extraFields as $k=>$v)
     {
@@ -130,23 +130,33 @@ function getSessionDates($sessionID, $includeAll=true, $includeToday=true)
 	    foreach($qis as $i)
 	    {
 	    	$day = intval($i->endtime / (24*3600)) * 24 * 3600;
-	        if(($day>0)&&(!in_array($day, $days)))
-	           $days[] = $day;
+	        //if(($day>0)&&(!in_array($day, $days)))
+	        //   $days[] = $day;
+            if($day>0)
+            {
+                if(isset($days[$day]))
+                    $days[$day]++;
+                else
+                    $days[$day] = 1;
+            }
 	    }
     }
     if($includeToday)
     {
 		$day = intval(time() / (24*3600)) * 24 * 3600;
-	    if(!in_array($day, $days))
-	       $days[] = $day;
+	    if(!isset($days[$day]))
+	       $days[$day] = 0;
     }
-    asort($days);
-    if((isset($_SESSION['showday']))&&(!in_array($_SESSION['showday'], $days)))
+    ksort($days);
+    if((isset($_SESSION['showday']))&&(!isset($days[$_SESSION['showday']])))
     {
         if(($includeAll)||(sizeof($days)==0))
             $_SESSION['showday'] = 0;
         else
-            $_SESSION['showday'] = $days[sizeof($days)-1];
+        {
+            $days2 = array_keys($days);
+            $_SESSION['showday'] = $days2[sizeof($days2)-1];
+        }
     }
     return $days;
 }

@@ -8,6 +8,13 @@ require_once(ROOT_PATH.'corelib/dataaccess.php');
 #tablePrefix yacrs_
 #database MySQL
 
+class settings #0.5.0
+{
+   primary key int id;
+   unique string[25] settingkey;
+   string[80] settingvalue;
+}
+
 class lticonsumer
 {
    primary key int id;
@@ -90,6 +97,7 @@ class question
    serialized definition;
    string[20] responsetype; // identifier|integer|float|string
    boolean multiuse;
+   boolean anonymous #0.5.0;
 }
 
 // for finding standard questions (e.g. YACRScontrol MCQs)
@@ -109,6 +117,7 @@ class questionInstance
    subsession subsession;
    datetime starttime;
    datetime endtime;
+   int responseCount #0.5.0;
    string[60] screenshot  #0.2.0;
    serialized extras #0.3.0;
 }
@@ -163,6 +172,8 @@ class tag #0.2.0
 
 function initializeDataBase_yacrs()
 {
+	$query = "CREATE TABLE yacrs_settings(id INTEGER PRIMARY KEY AUTO_INCREMENT, settingkey VARCHAR(25), settingvalue VARCHAR(80));";
+	dataConnection::runQuery($query);
 	$query = "CREATE TABLE yacrs_lticonsumer(id INTEGER PRIMARY KEY AUTO_INCREMENT, keyHash VARCHAR(40), consumer_key VARCHAR(255), name VARCHAR(80), secret VARCHAR(255));";
 	dataConnection::runQuery($query);
 	$query = "CREATE TABLE yacrs_session(id INTEGER PRIMARY KEY AUTO_INCREMENT, ownerID VARCHAR(35), title VARCHAR(80), created DATETIME, questions TEXT, currentQuestion INTEGER, questionMode INTEGER, endtime DATETIME, sessionstarttime DATETIME, sessionOpen INTEGER, activeSubsession_id INTEGER, sessionendtime DATETIME, visible INTEGER, allowGuests INTEGER, multiSession INTEGER, ublogRoom INTEGER, maxMessagelength INTEGER, allowQuReview INTEGER, allowTeacherQu INTEGER, courseIdentifier VARCHAR(20), defaultQuActiveSecs INTEGER, extras TEXT);";
@@ -175,11 +186,11 @@ function initializeDataBase_yacrs()
 	dataConnection::runQuery($query);
 	$query = "CREATE TABLE yacrs_userInfo(id INTEGER PRIMARY KEY AUTO_INCREMENT, username VARCHAR(80), name VARCHAR(45), email VARCHAR(85), nickname VARCHAR(45), phone VARCHAR(20), sessionCreator INTEGER, isAdmin INTEGER, teacherPrefs TEXT);";
 	dataConnection::runQuery($query);
-	$query = "CREATE TABLE yacrs_question(id INTEGER PRIMARY KEY AUTO_INCREMENT, ownerID VARCHAR(35), session_id INTEGER, title VARCHAR(80), definition TEXT, responsetype VARCHAR(20), multiuse INTEGER);";
+	$query = "CREATE TABLE yacrs_question(id INTEGER PRIMARY KEY AUTO_INCREMENT, ownerID VARCHAR(35), session_id INTEGER, title VARCHAR(80), definition TEXT, responsetype VARCHAR(20), multiuse INTEGER, anonymous INTEGER);";
 	dataConnection::runQuery($query);
 	$query = "CREATE TABLE yacrs_systemQuestionLookup(id INTEGER PRIMARY KEY AUTO_INCREMENT, qu_id INTEGER, name VARCHAR(10));";
 	dataConnection::runQuery($query);
-	$query = "CREATE TABLE yacrs_questionInstance(id INTEGER PRIMARY KEY AUTO_INCREMENT, title VARCHAR(80), theQuestion_id INTEGER, inSession_id INTEGER, subsession_id INTEGER, starttime DATETIME, endtime DATETIME, screenshot VARCHAR(60), extras TEXT);";
+	$query = "CREATE TABLE yacrs_questionInstance(id INTEGER PRIMARY KEY AUTO_INCREMENT, title VARCHAR(80), theQuestion_id INTEGER, inSession_id INTEGER, subsession_id INTEGER, starttime DATETIME, endtime DATETIME, responseCount INTEGER, screenshot VARCHAR(60), extras TEXT);";
 	dataConnection::runQuery($query);
 	$query = "CREATE TABLE yacrs_sessionMember(id INTEGER PRIMARY KEY AUTO_INCREMENT, session_id INTEGER, userID VARCHAR(35), name VARCHAR(45), nickname VARCHAR(45), email VARCHAR(85), user_id INTEGER, joined DATETIME, lastresponse DATETIME, mobile VARCHAR(20));";
 	dataConnection::runQuery($query);
@@ -223,9 +234,9 @@ function updateDataBase_yacrs_v0_to_v0p2p0()
 	$query = "ALTER TABLE questionInstance ADD COLUMN screenshot VARCHAR(60);";
 	dataConnection::runQuery($query);
         // Add table message
-	$query = "CREATE TABLE yacrs_message(id INTEGER PRIMARY KEY AUTO_INCREMENT, user_id INTEGER, session_id INTEGER, subsession_id INTEGER, isTeacherQu INTEGER, private INTEGER, posted DATETIME, message TEXT, replyTo_id INTEGER);
-
-CREATE TABLE yacrs_message_tag_link(message_id INTEGER, tag_id INTEGER);";
+	$query = "CREATE TABLE yacrs_message(id INTEGER PRIMARY KEY AUTO_INCREMENT, user_id INTEGER, session_id INTEGER, subsession_id INTEGER, isTeacherQu INTEGER, private INTEGER, posted DATETIME, message TEXT, replyTo_id INTEGER);";
+	dataConnection::runQuery($query);
+    $query = "CREATE TABLE yacrs_message_tag_link(message_id INTEGER, tag_id INTEGER);";
 	dataConnection::runQuery($query);
         // Add table tag
 	$query = "CREATE TABLE yacrs_tag(id INTEGER PRIMARY KEY AUTO_INCREMENT, text VARCHAR(20), session_id INTEGER);";
@@ -235,21 +246,21 @@ CREATE TABLE yacrs_message_tag_link(message_id INTEGER, tag_id INTEGER);";
 function updateDataBase_yacrs_v0p2p0_to_v0p3p0()
 {
         // Add field extras to questionInstance
-	$query = "ALTER TABLE questionInstance ADD COLUMN extras TEXT;";
+	$query = "ALTER TABLE yacrs_questionInstance ADD COLUMN extras TEXT;";
 	dataConnection::runQuery($query);
 }
 
 function updateDataBase_yacrs_v0p3p0_to_v0p3p1()
 {
         // Add field isAdmin to userInfo
-	$query = "ALTER TABLE userInfo ADD COLUMN isAdmin INTEGER;";
+	$query = "ALTER TABLE yacrs_userInfo ADD COLUMN isAdmin INTEGER;";
 	dataConnection::runQuery($query);
 }
 
 function updateDataBase_yacrs_v0p3p1_to_v0p3p2()
 {
         // Add field isPartial to response
-	$query = "ALTER TABLE response ADD COLUMN isPartial INTEGER;";
+	$query = "ALTER TABLE yacrs_response ADD COLUMN isPartial INTEGER;";
 	dataConnection::runQuery($query);
 }
 
@@ -260,7 +271,154 @@ function updateDataBase_yacrs_v0p3p2_to_v0p4p0()
 	dataConnection::runQuery($query);
 }
 
+function updateDataBase_yacrs_v0p4p0_to_v0p5p0()
+{
+        // Add table settings
+	$query = "CREATE TABLE yacrs_settings(id INTEGER PRIMARY KEY AUTO_INCREMENT, settingkey VARCHAR(25), settingvalue VARCHAR(80));";
+	dataConnection::runQuery($query);
+        // Add field anonymous to question
+	$query = "ALTER TABLE yacrs_question ADD COLUMN anonymous INTEGER;";
+	dataConnection::runQuery($query);
+        // Add field responseCount to questionInstance
+	$query = "ALTER TABLE yacrs_questionInstance ADD COLUMN responseCount INTEGER DEFAULT -1;";
+	dataConnection::runQuery($query);
+}
+
 //Skeleton PHP classes for data tables
+
+class settings
+{
+	var $id; //primary key
+	var $settingkey;
+	var $settingvalue;
+
+	function __construct($asArray=null)
+	{
+		$this->id = null; //primary key
+		$this->settingkey = "";
+		$this->settingvalue = "";
+		if($asArray!==null)
+			$this->fromArray($asArray);
+	}
+
+	function fromArray($asArray)
+	{
+		$this->id = $asArray['id'];
+		$this->settingkey = $asArray['settingkey'];
+		$this->settingvalue = $asArray['settingvalue'];
+	}
+
+	static function retrieve_settings($id)
+	{
+		$query = "SELECT * FROM yacrs_settings WHERE id='".dataConnection::safe($id)."';";
+		$result = dataConnection::runQuery($query);
+		if(sizeof($result)!=0)
+		{
+			return new settings($result[0]);
+		}
+		else
+			return false;
+	}
+
+
+	static function retrieve_by_settingkey($settingkey)
+	{
+		$query = "SELECT * FROM yacrs_settings WHERE settingkey='".dataConnection::safe($settingkey)."';";
+		$result = dataConnection::runQuery($query);
+		if(sizeof($result)!=0)
+		{
+			return new settings($result[0]);
+		}
+		else
+			return false;
+	}
+
+	static function retrieve_settings_matching($field, $value, $from=0, $count=-1, $sort=null)
+	{
+	    if(preg_replace('/\W/','',$field)!== $field)
+	        return false; // not a permitted field name;
+	    $query = "SELECT * FROM yacrs_settings WHERE $field='".dataConnection::safe($value)."'";
+	    if(($sort !== null)&&(preg_replace('/\W/','',$sort)!== $sort))
+	        $query .= " ORDER BY ".$sort;
+	    if(($count != -1)&&(is_int($count))&&(is_int($from)))
+	        $query .= " LIMIT ".$count." OFFSET ".$from;
+	    $query .= ';';
+	    $result = dataConnection::runQuery($query);
+	    if(sizeof($result)!=0)
+	    {
+	        $output = array();
+	        foreach($result as $r)
+	            $output[] = new settings($r);
+	        return $output;
+	    }
+	    else
+	        return false;
+	}
+
+	function insert()
+	{
+		//#Any required insert methods for foreign keys need to be called here.
+		$query = "INSERT INTO yacrs_settings(settingkey, settingvalue) VALUES(";
+		$query .= "'".dataConnection::safe($this->settingkey)."', ";
+		$query .= "'".dataConnection::safe($this->settingvalue)."');";
+		dataConnection::runQuery("BEGIN;");
+		$result = dataConnection::runQuery($query);
+		$result2 = dataConnection::runQuery("SELECT LAST_INSERT_ID() AS id;");
+		dataConnection::runQuery("COMMIT;");
+		$this->id = $result2[0]['id'];
+		return $this->id;
+	}
+
+	function update()
+	{
+		$query = "UPDATE yacrs_settings ";
+		$query .= "SET settingkey='".dataConnection::safe($this->settingkey)."' ";
+		$query .= ", settingvalue='".dataConnection::safe($this->settingvalue)."' ";
+		$query .= "WHERE id='".dataConnection::safe($this->id)."';";
+		return dataConnection::runQuery($query);
+	}
+
+	static function count($where_name=null, $equals_value=null)
+	{
+		$query = "SELECT COUNT(*) AS count FROM yacrs_settings WHERE ";
+		if($where_name==null)
+			$query .= '1;';
+		else
+			$query .= "$where_name='".dataConnection::safe($equals_value)."';";
+		$result = dataConnection::runQuery($query);
+		if($result == false)
+			return 0;
+		else
+			return $result['0']['count'];
+	}
+
+	function toXML()
+	{
+		$out = "<settings>\n";
+		$out .= '<id>'.htmlentities($this->id)."</id>\n";
+		$out .= '<settingkey>'.htmlentities($this->settingkey)."</settingkey>\n";
+		$out .= '<settingvalue>'.htmlentities($this->settingvalue)."</settingvalue>\n";
+		$out .= "</settings>\n";
+		return $out;
+	}
+	//[[USERCODE_settings]] Put code for custom class members in this block.
+
+	static function merge_settings_array(&$CFG)
+	{
+ 	    $query = "SELECT * FROM yacrs_settings WHERE 1;";
+ 	    $result = dataConnection::runQuery($query);
+	    if(sizeof($result)!=0)
+	    {
+	        foreach($result as $r)
+            {
+                if(!isset($CFG[$r['settingkey']]))
+	               $CFG[$r['settingkey']] = $r['settingvalue'];
+            }
+	    }
+	}
+
+	//[[USERCODE_settings]] WEnd of custom class members.
+}
 
 class lticonsumer
 {
@@ -738,6 +896,19 @@ class session
        $this->questions = trim($this->questions.','.$qi->id," \t\r\n,");
        $this->update();
        return $qi;
+    }
+
+    function retrieveQuestionInstances()
+    {
+	    $query = "SELECT * FROM yacrs_questionInstance WHERE inSession_id='".dataConnection::safe($this->id)."';";
+ 	    $result = dataConnection::runQuery($query);
+        $output = array();
+	    if(sizeof($result)!=0)
+	    {
+	        foreach($result as $r)
+	            $output[$r['id']] = new questionInstance($r);
+	    }
+        return $output;
     }
 
     function isStaffInSession($userid)
@@ -1446,6 +1617,7 @@ class question
 	var $definition;
 	var $responsetype;
 	var $multiuse;
+	var $anonymous;
 
 	function __construct($asArray=null)
 	{
@@ -1456,6 +1628,7 @@ class question
 		$this->definition = false;
 		$this->responsetype = "";
 		$this->multiuse = false;
+		$this->anonymous = false;
 		if($asArray!==null)
 			$this->fromArray($asArray);
 	}
@@ -1469,6 +1642,7 @@ class question
 		$this->definition = unserialize($asArray['definition']);
 		$this->responsetype = $asArray['responsetype'];
 		$this->multiuse = ($asArray['multiuse']==0)?false:true;
+		$this->anonymous = ($asArray['anonymous']==0)?false:true;
 	}
 
 	static function retrieve_question($id)
@@ -1508,7 +1682,7 @@ class question
 	function insert()
 	{
 		//#Any required insert methods for foreign keys need to be called here.
-		$query = "INSERT INTO yacrs_question(ownerID, session_id, title, definition, responsetype, multiuse) VALUES(";
+		$query = "INSERT INTO yacrs_question(ownerID, session_id, title, definition, responsetype, multiuse, anonymous) VALUES(";
 		$query .= "'".dataConnection::safe($this->ownerID)."', ";
 		if($this->session_id!==null)
 			$query .= "'".dataConnection::safe($this->session_id)."', ";
@@ -1517,7 +1691,8 @@ class question
 		$query .= "'".dataConnection::safe($this->title)."', ";
 		$query .= "'".dataConnection::safe(serialize($this->definition))."', ";
 		$query .= "'".dataConnection::safe($this->responsetype)."', ";
-		$query .= "'".(($this->multiuse===false)?0:1)."');";
+		$query .= "'".(($this->multiuse===false)?0:1)."', ";
+		$query .= "'".(($this->anonymous===false)?0:1)."');";
 		dataConnection::runQuery("BEGIN;");
 		$result = dataConnection::runQuery($query);
 		$result2 = dataConnection::runQuery("SELECT LAST_INSERT_ID() AS id;");
@@ -1535,6 +1710,7 @@ class question
 		$query .= ", definition='".dataConnection::safe(serialize($this->definition))."' ";
 		$query .= ", responsetype='".dataConnection::safe($this->responsetype)."' ";
 		$query .= ", multiuse='".(($this->multiuse===false)?0:1)."' ";
+		$query .= ", anonymous='".(($this->anonymous===false)?0:1)."' ";
 		$query .= "WHERE id='".dataConnection::safe($this->id)."';";
 		return dataConnection::runQuery($query);
 	}
@@ -1563,6 +1739,7 @@ class question
 		$out .= '<definition>'.htmlentities($this->definition)."</definition>\n";
 		$out .= '<responsetype>'.htmlentities($this->responsetype)."</responsetype>\n";
 		$out .= '<multiuse>'.htmlentities($this->multiuse)."</multiuse>\n";
+		$out .= '<anonymous>'.htmlentities($this->anonymous)."</anonymous>\n";
 		$out .= "</question>\n";
 		return $out;
 	}
@@ -1791,6 +1968,7 @@ class questionInstance
 	var $subsession_id; //foreign key
 	var $starttime;
 	var $endtime;
+	var $responseCount;
 	var $screenshot;
 	var $extras;
 
@@ -1803,6 +1981,7 @@ class questionInstance
 		$this->subsession_id = null; // foreign key, needs dealt with.
 		$this->starttime = time();
 		$this->endtime = time();
+		$this->responseCount = "0";
 		$this->screenshot = "";
 		$this->extras = false;
 		if($asArray!==null)
@@ -1818,6 +1997,7 @@ class questionInstance
 		$this->subsession_id = $asArray['subsession_id']; // foreign key, check code
 		$this->starttime = dataConnection::db2time($asArray['starttime']);
 		$this->endtime = dataConnection::db2time($asArray['endtime']);
+		$this->responseCount = $asArray['responseCount'];
 		$this->screenshot = $asArray['screenshot'];
 		$this->extras = unserialize($asArray['extras']);
 	}
@@ -1859,7 +2039,7 @@ class questionInstance
 	function insert()
 	{
 		//#Any required insert methods for foreign keys need to be called here.
-		$query = "INSERT INTO yacrs_questionInstance(title, theQuestion_id, inSession_id, subsession_id, starttime, endtime, screenshot, extras) VALUES(";
+		$query = "INSERT INTO yacrs_questionInstance(title, theQuestion_id, inSession_id, subsession_id, starttime, endtime, responseCount, screenshot, extras) VALUES(";
 		$query .= "'".dataConnection::safe($this->title)."', ";
 		if($this->theQuestion_id!==null)
 			$query .= "'".dataConnection::safe($this->theQuestion_id)."', ";
@@ -1875,6 +2055,7 @@ class questionInstance
 			$query .= "null, ";
 		$query .= "'".dataConnection::time2db($this->starttime)."', ";
 		$query .= "'".dataConnection::time2db($this->endtime)."', ";
+		$query .= "'".dataConnection::safe($this->responseCount)."', ";
 		$query .= "'".dataConnection::safe($this->screenshot)."', ";
 		$query .= "'".dataConnection::safe(serialize($this->extras))."');";
 		dataConnection::runQuery("BEGIN;");
@@ -1891,9 +2072,10 @@ class questionInstance
 		$query .= "SET title='".dataConnection::safe($this->title)."' ";
 		$query .= ", theQuestion_id='".dataConnection::safe($this->theQuestion_id)."' ";
 		$query .= ", inSession_id='".dataConnection::safe($this->inSession_id)."' ";
-		//$query .= ", subsession_id='".dataConnection::safe($this->subsession_id)."' ";
+		$query .= ", subsession_id='".dataConnection::safe($this->subsession_id)."' ";
 		$query .= ", starttime='".dataConnection::time2db($this->starttime)."' ";
 		$query .= ", endtime='".dataConnection::time2db($this->endtime)."' ";
+		$query .= ", responseCount='".dataConnection::safe($this->responseCount)."' ";
 		$query .= ", screenshot='".dataConnection::safe($this->screenshot)."' ";
 		$query .= ", extras='".dataConnection::safe(serialize($this->extras))."' ";
 		$query .= "WHERE id='".dataConnection::safe($this->id)."';";
@@ -1924,6 +2106,7 @@ class questionInstance
 		$out .= '<subsession>'.htmlentities($this->subsession)."</subsession>\n";
 		$out .= '<starttime>'.htmlentities($this->starttime)."</starttime>\n";
 		$out .= '<endtime>'.htmlentities($this->endtime)."</endtime>\n";
+		$out .= '<responseCount>'.htmlentities($this->responseCount)."</responseCount>\n";
 		$out .= '<screenshot>'.htmlentities($this->screenshot)."</screenshot>\n";
 		$out .= '<extras>'.htmlentities($this->extras)."</extras>\n";
 		$out .= "</questionInstance>\n";
@@ -2318,7 +2501,9 @@ class response
 
 	static function countCompleted($quid)
 	{
-		$query = "SELECT COUNT(*) AS count FROM yacrs_response WHERE question_id='".dataConnection::safe($quid)."' AND (isPartial='0' OR isPartial is null);";
+		//$query = "SELECT COUNT(*) AS count FROM yacrs_response WHERE question_id='".dataConnection::safe($quid)."' AND (isPartial='0' OR isPartial is null);";
+        // As partial responces have been deprecated, simplifying this query
+		$query = "SELECT COUNT(*) AS count FROM yacrs_response WHERE question_id='".dataConnection::safe($quid)."';";
 		$result = dataConnection::runQuery($query);
 		if($result == false)
 			return 0;

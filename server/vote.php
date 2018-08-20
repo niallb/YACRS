@@ -166,6 +166,10 @@ function displayQuestionBlock($qiid, $forceTitle=false)
         $out .= "<div class='alert alert-danger'>Sorry, your answer was submitted after the question closed, so has been ignored.</div>";
     $out .= displayQuestion($qi, $resp, $forceTitle);
     $out .= '</div>';
+    if($qu->anonymous)
+    {
+		$out .= "<div class='alert alert-info'>This question is set to 'anonymous'. Your identity will be stored with your response, however your teacher will not see it.</div>";
+    }
 //$template->pageData['mainBody'] .= '<pre>'.print_r($qu,1).'</pre>';
     return $out;
 }

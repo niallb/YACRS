@@ -62,7 +62,7 @@ else
     }
     if((class_exists(get_class($qu->definition)))&&(get_class($qu->definition)!='__PHP_Incomplete_Class'))
     {
-    	$template->pageData['mainBody'] .= $qu->definition->report($thisSession, $qi, (isset($_REQUEST['display']))&&($_REQUEST['display']=='detail'));
+    	$template->pageData['mainBody'] .= $qu->definition->report($thisSession, $qi, (isset($_REQUEST['display']))&&($_REQUEST['display']=='detail'), $qu->anonymous);
     }
     else
     {

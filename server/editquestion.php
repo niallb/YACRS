@@ -70,6 +70,7 @@ else
 		$eqform->sessionID = $theQu->session_id;
 		$eqform->title = $theQu->title;
 		$eqform->multiuse = $theQu->multiuse;
+		$eqform->anonymous = $theQu->anonymous;
         //echo '<pre>'.print_r($theQu->definition, 1).'</pre>';
         $eqform->definition = $theQu->definition->source;
     }
@@ -93,6 +94,7 @@ else
 		$theQu->session_id = $eqform->sessionID;
 		$theQu->title = $eqform->title;
 		$theQu->multiuse = $eqform->multiuse;
+		$theQu->anonymous = $eqform->anonymous;
         $theQu->definition = $eqform->getNewQuestion();
 	    if($theQu->id > 0)
         {

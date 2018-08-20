@@ -177,12 +177,14 @@ foreach($members as $m)
     {
         if($showResponses)
             echo ',';
+        if($questions[$q->id]->anonymous)
+            echo '(anon qu)'; // always show so non-answer is anonymous
         if(isset($resp[$q->id]))
         {
             $respCount++;
-            if($showResponses)
+            if(($showResponses)&&(!$questions[$q->id]->anonymous))
             {
-    	        echo preg_replace('/([\\\\"])/','\\\\\\1', str_replace(',', ' ',$resp[$q->id]->value));
+      	        echo preg_replace('/([\\\\"])/','\\\\\\1', str_replace(',', ' ',$resp[$q->id]->value));
             }
         }
     }
