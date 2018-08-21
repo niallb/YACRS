@@ -390,6 +390,8 @@ function show_userInfo($disp, $page, $id, $username, $name, $email, $nickname, $
     $out .= '</div></div>';
 
     $out .= '<form>';
+    $out .= "<div><a href='GDPRexportuser.php?id={$id}'>Export user data as JSON (GDPR)</a></div>";
+    $out .= "<div><a href='GDPRdeleteuser.php?id={$id}'>Fully delete this user (GDPR)</a></div>";
     return $out;
 }
 

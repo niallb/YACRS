@@ -1551,6 +1551,29 @@ class userInfo
 	}
 	//[[USERCODE_userInfo]] Put code for custom class members in this block.
 
+    function deleteUser()
+    {
+        $ownedSessions = session::retrieve_session_matching('ownerID', $this->username);
+        foreach($ownedSessions as $s)
+            session::deleteSession($s->id);
+        $query = "DELETE FROM yacrs_extraTeachers WHERE id='{$this->username}';";
+		dataConnection::runQuery($query);
+        $query = "DELETE FROM yacrs_question WHERE ownerID='{$this->username}';";
+		dataConnection::runQuery($query);
+		$member = sessionMember::retrieve_sessionMember_matching('userID', $data->userInfo->username);
+		foreach($member as $key=>$sm)
+		{
+	        $query = "DELETE FROM yacrs_response WHERE user_id='{$sm->id}';";
+			dataConnection::runQuery($query);
+	        $query = "DELETE FROM yacrs_message WHERE user_id='{$sm->id}';";
+			dataConnection::runQuery($query);
+	        $query = "DELETE FROM yacrs_sessionMember WHERE id='{$sm->id}';";
+			dataConnection::runQuery($query);
+		}
+		$query = "DELETE FROM yacrs_userInfo WHERE id='{$this->id}';";
+		dataConnection::runQuery($query);
+    }
+
 	static function retrieveByMobileNo($mobileNo)
 	{
 	    $query = "SELECT * FROM yacrs_userInfo WHERE phone='".dataConnection::safe($mobileNo)."';";
