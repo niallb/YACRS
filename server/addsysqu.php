@@ -64,6 +64,7 @@ else
 		$theQu->title = $eqform->title;
 		$theQu->multiuse = true;
         $theQu->definition = $eqform->getNewQuestion();
+		$theQu->anonymous = $eqform->anonymous;
         $theQu->id = $theQu->insert();
 
 	    header('Location:admin.php?disp=qus');

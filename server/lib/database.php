@@ -202,6 +202,8 @@ function initializeDataBase_yacrs()
 	dataConnection::runQuery($query);
 	$query = "CREATE TABLE yacrs_tag(id INTEGER PRIMARY KEY AUTO_INCREMENT, text VARCHAR(20), session_id INTEGER);";
 	dataConnection::runQuery($query);
+    $query = "CREATE UNIQUE INDEX yacrs_response_index ON yacrs_response(user_id, question_id);";
+	dataConnection::runQuery($query);
 }
 
 function updateDataBase_yacrs_v0_to_v0p2p0()
@@ -281,6 +283,8 @@ function updateDataBase_yacrs_v0p4p0_to_v0p5p0()
 	dataConnection::runQuery($query);
         // Add field responseCount to questionInstance
 	$query = "ALTER TABLE yacrs_questionInstance ADD COLUMN responseCount INTEGER DEFAULT -1;";
+	dataConnection::runQuery($query);
+    $query = "CREATE UNIQUE INDEX yacrs_response_index ON yacrs_response(user_id, question_id);";
 	dataConnection::runQuery($query);
 }
 

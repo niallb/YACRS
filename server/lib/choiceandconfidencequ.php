@@ -43,12 +43,13 @@ class confidenceQuestion extends questionBase
 	                $this->options[] = $t;
 	                $this->correct[] = false;
 	            }
-	            if(strlen($t == 0))
+	            if(strlen($t) == 0)
 	                $incat = true;
             }
             else         //NSFB 20180514
             {
-                $this->categories[] = $t;
+                if(strlen($t)>0)
+                    $this->categories[] = $t;
             }
         }
         if((!isset($this->categories))||(sizeof($this->categories)==0))              //NSFB 20180604, put in a default
@@ -534,7 +535,7 @@ class editConfidenceQuestion_form extends nbform
     static $briefHelp = "<div class='alert alert-block alert-info'><h3>Instructions</h3><p>Add one option per line on the form. If you wish to define a 'correct' option precede it with with a *</p>
             <p>If no options or more than one option are preceded with a * the question will be treated as having no correct or incorrect answer with a single selection available.</p>
             <p>The options for confidence levels are defined following a blank line, also one per line.</p>
-            <p>if no confidence levels are defined a default set of four raniging from 'Very confident' to 'Guess' will be used.</p></div>";
+            <p>if no confidence levels are defined a default set of four ranging from 'Very confident' to 'Guess' will be used.</p></div>";
 
 
 	function __construct($readform=true)
@@ -634,7 +635,7 @@ class editConfidenceQuestion_form extends nbform
 		$out .= $this->checkboxInput('This is a pseudo-anonymous question where the teacher will not see who gave each response.', 'anonymous', $this->anonymous, $this->validateMessages);
 		$out .= $this->submitInput('submit', 'Create', 'Cancel');
 		$out .= $this->formEnd(false);
-        $out .= editBasicQuestion_form::$briefHelp;
+        $out .= editConfidenceQuestion_form::$briefHelp;
 		return $out;
 	}
 
