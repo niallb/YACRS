@@ -549,7 +549,7 @@ function createGlobalConfidenceQuestion($title, $definition)
     $qu = new confidenceQuestion($title, false, $definition);
     $theQu = new question();
     $qu->displayStem = false;
-    $qu->displayTitle = true
+    $qu->displayTitle = true;
     $qu->stem = $title;
 	$theQu->title = $title;
 	$theQu->multiuse = true;
@@ -566,7 +566,7 @@ function createBasicGlobalQuestion($title, $definition)
     $qu = new basicQuestion($title, false, $definition);
     $theQu = new question();
     $qu->displayStem = false;
-    $qu->displayTitle = true
+    $qu->displayTitle = true;
     $qu->stem = $title;
 	$theQu->title = $title;
 	$theQu->multiuse = true;
@@ -583,7 +583,7 @@ function createTextinputGlobalQuestion()
     $qu = new ttcQuestion1("Text input", false, 0, 0);
     $theQu = new question();
     $qu->displayStem = false;
-    $qu->displayTitle = true
+    $qu->displayTitle = true;
     $qu->stem = $title;
 	$theQu->title = "Text input";
 	$theQu->multiuse = true;
