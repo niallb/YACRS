@@ -61,7 +61,7 @@ else
             $chart = 'chart.php';
 	    elseif(is_a($qu->definition, 'confidenceQuestion'))
             $chart = 'graph2.php';
-	    elseif(is_a($qu->definition, 'ttcQuestion1'))
+	    else
             $chart = 'wordwall.php';
 	    echo "<img src='{$chart}?qiID={$qi->id}' style='width:90%; height:80%;'/><br/>";
 	    $PrevNextLinks = '<div class="col-xs-4 question-prev">';
