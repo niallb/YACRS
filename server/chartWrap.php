@@ -26,8 +26,8 @@ require_once('lib/questionTypes.php');
 	    if(is_a($qu->definition, 'basicQuestion'))
             $chart = 'chart.php';
 	    elseif(is_a($qu->definition, 'confidenceQuestion'))
-            $chart = 'graph2.php';
-	    elseif(is_a($qu->definition, 'ttcQuestion1'))
+            $chart = 'chart.php';
+	    else
             $chart = 'wordwall.php';
 	    echo "<img src='{$chart}?qiID={$qi->id}' style='width:100%; height:100%;'/><br/>";
      }

@@ -54,7 +54,7 @@ else
     	$template->pageData['mainBody'] .= '<div class="question-nav question-nav-top">'.$PrevNextLinks.'</div>';
     	
     // End of next/prev button stuff
-	//$template->pageData['mainBody'] .= '<pre>'.print_r($qu->definition,1).'</pre>';
+	$template->pageData['mainBody'] .= '<pre>'.print_r($qi,1).'</pre>';
     if((strlen($qi->screenshot))&&(file_exists($qi->screenshot)))
     {
         $template->pageData['mainBody'] .= "<img id='image' src='$qi->screenshot' style='float:right;'/>";

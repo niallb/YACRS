@@ -118,7 +118,7 @@ class questionInstance
    datetime starttime;
    datetime endtime;
    int responseCount #0.5.0;
-   string[60] screenshot  #0.2.0;
+   string[90] screenshot  #0.2.0;
    serialized extras #0.3.0;
 }
 
@@ -190,7 +190,7 @@ function initializeDataBase_yacrs()
 	dataConnection::runQuery($query);
 	$query = "CREATE TABLE yacrs_systemQuestionLookup(id INTEGER PRIMARY KEY AUTO_INCREMENT, qu_id INTEGER, name VARCHAR(10));";
 	dataConnection::runQuery($query);
-	$query = "CREATE TABLE yacrs_questionInstance(id INTEGER PRIMARY KEY AUTO_INCREMENT, title VARCHAR(80), theQuestion_id INTEGER, inSession_id INTEGER, subsession_id INTEGER, starttime DATETIME, endtime DATETIME, responseCount INTEGER, screenshot VARCHAR(60), extras TEXT);";
+	$query = "CREATE TABLE yacrs_questionInstance(id INTEGER PRIMARY KEY AUTO_INCREMENT, title VARCHAR(80), theQuestion_id INTEGER, inSession_id INTEGER, subsession_id INTEGER, starttime DATETIME, endtime DATETIME, responseCount INTEGER, screenshot VARCHAR(90), extras TEXT);";
 	dataConnection::runQuery($query);
 	$query = "CREATE TABLE yacrs_sessionMember(id INTEGER PRIMARY KEY AUTO_INCREMENT, session_id INTEGER, userID VARCHAR(35), name VARCHAR(45), nickname VARCHAR(45), email VARCHAR(85), user_id INTEGER, joined DATETIME, lastresponse DATETIME, mobile VARCHAR(20));";
 	dataConnection::runQuery($query);
@@ -233,7 +233,7 @@ function updateDataBase_yacrs_v0_to_v0p2p0()
 	$query = "CREATE TABLE yacrs_userInfo(id INTEGER PRIMARY KEY AUTO_INCREMENT, username VARCHAR(80), name VARCHAR(45), email VARCHAR(85), nickname VARCHAR(45), phone VARCHAR(20), sessionCreator INTEGER, isAdmin INTEGER, teacherPrefs TEXT);";
 	dataConnection::runQuery($query);
         // Add field screenshot to questionInstance
-	$query = "ALTER TABLE questionInstance ADD COLUMN screenshot VARCHAR(60);";
+	$query = "ALTER TABLE questionInstance ADD COLUMN screenshot VARCHAR(90);";
 	dataConnection::runQuery($query);
         // Add table message
 	$query = "CREATE TABLE yacrs_message(id INTEGER PRIMARY KEY AUTO_INCREMENT, user_id INTEGER, session_id INTEGER, subsession_id INTEGER, isTeacherQu INTEGER, private INTEGER, posted DATETIME, message TEXT, replyTo_id INTEGER);";
