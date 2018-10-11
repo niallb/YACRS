@@ -2,7 +2,7 @@
 
 function displayQuestion($qi, $resp, $forceTitle=false)
 {
-    global $thisSession, $smemb;
+    global $thisSession, $smemb, $CFG;
     $out = '';
     $qu = question::retrieve_question($qi->theQuestion_id);
     if($qu)
@@ -37,6 +37,7 @@ function displayQuestion($qi, $resp, $forceTitle=false)
             $out .= "<a href='vote.php?sessionID={$thisSession->id}&qiID={$qi->id}&doupdate=1' id='changeButton' class='btn btn-success'>Change Answer</a>";
         }
         $out .= '</fieldset>';
+        $out .= "<input type='hidden' name='loginCookie' value='{$_COOKIE[$CFG['appname'].'_login']}'/>";
         $out .= "</form>";
     }
     return $out;

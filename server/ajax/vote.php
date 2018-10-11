@@ -8,9 +8,12 @@ require_once('../lib/forms.php');
 require_once('../lib/questionTypes.php');
 require_once('../lib/vote_lib.php');
 
-$uinfo = checkLoggedInUser();
+//$uinfo = checkLoggedInUser();
+$uinfo = CheckValidLoginCookie($_REQUEST['loginCookie']);
 $thisSession = isset($_REQUEST['sessionID'])? session::retrieve_session($_REQUEST['sessionID']):false;
 $smemb = sessionMember::retrieve($uinfo['uname'], $thisSession->id);
+if($smemb == false)
+   exit(json_encode(array('questionBlock'=>"Login issue detected. Please restart your browser and login again.")));
 
 $cqiid = 0;
 if(($thisSession->questionMode == 0)&&($thisSession->currentQuestion != 0))
