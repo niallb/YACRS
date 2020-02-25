@@ -1,27 +1,31 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 	<head>
-		<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title><%section name="pagetitle"%></title>
-		<link rel="stylesheet" type="text/css" media="Screen" href="html/bootstrap.css" />
+		<!--<link rel="stylesheet" type="text/css" media="Screen" href="html/bootstrap.css" />-->
+        <link rel="stylesheet" type="text/css" media="Screen" href="html/bootstrap.min.css" />
 		<link rel="stylesheet" type="text/css" media="Screen" href="html/bootstrap-theme.css" />
 		<link rel="stylesheet" type="text/css" media="Screen" href="html/font-awesome.css" />
 		<link rel="stylesheet" type="text/css" media="Screen" href="html/yacrs-base.css" />
+        <script src="html/polyfill.js"></script> <!--Needed for IE-->
+        <script src="html/bootstrap-native-v4.min.js"></script>
         <!--Uncomment the following to get the University of Glasgow theme.-->
-		<!--<link rel="stylesheet" type="text/css" media="Screen" href="html/yacrs-theme.css" />-->
-        <%scripts%><%autoscript%>
+		<link rel="stylesheet" type="text/css" media="Screen" href="html/yacrs-theme.css" />
+        <%scripts%>
+        <%autoscript%>
     </head>
 	<body>
 				<div id="pageHeader">
 			<div class="container">
 				<div class="row">
-					<div class="col-xs-6">
+					<div class="col-6">
 					<div id="branding">
 							<h1 class="logo">Class Response</h1>
 						</div>
 					</div>
-					<div class="col-xs-6">
+					<div class="col-6">
 						<%section name="logoutLink" div_id="logoutLink"%>
 					</div>
 				</div>

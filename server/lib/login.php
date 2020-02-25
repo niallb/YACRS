@@ -134,11 +134,20 @@ function loginBox($uinfo, $error = '')
         {
 	        $out .= "<div class='form-group'><div class='col-sm-8 col-sm-push-4'><div class='alert alert-danger'>$error</div></div></div>";
         }
-		$out .= "<div class='form-group'><label for='uname' class='col-sm-4 control-label'>Username</label>";
-		$out .= "<div class='col-sm-8'>";
-		$out .= "<input type='text' name='uname' id='uname' class='form-control' /></div></div>";
-		$out .= "<div class='form-group'><label for='pwd' class='col-sm-4 control-label'>Password</label>";
-		$out .= "<div class='col-sm-8'><input type='password' name='pwd' id='pwd' class='form-control'/></div></div>";
+
+        $out .= '<div class="form-group row">';
+        $out .= '<label class="col-sm-4 control-label" for="uname">Username';
+        $out .= ' <span style="color: Red;" class="fa fa-asterisk" aria-label="Required" aria-hidden="true"></span>';
+        $out .= '</label>';
+        $out .= '<div class="col-sm-8"><input class="form-control" type="text" name="uname" size="20"';
+        $out .= "/></div></div>\n";
+
+        $out .= '<div class="form-group row">';
+        $out .= '<label class="col-sm-4 control-label" for="pwd">Password';
+        $out .= ' <span style="color: Red;" class="fa fa-asterisk" aria-label="Required" aria-hidden="true"></span>';
+        $out .= '</label>';
+        $out .= '<div class="col-sm-8"><input class="form-control" type="password" name="pwd" size="20"';
+        $out .= "/></div></div>\n";
         
         foreach($_REQUEST as $k=>$v)
         {
@@ -146,7 +155,14 @@ function loginBox($uinfo, $error = '')
                 $out .= "<input type='hidden' name='$k' value='$v'/>";
         }
         
-		$out .= "<div class='form-group'><div class='col-sm-4 col-sm-push-4'><input type='submit' name='submit' value='Log in' class='btn btn-block btn-success'/></div><div class='col-sm-4 col-sm-push-4'><a href='join.php' class='btn btn-link btn-block'>Anonymous Guest Access</a></div></div>";
+        $out .= '<div class="form-group row">';
+        $out .= '<label class="col-sm-4 control-label" for="text2">&nbsp;</label>';
+        $out .= '<div class="col-sm-4">';
+
+		$out .= "<input type='submit' name='submit' value='Log in' class='btn btn-block btn-success'/></div></div>";
+        $out .= '<div class="form-group row">';
+        $out .= '<label class="col-sm-4 control-label" for="text2">&nbsp;</label>';
+        $out .= "<div class='col-sm-4'><a href='join.php' class='btn btn btn-block btn-primary'>Anonymous Guest Access</a></div></div>";
 	    $out .= "</form>";
     }
     else

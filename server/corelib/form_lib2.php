@@ -28,11 +28,33 @@ abstract class nbform
 	private $inFieldset;
     protected $formStatus;
     protected $disabled;
+    var $helptext;
 
     function __construct()
     {
     	$this->status = FORM_NOTSUBMITTED;
-        $disabled = array();
+        $this->disabled = array();
+        $this->helptext = array();
+    }
+
+    function loadHelpText($filename)
+    {
+        if(file_exists($filename))
+        {
+            $this->helptext = array();
+            $raw = file($filename);
+            foreach($raw as $line)
+            {
+                if(strpos($line, ':'))
+                {
+                    list($id, $text) = explode(':', $line, 2);
+                    $id = trim($id);
+                    $text = trim($text);
+                    if(strlen($text)&&strlen($id))
+                        $this->helptext[$id] = htmlentities($text);
+                }
+            }
+        }
     }
 
     function disable($fname, $disable=true)
@@ -80,6 +102,17 @@ abstract class nbform
         return $out;
 	}
 
+    private function helpBtn($name, $caption)
+    {
+        $out = '';
+        if(isset($this->helptext[$name]))
+        {
+            $out .= ' <span class="btn btn-link p-0" role="button" data-container="body" data-toggle="popover" data-placement="right" data-content="' . $this->helptext[$name] . '" data-html="true">';
+            $out .= '<span aria-hidden="true" title="Help with ' . $caption . '" aria-label="Help with ' . $caption . '" class="icon fa fa-question-circle text-info fa-fw" ></span>';
+        }
+        return $out;
+    }
+
 	function submitInput($name, $value1, $value2=null)
 	{
 	    $out = "<div class=form-group><div class=\"col-sm-8 col-sm-offset-4\">";
@@ -102,6 +135,7 @@ abstract class nbform
 	{
 	    $out = "<div class=\"form-group\">";
         $out .= "<label class='col-sm-4 control-label' for=\"$name\">$caption";
+        $out .= $this->helpBtn($name, $caption);
         if($required)
         	$out .= '<span class="required">*</span>';
 	    $out .= '</label>';
@@ -121,6 +155,7 @@ abstract class nbform
 	{
 	    $out = "<span class=\"compactformfield\">";
         $out .= "<label for=\"$name\">$caption ";
+        $out .= $this->helpBtn($name, $caption);
         if($required)
         	$out .= '<span style="color: Red;">*</span>';
 	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
@@ -153,6 +188,7 @@ abstract class nbform
 	    	$out .= "<label for=\"$name\" style=\"color: Red;\">$caption: *";
         else
 	    	$out .= "<label for=\"$name\">$caption:";
+        $out .= $this->helpBtn($name, $caption);
 	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
 	        $out .= "<span class=\"errormsg\">{$validateMsgs[$name]}</span>";
 	    $out .= '</label>';
@@ -196,6 +232,7 @@ abstract class nbform
           	$out .= ' disabled="disabled" ';
         $out .= "/>";
         $out .= $caption;
+        $out .= $this->helpBtn($name, $caption);
         $out .= "</label></div></div></div>";
         
 	    return $out;
@@ -211,7 +248,8 @@ abstract class nbform
           	$out .= ' disabled="disabled" ';
 	    $out .= "/></span>";
   	    $out .= "<label for=\"$name\">$caption ";
-        if($required)
+        $out .= $this->helpBtn($name, $caption);
+          if($required)
         	$out .= '<span style="color: Red;">*</span>';
 	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
 	        $out .= "<span class=\"errormsg\">{$validateMsgs[$name]}</span>";
@@ -257,6 +295,7 @@ abstract class nbform
 	{
     	$out = '';
     	$out .= '<fieldset><legend>'.$caption.'</legend>';
+        $out .= $this->helpBtn($name, $caption);
         if($required)
         	$out .= '<span style="color: Red;">*</span>';
 	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
@@ -296,6 +335,7 @@ abstract class nbform
 	{
     	$out = '';
     	$out .= '<fieldset><legend>'.$caption.'</legend>';
+        $out .= $this->helpBtn($name, $caption);
         if($required)
         	$out .= '<span style="color: Red;">*</span>';
 	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
@@ -334,6 +374,7 @@ abstract class nbform
 	{
 	    $out = "<div class=\"form-group\">";
     	$out .= "<label for=\"$name\" class='control-label col-sm-4'>$caption";
+        $out .= $this->helpBtn($name, $caption);
         if($required)
         	$out .= '<span style="color: Red;">*</span>';
 	    $out .= '</label>';
@@ -353,6 +394,7 @@ abstract class nbform
 	{
 	    $out = "<div class=\"formfield\">";
     	$out .= "<label for=\"$name\">$caption:";
+        $out .= $this->helpBtn($name, $caption);
         if($required)
         	$out .= '<span style="color: Red;">*</span>';
 	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
@@ -369,6 +411,7 @@ abstract class nbform
 	{
 		$out = "<div class=\"form-group\">";
         $out .= "<label class='col-sm-4 control-label' for=\"$name\">$caption";
+        $out .= $this->helpBtn($name, $caption);
         if($required)
         	$out .= '<span class="required">*</span>';
 	    $out .= '</label>';
@@ -407,6 +450,7 @@ abstract class nbform
 	{
 	    $out = "<span class=\"formfieldcompact\">";
      	$out .= "<label for=\"$name\">$caption </label>";
+        $out .= $this->helpBtn($name, $caption);
         if($required)
         	$out .= '<span style="color: Red;">*</span>';
 	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
@@ -466,6 +510,7 @@ abstract class nbform
 	    if((is_array($validateMsgs))&&(array_key_exists($name, $validateMsgs)))
 	        $out .= "<span class=\"errormsg\">{$validateMsgs[$name]}</span>";
 	    $out .= '</label>';
+        $out .= $this->helpBtn($name, $caption);
 	    $out .= "<span class=\"forminput\"><input type=\"text\" name=\"$name\" value=\"$strvalue\" ";
         if((isset($this->disabled[$name]))&&($this->disabled[$name]))
           	$out .= ' disabled="disabled" ';

@@ -1,4 +1,5 @@
 <?php
+include_once('wordcloud.php');
 
 $questionTypes['textthenchoice1'] = array('name'=>'Text input with optional MCQ follow-up', 'class'=>'ttcQuestion1', 'edit'=>'editTTCQuestion_form');
 
@@ -159,7 +160,9 @@ class ttcQuestion1 extends questionBase
 	        if($responses)
 	        {
 		    	$out .= "<p><a href='responses.php?sessionID={$thisSession->id}&qiID={$qi->id}&display=detail'><b>".sizeof($responses)." response(s).</b></a></p>";
-	            $out .= "<img src='wordwall.php?qiID={$qi->id}'/><br/>";
+	            //$out .= "<img src='wordwall.php?qiID={$qi->id}'/><br/>";
+                $out .= "<div style='clear: both;'></div>";
+                $out .=  wordcloud($_REQUEST['qiID'], $responses, '100%', '550px');
 	        }
             $out .= "<form id='questionForm' method='POST' action='{$_SERVER['PHP_SELF']}'>";
             $out .= "<input type='hidden' name='sessionID' value='{$_REQUEST['sessionID']}'/>";
@@ -214,6 +217,7 @@ class editTTCQuestion_form extends nbform
 	{
 		parent::__construct();
 		$this->validateMessages = array();
+        $this->loadHelpText(dirname(__DIR__).'/help/editTTCQuestion.txt');
 		if($readform)
 		{
 			$this->readAndValidate();

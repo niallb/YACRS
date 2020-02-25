@@ -13,7 +13,8 @@ function calculateCustomScores($questionInsts, $questions, $responses)
             $results[$day]['qtotal']++;
             if(isset($responses[$qi->id]))
             {
-                $results[$day]['qatt']++;
+                if($responses[$qi->id]!=false)
+                    $results[$day]['qatt']++;
                 if($questions[$qi->id]->definition->score($qi, $responses[$qi->id]) > 0)
                 {
                     $results[$day]['qcorr']++;
@@ -25,7 +26,8 @@ function calculateCustomScores($questionInsts, $questions, $responses)
             $results[$day]['pitotal']++;
             if(isset($responses[$qi->id]))
             {
-                $results[$day]['piatt']++;
+                if($responses[$qi->id]!=false)
+                    $results[$day]['piatt']++;
                 if($questions[$qi->id]->definition->score($qi, $responses[$qi->id]) > 0)
                 {
                     $results[$day]['picorr']++;

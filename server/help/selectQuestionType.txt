@@ -1,0 +1,2 @@
+﻿//unused line to get rid of UTF-8 issues
+qu:Select the question type, then click OK.

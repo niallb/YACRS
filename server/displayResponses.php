@@ -35,7 +35,7 @@ $serverURL = substr($serverURL, 0, strrpos($serverURL, '/')+1);
 
 if($uinfo==false)
 {
-    header("Location: index.php");
+    //header("Location: index.php");
 }
 else
 {
@@ -64,7 +64,7 @@ else
 	    else
             $chart = 'wordwall.php';
 	    echo "<img src='{$chart}?qiID={$qi->id}' style='width:90%; height:80%;'/><br/>";
-	    $PrevNextLinks = '<div class="col-xs-4 question-prev">';
+        $PrevNextLinks = '<div class="col-xs-4 question-prev">';
 	    if($pos > 0)
 	    {
 	        $PrevNextLinks .= "<a href='displayResponses.php?sessionID={$thisSession->id}&qiID={$qiIDs[$pos-1]}'>&lsaquo; Previous Question</span></a> ";

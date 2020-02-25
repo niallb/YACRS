@@ -2,8 +2,8 @@
 
 <head>
   <title>Chat View</title>
-  <link rel="stylesheet" type="text/css" href="html/yacrs-chat.css" />
-  <link rel="stylesheet" type="text/css" href="html/yacrs-chat-theme.css" />
+  <link rel="stylesheet" type="text/css" href="html/yacrs-base.css" />
+  <link rel="stylesheet" type="text/css" href="html/yacrs-theme.css" />
 </head>
 
 <body>

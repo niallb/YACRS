@@ -11,6 +11,11 @@
     <RuntimeVersion>7.1</RuntimeVersion>
     <SpecificPageValue>index.php</SpecificPageValue>
     <StartAction>SpecificPage</StartAction>
+    <SaveServerSettingsInUserFile>false</SaveServerSettingsInUserFile>
+    <EnvName>PHPDev</EnvName>
+    <PHPDevHostName>localhost</PHPDevHostName>
+    <PHPDevAutoPort>false</PHPDevAutoPort>
+    <PHPDevPort>3333</PHPDevPort>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <IncludeDebugInformation>true</IncludeDebugInformation>
@@ -19,19 +24,24 @@
     <IncludeDebugInformation>false</IncludeDebugInformation>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ajax\responses.php" />
+    <Compile Include="ajax\textAnalysisAjax.php" />
     <Compile Include="ajax\vote.php" />
+    <Compile Include="chartWrap.php" />
     <Compile Include="corelib\dataaccess.php" />
-    <Compile Include="corelib\dataaccess_lite.php" />
     <Compile Include="corelib\force_ssl.php" />
     <Compile Include="corelib\form_lib2.php" />
     <Compile Include="corelib\ldap_login.php" />
     <Compile Include="corelib\safeRequestFunctions.php" />
     <Compile Include="corelib\templateMerge.php" />
+    <Compile Include="displayResponses.php" />
     <Compile Include="html\logo_large.png" />
     <Compile Include="html\logo_med.png" />
     <Compile Include="html\template.html" />
     <Compile Include="html\yacrs.css" />
     <Compile Include="html\yacrs1.css" />
+    <Compile Include="lib\editsession_form.php" />
+    <Compile Include="lib\longertextquestion.php" />
     <Compile Include="lib\PHP_Word_Cloud-master\meta\LICENSE" />
     <Compile Include="lib\PHP_Word_Cloud-master\box.php" />
     <Compile Include="lib\PHP_Word_Cloud-master\frequency_table.php" />
@@ -51,8 +61,11 @@
     <Compile Include="lib\questionBase.php" />
     <Compile Include="lib\questionTypes.php" />
     <Compile Include="lib\shared_funcs.php" />
+    <Compile Include="lib\textAnalysisLib.php" />
     <Compile Include="lib\textthenchoicequestion.php" />
     <Compile Include="lib\vote_lib.php" />
+    <Compile Include="lib\wordcloud.php" />
+    <Compile Include="oidc.php" />
     <Compile Include="phpqrcode\LICENSE" />
     <Compile Include="phpqrcode\phpqrcode.php" />
     <Compile Include="phpqrcode\README" />
@@ -77,8 +90,13 @@
     <Compile Include="responses.php" />
     <Compile Include="runsession.php" />
     <Compile Include="services.php" />
+    <Compile Include="services\coursestudentsCSV.php" />
+    <Compile Include="services\dataaccess.php" />
+    <Compile Include="services\roster_config.php" />
     <Compile Include="sessionmembers.php" />
     <Compile Include="smsin.php" />
+    <Compile Include="switchmode.php" />
+    <Compile Include="textAnalysis.php" />
     <Compile Include="updateControlQus.php" />
     <Compile Include="updateTitle.php" />
     <Compile Include="vote.php" />
@@ -92,11 +110,25 @@
     <Folder Include="lib\PHP_Word_Cloud-master" />
     <Folder Include="lib" />
     <Folder Include="locallib" />
+    <Folder Include="help\" />
     <Folder Include="phpqrcode" />
     <Folder Include="scripts\" />
+    <Folder Include="services\" />
     <Folder Include="userimages" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="help\addQuestion.txt" />
+    <Content Include="help\editBasicQuestion.txt" />
+    <Content Include="help\editTextQuestion.txt" />
+    <Content Include="help\editTTCQuestion.txt" />
+    <Content Include="help\helplinks.txt" />
+    <Content Include="help\selectQuestionType.txt" />
+    <Content Include="scripts\ajax.js" />
+    <Content Include="scripts\d3.layout.cloud.js" />
+    <Content Include="scripts\d3.min.js" />
+    <Content Include="scripts\responses.js" />
+    <Content Include="scripts\runsession.js" />
+    <Content Include="scripts\textAnalysis.js" />
     <Content Include="scripts\vote.js" />
   </ItemGroup>
 </Project>

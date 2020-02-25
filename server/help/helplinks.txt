@@ -1,0 +1,4 @@
+﻿;unused line to get rid of UTF-8 issues
+createorrun : Help on running sessions : https://learn.gla.ac.uk/yacrshelp/createorrun.php
+addquestion : Help on adding questions : https://learn.gla.ac.uk/yacrshelp/addquestion.php
+report : Help on exporting reports : https://learn.gla.ac.uk/yacrshelp/report.php

@@ -199,7 +199,7 @@ class MyImage
     var $background;
     var $fillColour;
 
-	function MyImage($width,$height, $bgr=255, $bgg=255, $bgb=255, $shades=0)
+	function __construct($width,$height, $bgr=255, $bgg=255, $bgb=255, $shades=0)
     {
 		$this->imgWidth=$width;
 		$this->imgHeight=$height;

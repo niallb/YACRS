@@ -79,9 +79,11 @@ else
 	{
 	case FORM_NOTSUBMITTED:
         $eqform->sessionID = $sessionID;
+        $template->pageData['mainBody'] .= '<div style="float:right;">'.helpLink('addquestion').'</div>';
 	    $template->pageData['mainBody'] .= $eqform->getHtml();
 	    break;
 	case FORM_SUBMITTED_INVALID:
+        $template->pageData['mainBody'] .= '<div style="float:right;">'.helpLink('addquestion').'</div>';
 	    $template->pageData['mainBody'] .= $eqform->getHtml();
 	    break;
 	case FORM_SUBMITTED_VALID:

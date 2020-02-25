@@ -1,4 +1,5 @@
 <?php
+include_once('wordcloud.php');
 
 $questionTypes['text'] = array('name'=>'Text input suitable for 2 or three sentences.', 'class'=>'TextQuestion', 'edit'=>'editTextQuestion_form');
 
@@ -84,6 +85,7 @@ class TextQuestion extends questionBase
         $rcounts = array();
         if($responses !== false)
         {
+        $out .= "<h2 class='page-section'>".$qi->title."<span class='pull-right'><a href='textAnalysis.php?sessionID={$thisSession->id}&qiID={$qi->id}' target='_new'>Analyse (opens in new window)</a></h2>";
 	        foreach($responses as $r)
 	        {
 	        	$cleanr = preg_replace('/\s+/',' ',trim($r->value));
@@ -99,7 +101,9 @@ class TextQuestion extends questionBase
 	        if($responses)
 	        {
 		    	$out .= "<p><b>".sizeof($responses)." response(s).</b></p>";
-	            $out .= "<img src='wordwall.php?qiID={$qi->id}'/><br/>";
+	            //$out .= "<img src='wordwall.php?qiID={$qi->id}'/><br/>";
+                $out .= "<div style='clear: both;'></div>";
+                $out .=  wordcloud($_REQUEST['qiID'], $responses, '100%', '550px');
 	        }
 		    $out .= "<table border='1'><thead>";
             if(!$anonymous)
@@ -149,6 +153,7 @@ class editTextQuestion_form extends nbform
 	{
 		parent::__construct();
 		$this->validateMessages = array();
+        $this->loadHelpText(dirname(__DIR__).'/help/editTextQuestion.txt');
 		if($readform)
 		{
 			$this->readAndValidate();

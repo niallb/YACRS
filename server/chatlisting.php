@@ -34,7 +34,7 @@ foreach($messages as $m)
     if($m->user_id > 0)
     {
 		$user = sessionMember::retrieve_sessionMember($m->user_id);
-    	echo date("c", $m->posted).','.$user->userID.',"'.preg_replace('/([\\\\"])/e', '\\\\\\1', $user->name).'","'.preg_replace('/([\\\\"])/', '\\\\\\1', $m->message).'"'."\r\n";
+    	echo date("c", $m->posted).','.$user->userID.',"'.preg_replace('/([\\\\"])/', '\\\\\\1', $user->name).'","'.preg_replace('/([\\\\"])/', '\\\\\\1', $m->message).'"'."\r\n";
     }
     else
     {

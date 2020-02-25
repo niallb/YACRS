@@ -16,6 +16,9 @@ $uinfo = checkLoggedInUser();
 $template->pageData['pagetitle'] = $CFG['sitetitle'];
 $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
 
+$template->addScript('scripts/d3.min.js');
+$template->addScript('scripts/d3.layout.cloud.js');
+
 $template->pageData['breadcrumb'] = $CFG['breadCrumb'];
 $template->pageData['breadcrumb'] .= '<li><a href="index.php">YACRS</a></li>';
 $template->pageData['breadcrumb'] .= "<li><a href='runsession.php?sessionID={$_REQUEST['sessionID']}'>Session {$_REQUEST['sessionID']}</a></li>";

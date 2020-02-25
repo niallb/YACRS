@@ -436,6 +436,7 @@ class editBasicQuestion_form extends nbform
 	{
 		parent::__construct();
 		$this->validateMessages = array();
+        $this->loadHelpText(dirname(__DIR__).'/help/editBasicQuestion.txt');
 		if($readform)
 		{
 			$this->readAndValidate();

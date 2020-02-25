@@ -48,6 +48,7 @@ okcancel 'Create' 'Cancel';
 
 */
 
+/* This version of class editSession_form is no longer used
 class editSession_form extends nbform
 {
 	var $form_magic_id = '73e4b27a947d6e4f3a1c38c04af1a20f';
@@ -280,6 +281,7 @@ class editSession_form extends nbform
 	}
 
 }
+*/
 
 class addQuestion_form extends nbform
 {
@@ -295,6 +297,7 @@ class addQuestion_form extends nbform
         $this->sessionID = $sessionID;
         $this->extraQuOpts = $extraQuOpts;
 		$this->validateMessages = array();
+        $this->loadHelpText(dirname(__DIR__).'/help/addQuestion.txt');
 		if($readform)
 		{
 			$this->readAndValidate();
@@ -383,6 +386,7 @@ class selectQuestionType_form extends nbform
 	{
 		parent::__construct();
 		$this->validateMessages = array();
+        $this->loadHelpText(dirname(__DIR__).'/help/selectQuestionType.txt');
 		if($readform)
 		{
 			$this->readAndValidate();

@@ -34,6 +34,7 @@ $template->pageData['homeURL'] = $_SERVER['PHP_SELF'];
 $template->pageData['breadcrumb'] = $CFG['breadCrumb'];
 $template->pageData['breadcrumb'] .= '<li><i class="fa fa-home"></i>'.$CFG['sitetitle'].'</li>';
 $template->pageData['breadcrumb'] .= '</ul>';
+
 if($uinfo==false)
 {
 	$template->pageData['headings'] = "<h1  style='text-align:center; padding:10px;'>Login</h1>";
@@ -71,37 +72,13 @@ else
             header("Location: vote.php?sessionID={$thisSession->id}");
         }
     }
-    elseif($ltiSessionID = getLTISessionID())
-    {
-        if(isLTIStaff())
-	    {
-	        $template->pageData['mainBody'] .= '<ul>';
-            $s = session::retrieve_session($ltiSessionID);
-            if($s !== false)
-            {
-	            $ctime = strftime("%A %e %B %Y at %H:%M", $s->created);
-	            $template->pageData['mainBody'] .= "<li><p class='session-title'><a href='runsession.php?sessionID={$s->id}'>{$s->title}</a><span class='user-badge session-id'><i class='fa fa-hashtag'></i> {$s->id}</span></p><p class='session-details'> Created $ctime</p><a href='editsession.php?sessionID={$s->id}'>Edit</a> <a href='confirmdelete.php?sessionID={$s->id}'>Delete</a></li>";
-	            //$template->pageData['mainBody'] .= "<li>Session number: <b>{$s->id}</b> <a href='runsession.php?sessionID={$s->id}'>{$s->title}</a> (Created $ctime) <a href='editsession.php?sessionID={$s->id}'>Edit</a> <a href='confirmdelete.php?sessionID={$s->id}'>Delete</a></li>";
-                $template->pageData['mainBody'] .= "<li>To use the teacher control app for this session login with username: <b>{$s->id}</b> and password <b>".substr($s->ownerID, 0, 8)."</b></li>";
-
-            }
-            else
-            {
-                $template->pageData['mainBody'] .= "<li>No session found for this LTI link. To create a new session return to the VLE/LMS and click the link again.</li>";
-            }
-	        $template->pageData['mainBody'] .= '</ul>';
-	    }
-        else
-        {
-            $template->pageData['mainBody'] .= "<a href='vote.php?sessionID={$thisSession->id}'>Join session</a>";
-            header("Location: vote.php?sessionID={$thisSession->id}");
-        }
-    }
     else
     {
 	    $template->pageData['mainBody'] = sessionCodeinput();
 	    if($uinfo['sessionCreator'])
 	    {
+            $template->pageData['mainBody'] .= '<div style="float:right;">'.helpLink('createorrun').'</div>';
+            
 	        $template->pageData['mainBody'] .= "<div class='row'><div class='col-sm-8 col-sm-push-4'><a class='btn btn-primary' href='editsession.php'><i class='fa fa-plus-circle'></i> Create a new clicker session</a></div></div>";
 		    $sessions = session::retrieve_session_matching('ownerID', $uinfo['uname']);
 	        if($sessions === false)

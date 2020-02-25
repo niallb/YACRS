@@ -7,7 +7,7 @@ require_once('lib/forms.php');
 require_once('lib/database.php');
 require_once('lib/ajax.php');
 require_once('lib/shared_funcs.php');
- 
+
 $template = new templateMerge($TEMPLATE);
 
 $uinfo = checkLoggedInUser();
@@ -31,7 +31,6 @@ else
 {
     session_start();
     CheckDaySelect();
-    $template->pageData['afterContent'] = getAJAXScript();
 	//$template->pageData['mainBody'] = '<pre>'.print_r($uinfo,1).'</pre>';
     if(isset($_REQUEST['activate']))
     {
@@ -107,19 +106,20 @@ else
     }
     else
         $template->pageData['mainBody'] .= "<p>No questions added yet.</p>";
+    $template->pageData['mainBody'] .= '<div style="float:right;">'.helpLink('addquestion').'</div>';
     $template->pageData['mainBody'] .= $aqform->getHtml();
     if($thisSession->questionMode == 0)
         $template->pageData['mainBody'] .= "<div><a href='switchmode.php?sessionID={$thisSession->id}'>Close question and switch to student paced (multi-question) mode.</a></div>";
     else
         $template->pageData['mainBody'] .= "<div><a href='switchmode.php?sessionID={$thisSession->id}'>Close questions and switch to teacher paced (single question) mode.</a></div>";
-    $template->pageData['mainBody'] .= "<div><a href='displayResponses.php?sessionID={$thisSession->id}' target='_new'>Display Latest Qu for students.</a></div>";
+    //$template->pageData['mainBody'] .= "<div><a href='displayResponses.php?sessionID={$thisSession->id}' target='_new'>Display Latest Qu for students.</a></div>";
 
     if(sizeof($quTitles))
     {
         //$template->pageData['mainBody'] .= "<p><a href='export.php?sessionID={$thisSession->id}'>Export response data (CSV)</a></p>";
         $template->pageData['mainBody'] .= "<form action='export.php' method='POST' class='form-horizontal form-export-data'><input type='hidden' name='sessionID' value='{$thisSession->id}'/>";
         $template->pageData['mainBody'] .= "<div class='form-group'><label class='col-sm-4 control-label'>Export Response Data</label><div class='col-sm-8'>";
-         $template->pageData['mainBody'] .= "<div class='row'><div class='col-sm-2'><label for='from' class='control-label'>From</label></div><div class='col-sm-10'><select name='from' id='from' class='form-control'>";
+        $template->pageData['mainBody'] .= "<div class='row'><div class='col-sm-2'><label for='from' class='control-label'>From</label></div><div class='col-sm-10'><select name='from' id='from' class='form-control'>";
         $cday = '';
         foreach($quTitles as $qt)
         {
@@ -150,6 +150,7 @@ else
         $template->pageData['mainBody'] .= "<div class='checkbox'><label><input type='checkbox' name='catsco'  value='1' checked='checked'/> Category Scores</label></div>";
         $template->pageData['mainBody'] .= "<div class='checkbox'><label><input type='checkbox' name='custrep'  value='1'/> Custom Report</label></div></div></div>";
 
+        $template->pageData['mainBody'] .= '<div style="float:right;">'.helpLink('report').'</div>';
         $template->pageData['mainBody'] .= "<div class='control-group'><div class='col-sm-8 col-sm-push-4'><input type='submit' class='btn btn-primary' value='Export'/></div></div></div></form>";
 
     }
@@ -170,60 +171,7 @@ else
 
 echo $template->render();
 
-
-function getAJAXScript()
-{
-	return "<script lang=\"JavaScript\">
-function httpGet(theUrl)
-{
-    var xmlHttp = null;
-
-	if (window.XMLHttpRequest)
-	  {// code for IE7+, Firefox, Chrome, Opera, Safari
-	  xmlHttp=new XMLHttpRequest();
-	  }
-	else
-	  {// code for IE6, IE5
-	  xmlHttp=new ActiveXObject(\"Microsoft.XMLHTTP\");
-	  }
-    xmlHttp.open( \"GET\", theUrl, false );
-    xmlHttp.send( null );
-    return xmlHttp.responseText;
-}
-
-function EditTitle(id)
-{
-    name = \"title\"+id;
-    document.getElementById(name).innerHTML = \"<input type='text' id='edt' size='60' maxlength='80' value='\"+document.getElementById('title'+id+'_txt').innerHTML+\"'/><a OnClick='UpdateTitle(\\\"\"+id+\"\\\");'>Update</a>\";
-    document.getElementById('edt').onkeydown = function(e)
-    {
-        if(e.keyCode == 13)
-        {
-            UpdateTitle(id);
-        }
-    };
-    return false;
-}
-
-function UpdateTitle(id)
-{
-    var updateURL = 'updateTitle.php?qiID='+id+'&text='+encodeURIComponent(document.getElementById('edt').value);
-    var text = httpGet(updateURL);
-    var name = \"title\"+id;
-    document.getElementById(name).innerHTML = \"<span id='title\"+id+\"_txt'>\"+text + \"</span>&nbsp;<a OnClick='EditTitle(\\\"\"+id+\"\\\");'>(Edit)</a></td></tr></table>\";
-}
-
-function toggle(checked)
-{
-  checkboxes = document.getElementsByName('qiid[]');
-  for(var i=0; i<checkboxes.length; i++)
-  {
-      checkboxes[i].checked = checked;
-  }
-}
-</script>";
-}
-
+//# This needs refactored - make it part of runsession.js, with qiID as a parameter
 function getMonitorResponsesJS($sessionID, $qiID)
 {
 	return "<script lang=\"JavaScript\">
@@ -264,15 +212,20 @@ function deleteQi(&$thisSession)
 {
     $deleteID = $_REQUEST['delete'];
     $qiIDs = explode(',',$thisSession->questions);
-    $qiIndexes = array_flip($qiIDs);
-    array_splice($qiIDs, $qiIndexes[$deleteID],1);
-    $thisSession->questions = implode(',',$qiIDs);
-    if($thisSession->currentQuestion == $deleteID)
-        $thisSession->currentQuestion = 0;
-    $thisSession->update();
-    // clean up database
-    questionInstance::deleteInstance($deleteID);
-    return true;
+    if(in_array($deleteID, $qiIDs))
+    {
+        $qiIndexes = array_flip($qiIDs);
+        array_splice($qiIDs, $qiIndexes[$deleteID],1);
+        $thisSession->questions = implode(',',$qiIDs);
+        if($thisSession->currentQuestion == $deleteID)
+            $thisSession->currentQuestion = 0;
+        $thisSession->update();
+        // clean up database (no longer doing this so undelete can be supported)
+        //questionInstance::deleteInstance($deleteID);
+        return true;
+    }
+    else
+        return false;
 }
 
 function activateSingleQu(&$thisSession, $activate)
@@ -300,7 +253,7 @@ function updateRespCountsAndEndtime($quids, $exclude=array())
     if($exclude == null)
         $exclude = array();
     if(!is_array($exclude))         // if there's just one it's not an array
-         $exclude = array($exclude);
+        $exclude = array($exclude);
     foreach($quids as $quid)
     {
     	if(!in_array($quid, $exclude))
@@ -318,41 +271,49 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
 {
     $out .= "<form method='POST' action='{$_SERVER['PHP_SELF']}'>";
     $out .= "<input type='hidden' name='sessionID' value='{$thisSession->id}'/>";
-        $out .= '<table class="table table-striped"><thead><tr><th>#</th><th>Question</th><th>Used</th><th>Control</th><th>Responses</th><th>Actions</th></tr></thead><tbody>';
+    $out .= '<table class="table table-striped"><thead><tr><th>#</th><th>Question</th><th>Used</th><th>Control</th><th>Responses</th><th>Actions</th></tr></thead><tbody>';
 
-        $qiIDs = explode(',',$thisSession->questions);
-        if(!isset($thisSession->extras[currentQuestions]))
-            $thisSession->extras[currentQuestions] = array();
+    $qiIDs = explode(',',$thisSession->questions);
+    if(!isset($thisSession->extras[currentQuestions]))
+        $thisSession->extras[currentQuestions] = array();
 
-        $qunum = 0;
-        if(isset($_REQUEST['move']))
-            $moveMode = 'before';
+    $qunum = 0;
+    if(isset($_REQUEST['move']))
+        $moveMode = 'before';
 
-        $quinstances = $thisSession->retrieveQuestionInstances();
-        $qudefs = array();
-        foreach($quinstances as $qui)
+    $quinstances = $thisSession->retrieveQuestionInstances();
+    $qudefs = array();
+    foreach($quinstances as $qui)
+    {
+        if(!isset($qudefs[$qui->theQuestion_id]))
         {
-            if(!isset($qudefs[$qui->theQuestion_id]))
-            {
-                $qudefs[$qui->theQuestion_id] = question::retrieve_question($qui->theQuestion_id);
-            }
+            $qudefs[$qui->theQuestion_id] = question::retrieve_question($qui->theQuestion_id);
         }
+    }
 
-        foreach($qiIDs as $qiID)
+    foreach($qiIDs as $qiID)
+    {
+        $qunum++;
+        $qi = $quinstances[$qiID];//questionInstance::retrieve_questionInstance($qiID);
+        if(($showday == 0)||(($qi->endtime >= $showday)&&($qi->endtime < $showday+3600*24))||(in_array($qiID, $thisSession->extras[currentQuestions])))
         {
-            $qunum++;
-            $qi = $quinstances[$qiID];//questionInstance::retrieve_questionInstance($qiID);
-            if(($showday == 0)||(($qi->endtime >= $showday)&&($qi->endtime < $showday+3600*24))||(in_array($qiID, $thisSession->extras[currentQuestions])))
-            {
             $day = strftime("%a %d %b %Y", ((floor($qi->endtime / (3600*24)) * 3600 * 24)+3600));
             $quTitles[] = array('id'=>$qi->id, 'title'=>$qi->title, 'day'=>$day);
             $qu = $qudefs[$qi->theQuestion_id];//question::retrieve_question($qi->theQuestion_id);
             if($qu)
             {
                 if(in_array($qiID, $thisSession->extras[currentQuestions]))
-	                $out .= "\n<<tr class='question-active'><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
+                {
+	                $out .= "\n<<tr class='question-active'><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;";
+                    $out .= "<a OnClick='EditTitle(\"{$qiID}\");' aria-label='Edit question title');'><i aria-hidden='true' class='fa fa-pencil'></i></a>";
+                    $out .= "</td>";
+                }
                 else
-	                $out .= "\n<tr><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
+                {
+	                $out .= "\n<tr><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;";
+                    $out .= "<a OnClick='EditTitle(\"{$qiID}\");' aria-label='Edit question title');'><i aria-hidden='true' class='fa fa-pencil'></i></a>";
+                    $out .= "</td>";
+                }
                 if($qi->endtime > 0)
                 {
 	                $out .= "<td>".strftime("%d %b %H:%M", $qi->endtime)."</td>";
@@ -399,7 +360,7 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
 	                else
 	                {
 	            		$out .= "<td><span class='feature-links'><a href='runsession.php?sessionID={$thisSession->id}&move=$qiID'><i class='fa fa-arrows'></i> Move</a> ";
-	                    $out .= "<a href='runsession.php?sessionID={$thisSession->id}&delete=$qiID'><i class='fa fa-trash-o'></i> Delete</a></span></td>";
+	                    $out .= "<a href='runsession.php?sessionID={$thisSession->id}&delete=$qiID' onclick='return confirm(\"Are you sure?\");'><i class='fa fa-trash-o'></i> Delete</a></span></td>";
 	                }
                 }
                 else
@@ -409,59 +370,67 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
 	            $out .= "</tr>";
             }
         }
-        }
-        $out .= "<tr><td colspan='3'><a href='#' OnClick='toggle(1);'>Select all</a> <a href='#' OnClick='toggle(0);'>Select none</a></td><td colspan='3'><input type='submit' name='activate' value='Update active questions'/>";
-        if(sizeof($thisSession->extras[currentQuestions])>0)
-        {
-            $out .= " <input type='submit' name='deactivate' value='Close all'/>";
-        }
-        $out .= "</td></tr>";
-        $out .= "</table></form>";
-        return $out;
+    }
+    $out .= "<tr><td colspan='3'><a href='#' OnClick='toggle(1);'>Select all</a> <a href='#' OnClick='toggle(0);'>Select none</a></td><td colspan='3'><input type='submit' name='activate' value='Update active questions'/>";
+    if(sizeof($thisSession->extras[currentQuestions])>0)
+    {
+        $out .= " <input type='submit' name='deactivate' value='Close all'/>";
+    }
+    $out .= "</td></tr>";
+    $out .= "</table></form>";
+    return $out;
 }
 
 
 function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
 {
-        $out = '<table class="table table-striped"><thead><tr><th>#</th><th>Question</th><th>Used</th><th>Control</th><th>Responses</th><th>Actions</th></tr></thead><tbody>';
+    $out = '<table class="table table-striped"><thead><tr><th>#</th><th>Question</th><th>Used</th><th>Control</th><th>Responses</th><th>Actions</th></tr></thead><tbody>';
 
-        $qiIDs = explode(',',$thisSession->questions);
-        // check current is valid, display make active stuff otherwise
-	    if(!in_array($thisSession->currentQuestion, $qiIDs))
+    $qiIDs = explode(',',$thisSession->questions);
+    // check current is valid, display make active stuff otherwise
+    if(!in_array($thisSession->currentQuestion, $qiIDs))
+    {
+        $thisSession->currentQuestion = 0;
+        $thisSession->update();
+    }
+
+    $qunum = 0;
+    if(isset($_REQUEST['move']))
+        $moveMode = 'before';
+
+    $quinstances = $thisSession->retrieveQuestionInstances();
+    $qudefs = array();
+    foreach($quinstances as $qui)
+    {
+        if(!isset($qudefs[$qui->theQuestion_id]))
         {
-	        $thisSession->currentQuestion = 0;
-            $thisSession->update();
+            $qudefs[$qui->theQuestion_id] = question::retrieve_question($qui->theQuestion_id);
         }
-
-        $qunum = 0;
-        if(isset($_REQUEST['move']))
-            $moveMode = 'before';
-
-        $quinstances = $thisSession->retrieveQuestionInstances();
-        $qudefs = array();
-        foreach($quinstances as $qui)
+        //$qui->theQuestion_id
+    }
+    foreach($qiIDs as $qiID)
+    {
+        $qunum++;
+        $qi = $quinstances[$qiID];// questionInstance::retrieve_questionInstance($qiID);
+        if(($showday == 0)||(($qi->endtime >= $showday)&&($qi->endtime < $showday+3600*24))||($thisSession->currentQuestion == $qiID))
         {
-            if(!isset($qudefs[$qui->theQuestion_id]))
-            {
-                $qudefs[$qui->theQuestion_id] = question::retrieve_question($qui->theQuestion_id);
-            }
-            //$qui->theQuestion_id
-        }
-        foreach($qiIDs as $qiID)
-        {
-            $qunum++;
-            $qi = $quinstances[$qiID];// questionInstance::retrieve_questionInstance($qiID);
-            if(($showday == 0)||(($qi->endtime >= $showday)&&($qi->endtime < $showday+3600*24))||($thisSession->currentQuestion == $qiID))
-            {
             $day = strftime("%a %d %b %Y", ((floor($qi->endtime / (3600*24)) * 3600 * 24)+3600));
             $quTitles[] = array('id'=>$qi->id, 'title'=>$qi->title, 'day'=>$day);
             $qu = $qudefs[$qi->theQuestion_id];//question::retrieve_question($qi->theQuestion_id);
             if($qu)
             {
                 if($thisSession->currentQuestion == $qiID)
-	                $out .= "\n<tr class='question-active'><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
+                {
+	                $out .= "\n<<tr class='question-active'><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;";
+                    $out .= "<a OnClick='EditTitle(\"{$qiID}\");' aria-label='Edit question title');'><i aria-hidden='true' class='fa fa-pencil'></i></a>";
+                    $out .= "</td>";
+                }
                 else
-	                $out .= "\n<tr><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;<a OnClick='EditTitle(\"{$qiID}\");'>(Edit title)</a></td>";
+                {
+	                $out .= "\n<tr><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;";
+                    $out .= "<a OnClick='EditTitle(\"{$qiID}\");' aria-label='Edit question title');'><i aria-hidden='true' class='fa fa-pencil'></i></a>";
+                    $out .= "</td>";
+                }
                 if($qi->endtime > 0)
                 {
 	                $out .= "<td>".strftime("%d %b %H:%M", $qi->endtime)."</td>";
@@ -484,7 +453,7 @@ function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
 	            	$out .= "<td>&nbsp;</td>";
                 }
                 //DEBUG
-	                //$out.="<td>{$qi->id}</td>";
+                //$out.="<td>{$qi->id}</td>";
                 if(($qi->responseCount == -1)||($thisSession->currentQuestion == $qiID))
                 {
 	                $count = response::countCompleted($qi->id);
@@ -514,14 +483,14 @@ function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
                 else
                 {
             		$out .= "<td><span class='feature-links'><a href='runsession.php?sessionID={$thisSession->id}&move=$qiID'><i class='fa fa-arrows'></i> Move</a> ";
-                    $out .= "<a href='runsession.php?sessionID={$thisSession->id}&delete=$qiID'><i class='fa fa-trash-o'></i> Delete</a></span></td>";
+                    $out .= "<a href='runsession.php?sessionID={$thisSession->id}&delete=$qiID' onclick='return confirm(\"Are you sure?\");'><i class='fa fa-trash-o'></i> Delete</a></span></td>";
                 }
 	            $out .= "</tr>";
             }
         }
-        }
-        $out .= "</table>";
-        return $out;
+    }
+    $out .= "</table>";
+    return $out;
 }
 
 

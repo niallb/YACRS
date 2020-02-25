@@ -17,6 +17,45 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 *****************************************************************************/
+
+// New helplinks, put here as this will always be included. I may just make it part of the templateMerge class eventually
+function helpLink($name)
+{
+    $link = '';
+    global $YACRSHelpLinks;
+    $helpLinksFile = dirname(__DIR__).'/help/helplinks.txt';
+    if(!is_array($YACRSHelpLinks))
+    {
+        $YACRSHelpLinks = array();
+        if(file_exists($helpLinksFile))
+        {
+            $raw = file($helpLinksFile);
+            foreach($raw as $line)
+            {
+                if((substr(trim($line),0,1)!==';')&&(strpos($line, ':')))
+                {
+                    list($id, $title, $url) = explode(':', $line, 3);
+                    $id = trim(strval($id));
+                   // $name = $id;
+                    $title = trim($title);
+                    $url = trim($url);
+                    if((strlen($title)>0)&&(strlen($id)>0)&&(strlen($url)>0))
+                    {
+                        $YACRSHelpLinks[$id] = new stdClass();
+                        $YACRSHelpLinks[$id]->title = $title;
+                        $YACRSHelpLinks[$id]->url = $url;
+                    }
+                }
+            }
+        }
+    }
+   // exit('<pre>'.print_r($YACRSHelpLinks, true).'</pre>');
+    if(array_key_exists($name, $YACRSHelpLinks))
+        $link = "<a href='{$YACRSHelpLinks[$name]->url}' target='_blank' class='btn btn-info'><span class='fa fa-question-circle' style='color:yellow;'></span> {$YACRSHelpLinks[$name]->title}</a>";
+     //exit('<pre>'.print_r($YACRSHelpLinks, true).'</pre>');
+    return $link;
+}
+
 class templateMerge
 {
     var $fields;

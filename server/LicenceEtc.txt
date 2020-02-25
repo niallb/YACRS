@@ -1,4 +1,4 @@
-YACRS is Copyright (c) 2013-2015, The University of Glasgow and is written by 
+YACRS is Copyright (c) 2013-2019, The University of Glasgow and is written by 
 Niall S F Barr (niall.barr@glasgow.ac.uk)
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,6 @@ Niall S F Barr (niall.barr@glasgow.ac.uk)
 
 Some files distributed with YACRS have other copyright and/or licensing.
 
-Files in the corelib folder are Copyright (c) 2005-2015 Niall S F Barr
-
-PHP files in the lib/PHP_Word_Cloud-master folder are Copyright (c) 2010-2011 dreamcraft.ch, were obtained from https://github.com/sixty-nine/PHP_Word_Cloud and are licensed under the MIT license.
-
-ttf files in the lib/PHP_Word_Cloud-master folder were obtained from https://fedorahosted.org/liberation-fonts/ and are Licensed under the SIL Open Font License, Version 1.1. 
+Files in the corelib folder are Copyright (c) 2005-2019 Niall S F Barr
 
 Files in the phpqrcode folder are Copyright (C) 2010 Dominik Dzienia <deltalab at poczta dot fm> and Licensed under the LGPL licence version 3. 

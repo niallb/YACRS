@@ -1,5 +1,13 @@
 <?php
 
+if((isset($CFG['vote_log']))&&($CFG['vote_log']==1))
+{
+    $uinfolog = checkLoggedInUser(false);
+    if($uinfolog==false)
+        $uinfolog = array('uname'=>'NotLoggedIn');
+    file_put_contents(ROOT_PATH.'log/vote_log.txt', time().':'.$uinfolog['uname'].': '.serialize($_REQUEST).PHP_EOL , FILE_APPEND | LOCK_EX);
+}
+
 function displayQuestion($qi, $resp, $forceTitle=false)
 {
     global $thisSession, $smemb, $CFG;

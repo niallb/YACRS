@@ -68,6 +68,11 @@ else
         $template->pageData['mainBody'] .= "<li><b>Sessions</b> ".adminLink('close', array('disp'=>''), true)."<span class='badge'>{$prevLink}Page $pageDisp of $pageCount {$nextLink}</span></li>";
         $template->pageData['mainBody'] .= listSessions($page);
     }
+    elseif(($disp=='undelete')&&(isset($_REQUEST['sessionID'])))
+    {
+        $template->pageData['mainBody'] .= '<li>'.adminLink('Sessions', array('disp'=>'sessions'), true).' <span class="badge">'.session::count().'</span></li>';
+        $template->pageData['mainBody'] .= undeleteQus(intval($_REQUEST['sessionID']));
+    }
     else
         $template->pageData['mainBody'] .= '<li>'.adminLink('Sessions', array('disp'=>'sessions'), true).' <span class="badge">'.session::count().'</span></li>';
     if($disp == 'users')
@@ -188,6 +193,41 @@ else
     {
         $template->pageData['mainBody'] .= '<li><b>'.adminLink('LTI Consumers', array('disp'=>'lti'), true).'</b> <span class="badge">'.lticonsumer::count().'</span></li>';
     }
+    if($disp == 'help')
+    {
+        $file = '';
+        $helptext = '';
+        if(update_from_editHelp($file, $helptext))
+        {
+            file_put_contents("help/{$file}.txt", $helptext);
+        }
+        $template->pageData['mainBody'] .= '<li><b>Help text and links </b>'.adminLink('close', array('disp'=>''), true).'</li>';
+        $edit = requestStr('edit');
+        if($edit)
+        {
+            $helptext = file_get_contents("help/{$edit}.txt");
+            $template->pageData['mainBody'] .= show_editHelp('help', $edit, $helptext);
+        }
+        else
+        {
+            $d = dir("help");
+            $template->pageData['mainBody'] .=  "<ul>";
+            while (false !== ($entry = $d->read())) 
+            {
+                if(strpos($entry,'.txt'))
+                {
+                    $stem = substr($entry, 0, strpos($entry,'.txt'));
+	                $template->pageData['mainBody'] .=  "<li><a href='admin.php?disp=help&edit={$stem}'>{$stem}</a></li>";
+                }
+            }
+            $d->close();
+            $template->pageData['mainBody'] .=  "</ul>";
+        }
+    }
+    else
+    {
+        $template->pageData['mainBody'] .= '<li><b>'.adminLink('Help text and links', array('disp'=>'help'), true).'</b></li>';
+    }
     if($disp == 'qus')
     {
         $delqu = requestInt('delqu');
@@ -256,11 +296,56 @@ else
     {
 	    $template->pageData['mainBody'] .= '<li><b>'.adminLink('Default generic questions', array('disp'=>'qus'), true).'</b> <span class="badge">'.sizeof(systemQuestionLookup::all()).'</span></li>';
     }
+    if($disp == '')
+    {
+        $template->pageData['mainBody'] .= '<li>Detailed logging</li>';
+        $settings = getSettings();
+        $logsettings = array('vote_log', 'db_debug_log', 'access_log');
+        if(isset($_REQUEST['updatelogging']))
+        {
+	        foreach($logsettings as $ls)
+	        {
+                if((isset($_REQUEST[$ls]))&&($_REQUEST[$ls]==1))
+                {
+                    if(isset($settings[$ls]))
+                       dataConnection::runQuery("UPDATE `yacrs_settings` SET `settingvalue`='1' WHERE `settingkey` = '$ls';");
+                    else
+                       dataConnection::runQuery("INSERT INTO yacrs_settings(settingkey, settingvalue) VALUES('$ls', 1);");
+                }
+                else
+                {
+                   if((isset($settings[$ls]))&&($settings[$ls] != 0))
+                       dataConnection::runQuery("UPDATE `yacrs_settings` SET `settingvalue`='0' WHERE `settingkey` = '$ls';");
+                }
+            }
+            $settings = getSettings();
+        }
+        $template->pageData['mainBody'] .= '<p><form method="POST">';
+        foreach($logsettings as $ls)
+        {
+            $template->pageData['mainBody'] .= "<input name='$ls' type='checkbox' value='1'";
+            $template->pageData['mainBody'] .= ((isset($settings[$ls]))&&($settings[$ls]==1)) ? " checked='checked'" : '';
+            $template->pageData['mainBody'] .= "/> $ls<br/>";
+        }
+        $template->pageData['mainBody'] .= "<input type='submit' name='updatelogging' value='Update log settings'/></form></p>";
+    }
     $template->pageData['mainBody'] .= '</ul>';
     $template->pageData['mainBody'] .= "<p>Student responses in last hour: ".response::countAllInLastHour().'</p>';
 	$template->pageData['logoutLink'] = loginBox($uinfo);
 }
 echo $template->render();
+
+function getSettings()
+{
+	$settings = array();
+	$query = "SELECT * FROM yacrs_settings WHERE 1;";
+	$result = dataConnection::runQuery($query);
+	foreach($result as $r)
+	{
+		$settings[$r['settingkey']] = $r['settingvalue'];
+	}
+	return $settings;
+}
 
 function listSessions($page = 0)
 {
@@ -270,7 +355,7 @@ function listSessions($page = 0)
     {
 	    foreach($sessions as $s)
 	    {
-	        $out .= "<li><p class='session-title'><a href='runsession.php?sessionID={$s->id}'>{$s->title}</a><span class='user-badge session-id'><i class='fa fa-hashtag'></i> {$s->id}</span></p><p class='session-details'> Owned by {$s->ownerID}</p><p class='session-details'>Created ".strftime("%A %e %B %Y at %H:%M", $s->created)."</p><span class='feature-links'><a href='editsession.php?sessionID={$s->id}'><i class='fa fa-pencil'></i> Edit</a></span></li>";
+	        $out .= "<li><p class='session-title'><a href='runsession.php?sessionID={$s->id}'>{$s->title}</a><span class='user-badge session-id'><i class='fa fa-hashtag'></i> {$s->id}</span></p><p class='session-details'> Owned by {$s->ownerID}</p><p class='session-details'>Created ".strftime("%A %e %B %Y at %H:%M", $s->created)."</p><span class='feature-links'><a href='admin.php?disp=undelete&sessionID={$s->id}'> Undelete Qus</a><a href='editsession.php?sessionID={$s->id}'><i class='fa fa-pencil'></i> Edit</a></span></li>";
 	        //$template->pageData['mainBody'] .= "<li><p class='session-title'><a href='runsession.php?sessionID={$s->id}'>{$s->title}</a><span class='user-badge session-id'><i class='fa fa-hashtag'></i> {$s->id}</span></p><p class='session-details'> Created $ctime</p><span class='feature-links'><a href='editsession.php?sessionID={$s->id}'><i class='fa fa-pencil'></i> Edit</a> <a href='confirmdelete.php?sessionID={$s->id}'><i class='fa fa-trash-o'></i> Delete</a></span></li>";
 	    }
     }
@@ -443,6 +528,42 @@ function update_from_userSearch(&$searchval)
     }
 }
 
+function undeleteQus($sessionID)
+{
+    $out = '';
+    $thisSession = session::retrieve_session($sessionID);
+    $out .= "<h3>{$thisSession->title} : Undelete questions</h3>";
+    $out .= "<form method='POST' action='admin.php'><input type='hidden' name='disp' value='undelete'/><input type='hidden' name='sessionID' value='$sessionID'/>";
+    $allQus = questionInstance::retrieve_questionInstance_matching('inSession_id', $sessionID);
+    $visibleIDs = explode(',',$thisSession->questions);
+    if(isset($_REQUEST['undeleteid']))
+    {
+        $allQusByID = array();
+        foreach($allQus as $qi)
+            $allQusByID[$qi->id] = $qi;
+        foreach($_REQUEST['undeleteid'] as $id)
+        {
+            $insertpos = 0;
+            while(($insertpos < sizeof($visibleIDs))&&($allQusByID[$visibleIDs[$insertpos]]->endtime < $allQusByID[$id]->endtime))
+                $insertpos++;
+            array_splice($visibleIDs, $insertpos, 0, array($id));
+           $out .= "$id has been restored<br/>";
+        }
+        $thisSession->questions = implode(',', $visibleIDs);
+        $thisSession->update();
+    }
+    foreach($allQus as $qi)
+    {
+        if(!in_array($qi->id, $visibleIDs))
+        {
+            $day = strftime("%a %d %b %Y", ((floor($qi->endtime / (3600*24)) * 3600 * 24)+3600));
+            $out .= "<input type='checkbox' name='undeleteid[]' value='{$qi->id}'/>{$qi->id} : {$qi->title} ({$day})<br/>";
+        }
+    }
+    $out .= "<input type='submit' name='submit' value='Undelete'/></form>";
+    return $out;
+}
+
 function show_ltiConsumerInfo($disp, $id, $name, $consumer_key, $secret)
 {
     $out = '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">';
@@ -490,6 +611,48 @@ function update_from_ltiConsumerInfo(&$name, &$consumer_key, &$secret)
         $name = strval($_REQUEST['name']);
         $consumer_key = strval($_REQUEST['consumer_key']);
         $secret = strval($_REQUEST['secret']);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+function show_editHelp($disp, $file, $text)
+{
+    $out = '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">';
+    $out .= '<input type="hidden" name="editHelp_code" value="'.editHelp_magic.'"/>';
+
+    $out .= '<input type="hidden" name="disp" value="'.$disp.'"';
+    $out .= "/>\n";
+
+    $out .= '<input type="hidden" name="file" value="'.$file.'"';
+    $out .= "/>\n";
+
+    $out .= '<div class="formfield">';
+    $out .= '<label for="text">Help text or links:';
+    $out .= '</label>';
+    $out .= '<br/><span class="forminput"><textarea name="text" cols="90" rows="7"/>';
+    $out .= htmlentities($text);
+    $out .= "</textarea></span></div>\n";
+
+    $out .= '<div class="formfield">';
+    $out .= '<input class="submit" name="editHelp_submit" type="submit" value="Update" />';
+    $out .= "</div>";
+
+    $out .= '<form>';
+    return $out;
+}
+
+function update_from_editHelp(&$file, &$text)
+{
+    if((isset($_REQUEST['editHelp_code']))&&($_REQUEST['editHelp_code']==editHelp_magic))
+    {
+        if(isset($_REQUEST['editHelp_cancel']))
+            return false;
+        $file = strval($_REQUEST['file']);
+        $text = strval($_REQUEST['text']);
         return true;
     }
     else
