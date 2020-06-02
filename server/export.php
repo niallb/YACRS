@@ -160,7 +160,7 @@ echo "\r\n";
 echo "Student ID,Student Name";
 echo "\r\n";
 
-
+$anonymousAnswers = array();
 foreach($members as $m)
 {
     $respCount = 0;
@@ -178,7 +178,13 @@ foreach($members as $m)
         if($showResponses)
             echo ',';
         if($questions[$q->id]->anonymous)
+        {
             echo '(anon qu)'; // always show so non-answer is anonymous
+            if(!isset($anonymousAnswers[$q->id]))
+                $anonymousAnswers[$q->id] = array();
+            if((isset($resp[$q->id]))&&(strlen(trim($resp[$q->id]->value))))
+                $anonymousAnswers[$q->id][] = preg_replace('/([\\\\"])/','\\\\\\1', str_replace(',', ' ',$resp[$q->id]->value));
+        }
         if(isset($resp[$q->id]))
         {
             $respCount++;
@@ -271,6 +277,29 @@ if($showQuScores)
 	        echo ','.sprintf("%.0f", 100*$quScoreTot[$q->id]/$quRespCount[$q->id]).'%';
         else
             echo ',';
+    }
+}
+
+if(sizeof($anonymousAnswers) > 0)
+{
+    echo "\r\n\r\n";
+    $anonymousSize = 0; 
+    foreach($anonymousAnswers as &$ans)
+    {
+        sort($ans);
+        if(sizeof($ans) > $anonymousSize)
+            $anonymousSize = sizeof($ans);
+    }
+    for($n = 0; $n< $anonymousSize; $n++)
+    {
+        echo (",,");
+	    foreach($questionInsts as $q)
+        {
+                echo ',';
+                if(isset($anonymousAnswers[$q->id][$n]))
+                    echo $anonymousAnswers[$q->id][$n];
+        }
+        echo "\r\n";
     }
 }
 
