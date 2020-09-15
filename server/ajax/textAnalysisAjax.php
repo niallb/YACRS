@@ -8,7 +8,7 @@ require_once('../lib/shared_funcs.php');
 require_once('../lib/textAnalysisLib.php');
 
 $uinfo = checkLoggedInUser();
-session_start();
+session_start(array('name'=>'YACRSSESSION'));
 if(isset($_REQUEST['sessionID']))
     $_SESSION['sessionID'] = $_REQUEST['sessionID'];
 if(isset($_REQUEST['qiID']))

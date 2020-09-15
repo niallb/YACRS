@@ -19,37 +19,44 @@ $template->pageData['breadcrumb'] .= '<li><a href="index.php">YACRS</a></li>';
 if(requestSet('sessionID'))
 {
     $sessionID = requestInt('sessionID');
-	$template->pageData['breadcrumb'] .= "<li><a href='runsession.php?sessionID={$sessionID}'>Session {$sessionID}</a></li>";
 }
-$template->pageData['breadcrumb'] .= '<li>Add/Edit a question</li>';
-$template->pageData['breadcrumb'] .= '</ul>';
 
-if($uinfo==false)
+$thisSession = isset($sessionID)? session::retrieve_session($sessionID):false;
+
+if(($uinfo==false)||($thisSession==false))
 {
     header("Location: index.php");
 }
 else
 {
+    $template->addScript('scripts/ajax.js');
+    $template->pageData['breadcrumb'] .= "<li><a href='runsession.php?sessionID={$sessionID}'>Session {$sessionID}</a></li>";
+    $template->pageData['breadcrumb'] .= '<li>Add/Edit a question</li>';
+    $template->pageData['breadcrumb'] .= '</ul>';
     $userDetail = userInfo::retrieve_by_username($uinfo['uname']);
-	$thisSession = isset($sessionID)? session::retrieve_session($sessionID):false;
 	$theQu = requestSet('quID')? question::retrieve_question(requestInt('quID')):false;
     $template->pageData['mainBody'] = '';
 	//$template->pageData['mainBody'] = '<pre>'.print_r($uinfo,1).'</pre>';
 
-    $reuseQus = question::getUserReuseList($uinfo['uname']);
-    $reuseQus += question::getSessionReuseList($thisSession->id);
-    //$reuseQus += question::getSystemReuseList($thisSession->id);
-
-    $aqform = new addQuestion_form($thisSession->id, $reuseQus);
-    if($aqform->getStatus()==FORM_SUBMITTED_VALID)
+    $reuseQus = array();
+    foreach($questionTypes as $key=>$val)
     {
-        {
-            $theQu = question::retrieve_question($aqform->qu);
-        }
+        $reuseQus[$key] = "New ". $val['name'];
     }
-    $template->pageData['mainBody'] .= $aqform->getHtml();
+    $modifyQus = question::getUserReuseList($uinfo['uname']);
+    $modifyQus += question::getSessionReuseList($thisSession->id);
+    foreach($modifyQus as $key=>$val)
+        {
+        $reuseQus[$key] = "Modify ". $val;
+        }
 
-    if(!$theQu)
+    $template->pageData['mainBody'] .= '<div id="questionEditArea">'.show_selectQuestionType_form($sessionID, $qu, $reuseQus).'</div>';
+
+//    $qtform = new selectQuestionType_form();
+//    $qtform->sessionID = $sessionID;
+//    $template->pageData['mainBody'] .= '<div id="quform">'.$qtform->getHtml().'</div>';;
+
+/*    if(!$theQu)
     {
     	$qtform = new selectQuestionType_form();
         $qtform->sessionID = $sessionID;
@@ -117,13 +124,10 @@ else
 	    break;
     }
 
-
+*/
 
 	$template->pageData['logoutLink'] = loginBox($uinfo);
 }
 
 
 echo $template->render();
-
-
-?>

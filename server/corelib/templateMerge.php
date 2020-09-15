@@ -3,7 +3,7 @@
 This file is a component of the NBWebsites PHP toolkit.
 http://www.nbwebsites.co.uk/
 
-Copyright 2005-2016 Niall S F Barr
+Copyright 2005-2020 Niall S F Barr
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ function helpLink($name)
             $raw = file($helpLinksFile);
             foreach($raw as $line)
             {
-                if((substr(trim($line),0,1)!==';')&&(strpos($line, ':')))
+                if((substr(trim($line),0,1)!==';')&&(strpos($line, ':')!==false))
                 {
                     list($id, $title, $url) = explode(':', $line, 3);
                     $id = trim(strval($id));

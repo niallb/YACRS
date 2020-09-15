@@ -10,10 +10,11 @@ class ttcQuestion1 extends questionBase
     var $characterLimit;
     var $wordLimit;
 
-	function __construct($stem, $displayStem, $characterLimit, $wordLimit)
+	function __construct($stem, $displayTitleAsStem, $characterLimit, $wordLimit)
 	{
         $this->stem = $stem;
-        $this->displayStem = $displayStem;
+        $this->displayStem = (strlen($stem) > 0); // New version, display stem if it exists.
+        $this->displayTitle =  $displayTitleAsStem; // Prev displayStem param is now display (instance) title as stem.
         $this->characterLimit = $characterLimit;
         $this->wordLimit = $wordLimit;
     }
@@ -56,6 +57,7 @@ class ttcQuestion1 extends questionBase
         if($this->displayStem)
             $out .= "<p class='stem'>{$this->stem}</p>";
         $out .= "<div class='wide buttonlist'>";
+        $out .= "<label for='R0'>Enter text:</label>";
         $out .= "<input class='text' type='text' name='Ans' id='R0'";
         if($this->characterLimit>0)
         {
@@ -184,6 +186,24 @@ class ttcQuestion1 extends questionBase
         return "chartWrap.php?qiID={$qiID}";
     }
 
+
+    function getModifiedCopyForm()
+    {
+        $form = $this::getEditForm();
+        $form->characterLimit = $this->characterLimit;
+        $form->wordLimit = $this->wordLimit;
+        if($this->displayTitle)
+            $form->displayStem = true;
+        elseif($this->displayStem)
+            $form->stem = $this->stem;
+        return $form;
+    }
+
+    static function questionTypeName() // Used for looking up classes and help files
+    {
+        return 'textthenchoice1';
+    }
+
     static function getEditForm()
     {
     	$form = new editTTCQuestion_form();
@@ -200,32 +220,199 @@ function rcount_cmp($a, $b)
     return ($a['count'] > $b['count']) ? -1 : 1;
 }
 
-class editTTCQuestion_form extends nbform
+/*
+form editTTCQuestion_form
 {
-	var $form_magic_id = 'dfb90d549954fa2982929d9ab2f93cfe';
+    ajaxaction = "ajax/editQuestion.php";
+    hidden sessionID '0';
+    hidden id '0';
+	static qutype "textthenchoice1";
+    string[80] title "Title" {hint="The title is used to identify the question, and can optionally be displayed as the stem. The title can be edited for each question instance";}
+    boolean displayStem "Display title as stem to participants." {hint="Check this to display the title to students, the stem is not used if this is checked.";}
+    memo[70,4] stem "Stem, optional" {hint="An optional stem for the question.";}
+    integer characterLimit "Maximum response length (characters, blank or 0 for unlimited)";
+    integer wordLimit "Maximum response length (words, blank or 0 for unlimited)";
+    boolean anonymous "This is a pseudo-anonymous question where the teacher will not see who gave each response.";
+    boolean multiuse "This is a generic question to be made available for reuse in all my sessions.";
+    okcancel "Create" "Cancel";
+}
+*/
+
+if(!defined('FORM_NOTSUBMITTED'))
+{
+    define('FORM_NOTSUBMITTED',0);
+    define('FORM_SUBMITTED_VALID', 1);
+    define('FORM_SUBMITTED_INVALID', 2);
+    define('FORM_CANCELED',3);
+}
+
+define('editTTCQuestion_form_magic', md5('editTTCQuestion_form'));
+
+//
+function show_editTTCQuestion_form($sessionID, $id, $title, $displayStem, $stem, $characterLimit, $wordLimit, $anonymous, $multiuse, $validateMessages=array())
+{
+    $out = '<form id="editTTCQuestion_form" action="ajax/editQuestion.php" method="POST" class="form-horizontal" onsubmit="return false;">';
+    $out .= '<input type="hidden" name="editTTCQuestion_form_code" value="'.editTTCQuestion_form_magic.'"/>';
+
+    $out .= '<input type="hidden" name="sessionID" value="'.$sessionID.'"';
+    $out .= "/>\n";
+
+    $out .= '<input type="hidden" name="id" value="'.$id.'"';
+    $out .= "/>\n";
+
+    $out .= '<input type="hidden" name="qutype" value="textthenchoice1"';
+    $out .= "/>\n";
+
+    $out .= '<div class="form-group row">';
+    $out .= '<label class="col-sm-4 control-label" for="title">Title';
+    $out .= ' <span class="btn btn-link p-0" role="button" data-container="body" data-toggle="popover" data-placement="right" data-content="The title is used to identify the question, and can optionally be displayed as the stem. The title can be edited for each question instance"
+                     data-html="true"><span aria-hidden="true" title="Help with Title" aria-label="Help with Title" class="icon fa fa-question-circle text-info fa-fw" ></span></span>';
+    if(isset($validateMessages['title']))
+        $out .= '<br/><span style="color: Red;">'.$validateMessages['title'].'</span>';
+    $out .= '</label>';
+    $out .= '<div class="col-sm-8"><input class="form-control" type="text" name="title" id="title" value="'.$title.'" size="80"';
+    $out .= "/></div></div>\n";
+
+    $out .= '<div class="form-check row">';
+    $out .= '<div class="col-sm-8 offset-sm-4">';
+    $out .= '<input class="form-check-input" type="checkbox" name="displayStem" id="displayStem" value="1" onclick="disableInput(this.checked, \'stem\');"';
+    if($displayStem)
+        $out .= ' checked="1"';
+    $out .= '/>';
+    $out .= '<label for="displayStem">Display title as stem to participants.';
+    $out .= ' <span class="btn btn-link p-0" role="button" data-container="body" data-toggle="popover" data-placement="right" data-content="Check this to display the title to students, the stem is not used if this is checked."
+                     data-html="true"><span aria-hidden="true" title="Help with Display title as stem to participants." aria-label="Help with Display title as stem to participants." class="icon fa fa-question-circle text-info fa-fw" ></span></span>';
+    if(isset($validateMessages['displayStem']))
+        $out .= '<br/><span style="color: Red;">'.$validateMessages['displayStem'].'</span>';
+    $out .= '</label>';
+    $out .= "</div></div>\n";
+
+    $out .= '<div class="form-group row">';
+    $out .= '<label class="col-sm-4 control-label" for="stem">Stem, optional';
+    $out .= ' <span class="btn btn-link p-0" role="button" data-container="body" data-toggle="popover" data-placement="right" data-content="An optional stem for the question."
+                     data-html="true"><span aria-hidden="true" title="Help with Stem, optional" aria-label="Help with Stem, optional" class="icon fa fa-question-circle text-info fa-fw" ></span></span>';
+    if(isset($validateMessages['stem']))
+        $out .= '<br/><span style="color: Red;">'.$validateMessages['stem'].'</span>';
+    $out .= '</label>';
+    $out .= '<br/><span class="forminput"><textarea class="form-control" name="stem" id="stem" cols="70" rows="4"';
+    if($displayStem)
+        $out .= ' disabled="1"';
+    $out .= '>';
+    $out .= htmlentities($stem);
+    $out .= "</textarea></span></div>\n";
+
+    $out .= '<div class="form-group row">';
+    $out .= '<label class="col-sm-4 control-label" for="characterLimit">Maximum response length (characters, blank or 0 for unlimited)';
+    if(isset($validateMessages['characterLimit']))
+        $out .= '<br/><span style="color: Red;">'.$validateMessages['characterLimit'].'</span>';
+    $out .= '</label>';
+    $out .= '<br/><span class="forminput"><input type="text" name="characterLimit" id="characterLimit" value="'.$characterLimit.'" pattern="\d*" title="An integer value" size="8"';
+    $out .= "/></span></div>\n";
+
+    $out .= '<div class="form-group row">';
+    $out .= '<label class="col-sm-4 control-label" for="wordLimit">Maximum response length (words, blank or 0 for unlimited)';
+    if(isset($validateMessages['wordLimit']))
+        $out .= '<br/><span style="color: Red;">'.$validateMessages['wordLimit'].'</span>';
+    $out .= '</label>';
+    $out .= '<br/><span class="forminput"><input type="text" name="wordLimit" id="wordLimit" value="'.$wordLimit.'" pattern="\d*" title="An integer value" size="8"';
+    $out .= "/></span></div>\n";
+
+    $out .= '<div class="form-check row">';
+    $out .= '<div class="col-sm-8 offset-sm-4">';
+    $out .= '<input class="form-check-input" type="checkbox" name="anonymous" id="anonymous" value="1"';
+    if($anonymous)
+        $out .= ' checked="1"';
+    $out .= '/>';
+    $out .= '<label for="anonymous">This is a pseudo-anonymous question where the teacher will not see who gave each response.';
+    if(isset($validateMessages['anonymous']))
+        $out .= '<br/><span style="color: Red;">'.$validateMessages['anonymous'].'</span>';
+    $out .= '</label>';
+    $out .= "</div></div>\n";
+
+    $out .= '<div class="form-check row">';
+    $out .= '<div class="col-sm-8 offset-sm-4">';
+    $out .= '<input class="form-check-input" type="checkbox" name="multiuse" id="multiuse" value="1"';
+    if($multiuse)
+        $out .= ' checked="1"';
+    $out .= '/>';
+    $out .= '<label for="multiuse">This is a generic question to be made available for reuse in all my sessions.';
+    if(isset($validateMessages['multiuse']))
+        $out .= '<br/><span style="color: Red;">'.$validateMessages['multiuse'].'</span>';
+    $out .= '</label>';
+    $out .= "</div></div>\n";
+
+    $out .= '<div class="form-group row">';
+    $out .= '<span class="col-sm-4 control-label">&nbsp;</span>';
+    $out .= '<div class="col-sm-8">';
+   $out .= '<input class="submit btn btn-success" name="editTTCQuestion_form_submit" type="submit" value="Create" onclick=\'submitForm("editTTCQuestion_form", this);\' />';
+    $out .= '<input class="submit btn btn-secondary" name="editTTCQuestion_form_cancel" type="submit" value="Cancel" onclick=\'submitForm("editTTCQuestion_form", this);\' />';
+    $out .= "</div></div>";
+
+    $out .= '</form>';
+    return $out;
+}
+
+function editTTCQuestion_form_submitted()
+{
+    if((isset($_REQUEST['editTTCQuestion_form_code']))&&($_REQUEST['editTTCQuestion_form_code']==editTTCQuestion_form_magic))
+        return true;
+    else
+        return false;
+}
+
+function update_from_editTTCQuestion_form(&$sessionID, &$id, &$title, &$displayStem, &$stem, &$characterLimit, &$wordLimit, &$anonymous, &$multiuse)
+{
+    if((isset($_REQUEST['editTTCQuestion_form_code']))&&($_REQUEST['editTTCQuestion_form_code']==editTTCQuestion_form_magic))
+    {
+        if(isset($_REQUEST['editTTCQuestion_form_cancel']))
+            return false;
+        $sessionID = strval($_REQUEST['sessionID']);
+        $id = strval($_REQUEST['id']);
+        $title = strval($_REQUEST['title']);
+        $displayStem = (isset($_REQUEST['displayStem'])&&(intval($_REQUEST['displayStem'])>0));
+        $stem = strval($_REQUEST['stem']);
+        $characterLimit = intval($_REQUEST['characterLimit']);
+        $wordLimit = intval($_REQUEST['wordLimit']);
+        $anonymous = (isset($_REQUEST['anonymous'])&&(intval($_REQUEST['anonymous'])>0));
+        $multiuse = (isset($_REQUEST['multiuse'])&&(intval($_REQUEST['multiuse'])>0));
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//Wrapper class for editTTCQuestion_form QuickForm functions that emulates a form_lib2::nbform derived class.
+class editTTCQuestion_form
+{
 	var $sessionID; //hidden
 	var $id; //hidden
 	var $title; //string
 	var $displayStem; //boolean
+    var $stem; //memo (multiline string)
 	var $characterLimit; //integer
 	var $wordLimit; //integer
-	var $multiuse; //boolean
     var $anonymous; //boolean
+	var $multiuse; //boolean
 	var $validateMessages;
 
 	function __construct($readform=true)
 	{
-		parent::__construct();
 		$this->validateMessages = array();
-        $this->loadHelpText(dirname(__DIR__).'/help/editTTCQuestion.txt');
-		if($readform)
+		if(editTTCQuestion_form_submitted())
 		{
 			$this->readAndValidate();
 		}
         else
         {
-           $this->displayStem = true;
+   			$this->formStatus = FORM_NOTSUBMITTED;
         }
+        }
+
+    function getStatus()
+    {
+        return $this->formStatus;
 	}
 
 	function setData($data)
@@ -234,75 +421,83 @@ class editTTCQuestion_form extends nbform
 		$this->id = $data->id;
 		$this->title = $data->title;
 		$this->displayStem = $data->displayStem;
+        $this->stem = $data->stem;
 		$this->characterLimit = $data->characterLimit;
 		$this->wordLimit = $data->wordLimit;
+        $this->anonymous = $data->anonymous;
 		$this->multiuse = $data->multiuse;
-		$this->anonymous = $data->anonymous;
 	}
 
 	function getData(&$data)
 	{
 		$data->sessionID = $this->sessionID;
 		$data->id = $this->id;
+        $data->qutype = "textthenchoice1";
 		$data->title = $this->title;
 		$data->displayStem = $this->displayStem;
+        $data->stem = $this->stem;
 		$data->characterLimit = $this->characterLimit;
 		$data->wordLimit = $this->wordLimit;
+        $data->anonymous = $this->anonymous;
 		$data->multiuse = $this->multiuse;
-		$data->anonymous = $this->anonymous;
 		return $data;
 	}
 
-	function readAndValidate()
+	private function readAndValidate()
 	{
-		$isCanceled=false;
-		if((isset($_REQUEST['editTTCQuestion_form_code']))&&($_REQUEST['editTTCQuestion_form_code'] == $this->form_magic_id))
+		if(update_from_editTTCQuestion_form($this->sessionID, $this->id, $this->title, $this->displayStem, $this->stem, $this->characterLimit, $this->wordLimit, $this->anonymous, $this->multiuse))
 		{
-			$this->sessionID = $_REQUEST['sessionID'];
-			$this->id = $_REQUEST['id'];
-			$this->title = stripslashes($_REQUEST['title']);
-			$this->displayStem = (isset($_REQUEST['displayStem'])&&($_REQUEST['displayStem']==1)) ? true : false;
-			$this->characterLimit = intval($_REQUEST['characterLimit']);
-			$this->wordLimit = intval($_REQUEST['wordLimit']);
-			$this->multiuse = (isset($_REQUEST['multiuse'])&&($_REQUEST['multiuse']==1)) ? true : false;
-			$this->anonymous = (isset($_REQUEST['anonymous'])&&($_REQUEST['anonymous']==1)) ? true : false;
-			if('Cancel' == $_REQUEST['submit'])
-				$isCanceled = true;
 			$isValid = $this->validate();
-			if($isCanceled)
-				$this->formStatus = FORM_CANCELED;
-			elseif($isValid)
+			if($isValid)
 				$this->formStatus = FORM_SUBMITTED_VALID;
 			else
 				$this->formStatus = FORM_SUBMITTED_INVALID;
 		}
 		else
-			$this->formStatus = FORM_NOTSUBMITTED;
+        {
+				$this->formStatus = FORM_CANCELED;
+        }
 	}
 
-	function validate()
+	private function validate()
 	{
 		$this->validateMessages = array();
-		// Put custom code to validate $this->sessionID here (to stop hackers using this as a way in.)
-		// Put custom code to validate $this->id here (to stop hackers using this as a way in.)
-		if(strlen($this->title)>80)
-		{
-		    $this->title = substr($this->title,0,80);
-		    $this->validateMessages['title'] = "This field was too long and has been truncated.";
-		}
-		// Put custom code to validate $this->title here. Error message in $this->validateMessages['title']
-		// Put custom code to validate $this->displayStem here. Put error message in $this->validateMessages['displayStem']
-		if(!is_numeric(trim($_REQUEST['characterLimit'])))
-		{
-			$validateMsg['$this->characterLimit'] = "You must give an numeric value here.";
-			$ok = false;
-		}
-		if(!is_numeric(trim($_REQUEST['wordLimit'])))
-		{
-			$validateMsg['$this->wordLimit'] = "You must give an numeric value here.";
-			$ok = false;
-		}
-		// Put custom code to validate $this->multiuse here. Put error message in $this->validateMessages['multiuse']
+//USERCODE-SECTION-editTTCQuestion_form-sessionID-validation
+// Put code here.
+//ENDUSERCODE-SECTION-editTTCQuestion_form-sessionID-validation
+
+//USERCODE-SECTION-editTTCQuestion_form-id-validation
+// Put code here.
+//ENDUSERCODE-SECTION-editTTCQuestion_form-id-validation
+
+//USERCODE-SECTION-editTTCQuestion_form-title-validation
+// Put code here.
+//ENDUSERCODE-SECTION-editTTCQuestion_form-title-validation
+
+//USERCODE-SECTION-editTTCQuestion_form-displayStem-validation
+// Put code here.
+//ENDUSERCODE-SECTION-editTTCQuestion_form-displayStem-validation
+
+//USERCODE-SECTION-editTTCQuestion_form-stem-validation
+// Put code here.
+//ENDUSERCODE-SECTION-editTTCQuestion_form-stem-validation
+
+//USERCODE-SECTION-editTTCQuestion_form-characterLimit-validation
+// Put code here.
+//ENDUSERCODE-SECTION-editTTCQuestion_form-characterLimit-validation
+
+//USERCODE-SECTION-editTTCQuestion_form-wordLimit-validation
+// Put code here.
+//ENDUSERCODE-SECTION-editTTCQuestion_form-wordLimit-validation
+
+//USERCODE-SECTION-editTTCQuestion_form-anonymous-validation
+// Put code here.
+//ENDUSERCODE-SECTION-editTTCQuestion_form-anonymous-validation
+
+//USERCODE-SECTION-editTTCQuestion_form-multiuse-validation
+// Put code here.
+//ENDUSERCODE-SECTION-editTTCQuestion_form-multiuse-validation
+
 		if(sizeof($this->validateMessages)==0)
 			return true;
 		else
@@ -311,25 +506,15 @@ class editTTCQuestion_form extends nbform
 
 	function getHtml()
 	{
-		$out = '';
-		$out .= $this->formStart();
-		$out .= $this->hiddenInput('editTTCQuestion_form_code', $this->form_magic_id);
-		$out .= $this->hiddenInput('sessionID', $this->sessionID);
-		$out .= $this->hiddenInput('id', $this->id);
-		$out .= $this->textInput('Title/Stem', 'title', $this->title, $this->validateMessages, 80);
-		$out .= $this->checkboxInput('Display stem to participants.', 'displayStem', $this->displayStem, $this->validateMessages);
-		$out .= $this->textInput('Maximum response length (characters, blank or 0 for unlimited)', 'characterLimit', $this->characterLimit, $this->validateMessages, 8);
-		$out .= $this->textInput('Maximum response length (words, blank or 0 for unlimited)', 'wordLimit', $this->wordLimit, $this->validateMessages, 8);
-		$out .= $this->checkboxInput('This is a generic question to be made available in all my sessions.', 'multiuse', $this->multiuse, $this->validateMessages);
-		$out .= $this->checkboxInput('This is a pseudo-anonymous question where the teacher will not see who gave each response.', 'anonymous', $this->anonymous, $this->validateMessages);
-		$out .= $this->submitInput('submit', 'Create', 'Cancel');
-		$out .= $this->formEnd(false);
+        $out = show_editTTCQuestion_form($this->sessionID, $this->id, $this->title, $this->displayStem, $this->stem, $this->characterLimit, $this->wordLimit, $this->anonymous, $this->multiuse, $this->validateMessages);
 		return $out;
 	}
 
     function getNewQuestion()
     {
-        return new ttcQuestion1($this->title, $this->displayStem, $this->characterLimit, $this->wordLimit);
+        if($this->displayStem) // displayStem really means display (instance) title as stem now
+            $this->stem = '';
+        return new  ttcQuestion1($this->stem, $this->displayStem, $this->characterLimit, $this->wordLimit);
     }
 }
 

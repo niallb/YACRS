@@ -41,8 +41,8 @@ form editSession
     }
     }
     okcancel "Create" "Cancel";
-    }
- */
+}
+*/
 
 if(!defined('FORM_NOTSUBMITTED'))
 {
@@ -72,7 +72,7 @@ function show_editSession($sessionID, $title, $courseIdentifier, $allowGuests, $
         $out .= '<br/><span style="color: Red;">'.$validateMessages['title'].'</span>';
     $out .= '</label>';
     
-    $out .= '<div class="col-sm-8"><input class="form-control" type="text" name="title" value="'.$title.'" size="80"';
+    $out .= '<div class="col-sm-8"><input class="form-control" type="text" name="title" id="title" value="'.$title.'" size="80"';
     $out .= "/></div></div>\n";
 
     $out .= '<div class="form-group row">';
@@ -82,12 +82,12 @@ function show_editSession($sessionID, $title, $courseIdentifier, $allowGuests, $
     if(isset($validateMessages['courseIdentifier']))
         $out .= '<br/><span style="color: Red;">'.$validateMessages['courseIdentifier'].'</span>';
     $out .= '</label>';
-    $out .= '<div class="col-sm-8"><input class="form-control" type="text" name="courseIdentifier" value="'.$courseIdentifier.'" size="20"';
+    $out .= '<div class="col-sm-8"><input class="form-control" type="text" name="courseIdentifier" id="courseIdentifier" value="'.$courseIdentifier.'" size="20"';
     $out .= "/></div></div>\n";
 
     $out .= '<div class="form-check row">';
     $out .= '<div class="col-sm-8 offset-sm-4">';
-    $out .= '<input class="form-check-input" type="checkbox" name="allowGuests" value="1"';
+    $out .= '<input class="form-check-input" type="checkbox" name="allowGuests" id="allowGuests" value="1"';
     if($allowGuests)
         $out .= ' checked="1"';
     $out .= '/>';
@@ -101,7 +101,7 @@ function show_editSession($sessionID, $title, $courseIdentifier, $allowGuests, $
 
     $out .= '<div class="form-check row">';
     $out .= '<div class="col-sm-8 offset-sm-4">';
-    $out .= '<input class="form-check-input" type="checkbox" name="visible" value="1"';
+    $out .= '<input class="form-check-input" type="checkbox" name="visible" id="visible" value="1"';
     if($visible)
         $out .= ' checked="1"';
     $out .= '/>';
@@ -126,7 +126,7 @@ function show_editSession($sessionID, $title, $courseIdentifier, $allowGuests, $
         $out .= '<br/><span style="color: Red;">'.$validateMessages['questionMode'].'</span>';
     $out .= '</label>';
     $questionMode_options = array(0=>"Teacher led (one question at a time)", 1=>"Student paced");
-    $out .= '<br/><span class="forminput"><select name="questionMode">';
+    $out .= '<br/><span class="forminput"><select name="questionMode" id="questionMode">';
     foreach($questionMode_options as $key => $val)
     {
         $out .= "<option";
@@ -141,12 +141,12 @@ function show_editSession($sessionID, $title, $courseIdentifier, $allowGuests, $
     if(isset($validateMessages['defaultQuActiveSecs']))
         $out .= '<br/><span style="color: Red;">'.$validateMessages['defaultQuActiveSecs'].'</span>';
     $out .= '</label>';
-    $out .= '<br/><span class="forminput"><input type="text" name="defaultQuActiveSecs" value="'.$defaultQuActiveSecs.'" size="8"';
+    $out .= '<br/><span class="forminput"><input type="text" name="defaultQuActiveSecs" id="defaultQuActiveSecs" value="'.$defaultQuActiveSecs.'" size="8"';
     $out .= "/></span></div>\n";
 
     $out .= '<div class="form-check row">';
     $out .= '<div class="col-sm-8 offset-sm-4">';
-    $out .= '<input class="form-check-input" type="checkbox" name="allowQuReview" value="1"';
+    $out .= '<input class="form-check-input" type="checkbox" name="allowQuReview" id="allowQuReview" value="1"';
     if($allowQuReview)
         $out .= ' checked="1"';
     $out .= '/>';
@@ -158,7 +158,7 @@ function show_editSession($sessionID, $title, $courseIdentifier, $allowGuests, $
 
     $out .= '<div class="form-check row">';
     $out .= '<div class="col-sm-8 offset-sm-4">';
-    $out .= '<input class="form-check-input" type="checkbox" name="allowFullReview" value="1"';
+    $out .= '<input class="form-check-input" type="checkbox" name="allowFullReview" id="allowFullReview" value="1"';
     if($allowFullReview)
         $out .= ' checked="1"';
     $out .= '/>';
@@ -197,7 +197,7 @@ function show_editSession($sessionID, $title, $courseIdentifier, $allowGuests, $
     if(isset($validateMessages['customScoring']))
         $out .= '<br/><span style="color: Red;">'.$validateMessages['customScoring'].'</span>';
     $out .= '</label>';
-    $out .= '<br/><span class="forminput"><select name="customScoring"'.$disabled.'>';
+    $out .= '<br/><span class="forminput"><select name="customScoring" id="customScoring"'.$disabled.'>';
     foreach($customScoring_options as $key => $val)
     {
         $out .= "<option";
@@ -219,7 +219,7 @@ function show_editSession($sessionID, $title, $courseIdentifier, $allowGuests, $
     
     //# modified to limit options
     $ublogRoom_options = array(0=>"None", 1=>"Full class");
-    $out .= '<br/><span class="forminput"><select name="ublogRoom">';
+    $out .= '<br/><span class="forminput"><select name="ublogRoom" id="ublogRoom">';
     foreach($ublogRoom_options as $key => $val)
     {
         $out .= "<option";
@@ -235,12 +235,12 @@ function show_editSession($sessionID, $title, $courseIdentifier, $allowGuests, $
     if(isset($validateMessages['maxMessagelength']))
         $out .= '<br/><span style="color: Red;">'.$validateMessages['maxMessagelength'].'</span>';
     $out .= '</label>';
-    $out .= '<br/><span class="forminput"><input type="text" name="maxMessagelength" value="'.$maxMessagelength.'" size="8" disabled="disabled"';
+    $out .= '<br/><span class="forminput"><input type="text" name="maxMessagelength" id="maxMessagelength" value="'.$maxMessagelength.'" size="8" disabled="disabled"';
     $out .= "/></span></div>\n";
 
     $out .= '<div class="form-check row">';
     $out .= '<div class="col-sm-8 offset-sm-4">';
-    $out .= '<input class="form-check-input" type="checkbox" name="allowTeacherQu" value="1"  disabled="disabled"';
+    $out .= '<input class="form-check-input" type="checkbox" name="allowTeacherQu" id="allowTeacherQu" value="1"  disabled="disabled"';
     if($allowTeacherQu)
         $out .= ' checked="1"';
     $out .= '/>';
@@ -259,7 +259,7 @@ function show_editSession($sessionID, $title, $courseIdentifier, $allowGuests, $
     if(isset($validateMessages['teachers']))
         $out .= '<br/><span style="color: Red;">'.$validateMessages['teachers'].'</span>';
     $out .= '</label>';
-    $out .= '<div class="col-sm-8"><input class="form-control" type="text" name="teachers" value="'.$teachers.'" size="80"';
+    $out .= '<div class="col-sm-8"><input class="form-control" type="text" name="teachers" id="teachers" value="'.$teachers.'" size="80"';
     $out .= "/></div></div>\n";
 
     $out .= "</fieldset>";
@@ -268,7 +268,7 @@ function show_editSession($sessionID, $title, $courseIdentifier, $allowGuests, $
     $out .= "</fieldset>";
 
     $out .= '<div class="form-group row">';
-    $out .= '<label class="col-sm-4 control-label" for="text2">&nbsp;</label>';
+    $out .= '<span class="col-sm-4 control-label">&nbsp;</span>';
     $out .= '<div class="col-sm-8">';
     $out .= '<input class="submit" name="editSession_submit" type="submit" value="Create" />';
     $out .= '<input class="submit" name="editSession_cancel" type="submit" value="Cancel" />';
@@ -474,24 +474,24 @@ class editSession
 $exampleform = new editSession();
 switch($exampleform->getStatus())
 {
-case FORM_NOTSUBMITTED:
-//$exampleform->setData($existingdata);
-$output = $exampleform->getHtml();
-break;
-case FORM_SUBMITTED_INVALID:
-$output = $exampleform->getHtml();
-break;
-case FORM_SUBMITTED_VALID:
-$data = new stdClass();
-$exampleform->getData($data);
-// Do stuff with $data
-// A redirect is likely here, e.g. header('Location:document.php?id='.$data->id);
-break;
-case FORM_CANCELED:
-header('Location:index.php');
-break;
+    case FORM_NOTSUBMITTED:
+        //$exampleform->setData($existingdata);
+        $output = $exampleform->getHtml();
+        break;
+    case FORM_SUBMITTED_INVALID:
+        $output = $exampleform->getHtml();
+        break;
+    case FORM_SUBMITTED_VALID:
+        $data = new stdClass();
+        $exampleform->getData($data);
+        // Do stuff with $data
+        // A redirect is likely here, e.g. header('Location:document.php?id='.$data->id);
+        break;
+    case FORM_CANCELED:
+        header('Location:index.php');
+        break;
 }
- */
+*/
 
 //USERCODE-SECTION-extra-functions
 // Put code here.

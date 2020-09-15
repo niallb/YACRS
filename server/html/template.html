@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang ="en">
 	<head>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,13 +10,14 @@
 		<link rel="stylesheet" type="text/css" media="Screen" href="html/font-awesome.css" />
 		<link rel="stylesheet" type="text/css" media="Screen" href="html/yacrs-base.css" />
         <script src="html/polyfill.js"></script> <!--Needed for IE-->
-        <script src="html/bootstrap-native-v4.min.js"></script>
+        <script src="html/bootstrap-native.min.js"></script>
         <!--Uncomment the following to get the University of Glasgow theme.-->
 		<link rel="stylesheet" type="text/css" media="Screen" href="html/yacrs-theme.css" />
         <%scripts%>
         <%autoscript%>
     </head>
-	<body>
+<body>
+    <header>
 				<div id="pageHeader">
 			<div class="container">
 				<div class="row">
@@ -32,24 +33,30 @@
 				
 					</div>
 				</div>
+    </header>
 				<div id="main">
 			<div class="container">
 					<%section name="breadcrumb" div_id="breadcrumb"%>
 					<%section name="sideLinks" div_id="links"%>
+            <main>
                     <div id="content">
 						<%section name="headings"%>
 	          			<%section name="loginBox" div_id="loginBox"%>
 	                    <%section name="coursesBlock" div_id="coursesBlock"%>
 	                    <%section name="sideInfo" div_id="linksArea"%>
 			  			<%section name="mainBody"%>
-	            </div
                     </div>
+            </main>
 				</div>
+    </div>
+    <footer>
  <div class="footer" id="pageFooter">
 			<div class="container">
 			</div>
 		</div>
 		<div class="container">
   <%section name="afterContent"%>
-	</body>
+            </div>
+    </footer>
+</body>
 </html>

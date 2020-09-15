@@ -18,6 +18,23 @@
                 document.getElementById(name).innerHTML = response[name];
         }
     }
+    var popoverTargets = document.querySelectorAll('[data-content]'); // also a certain class would go fine
+
+    // initialize Popover for each element
+    Array.from(popoverTargets).map(function (popTarget)
+    {
+        return new BSN.Popover(popTarget, {
+            placement: 'top', //string
+            animation: 'slideNfade', // CSS class
+            delay: 100, // integer
+            dismissible: true
+        });
+    });
+}
+
+function disableInput(disable, id)
+{
+    document.getElementById(id).disabled = disable;
 }
 
 function ajaxLinkClick(url)
@@ -99,7 +116,7 @@ function ajaxAction(url, senddata)
     }
 }
 
-// This is used by NBWebsites Form wizard generated ajax forms, which include the URL in the form.
+// This is used by NBWebsites.com FormWizard3 generated ajax forms, which include the URL in the form.
 function submitForm(formid, button)
 {
     document.body.style.cursor = 'wait';
@@ -134,5 +151,6 @@ function submitForm(formid, button)
     if (button != undefined)
         data.append(button.name, button.value);
     xmlHttp.send(data);
+    return false;
 }
 

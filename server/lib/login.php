@@ -16,7 +16,37 @@ function checkLoggedInUser($allowLogin = true, &$error = false)
         if((isset($CFG['adminname']))&&($CFG['adminname']==$_REQUEST['uname'])&&(isset($CFG['adminpwd']))&&($CFG['adminpwd']!=''))
             $uinfo = checkSuperLogin($_REQUEST['uname'], $_REQUEST['pwd']);
         else
-            $uinfo = checkLogin($_REQUEST['uname'], $_REQUEST['pwd']);
+            $uinfo = @checkLogin($_REQUEST['uname'], $_REQUEST['pwd']);
+
+        //This allows YACRS to be used with a simple CSV file of users, typically for development test users
+        // but it could also be used for setups with no suitable LDAP, LTI or OpenID Connect autentication availible.
+        // The format of the user file is a CSV with username,firstname,lastname,email,password
+        // Usernames starting with 'te' are teachers.
+        // If not required this can be commented out.
+        if(($uinfo==false)&&(file_exists('../localusers.csv')))
+        {
+            $csv = array_map('str_getcsv', file('../localusers.csv'));
+            array_walk($csv, function(&$a) use ($csv) {
+                $a = array_combine($csv[0], $a);
+            });
+            array_shift($csv); # remove column header
+            $users = array();
+            foreach($csv as $idx=>$userinfo)
+                $users[$userinfo['username']] = $idx;
+            if((isset($users[$_REQUEST['uname']]))&&($csv[$users[$_REQUEST['uname']]]['password']==$_REQUEST['pwd']))
+            {
+                $u = $csv[$users[$_REQUEST['uname']]];
+                $uinfo = array();
+                $uinfo['uname'] = $u['username'];
+                $uinfo['gn'] = $u['firstname'];
+                $uinfo['sn'] = $u['lastname'];
+                $uinfo['email'] = $u['email'];
+                $uinfo['isAdmin'] = false;
+                $uinfo['sessionCreator'] = substr($u['username'],0,2)=='te';
+            }
+        }
+        //# End of local/test user support
+
         if($uinfo)
         {
            //# Should also check by e-mail
@@ -139,14 +169,14 @@ function loginBox($uinfo, $error = '')
         $out .= '<label class="col-sm-4 control-label" for="uname">Username';
         $out .= ' <span style="color: Red;" class="fa fa-asterisk" aria-label="Required" aria-hidden="true"></span>';
         $out .= '</label>';
-        $out .= '<div class="col-sm-8"><input class="form-control" type="text" name="uname" size="20"';
+        $out .= '<div class="col-sm-8"><input class="form-control" type="text" id="uname" name="uname" size="20"';
         $out .= "/></div></div>\n";
 
         $out .= '<div class="form-group row">';
         $out .= '<label class="col-sm-4 control-label" for="pwd">Password';
         $out .= ' <span style="color: Red;" class="fa fa-asterisk" aria-label="Required" aria-hidden="true"></span>';
         $out .= '</label>';
-        $out .= '<div class="col-sm-8"><input class="form-control" type="password" name="pwd" size="20"';
+        $out .= '<div class="col-sm-8"><input class="form-control" type="password" id="pwd" name="pwd" size="20"';
         $out .= "/></div></div>\n";
         
         foreach($_REQUEST as $k=>$v)
@@ -156,12 +186,12 @@ function loginBox($uinfo, $error = '')
         }
         
         $out .= '<div class="form-group row">';
-        $out .= '<label class="col-sm-4 control-label" for="text2">&nbsp;</label>';
+        $out .= '<span class="col-sm-4">&nbsp;</span>';
         $out .= '<div class="col-sm-4">';
 
 		$out .= "<input type='submit' name='submit' value='Log in' class='btn btn-block btn-success'/></div></div>";
         $out .= '<div class="form-group row">';
-        $out .= '<label class="col-sm-4 control-label" for="text2">&nbsp;</label>';
+        $out .= '<span class="col-sm-4">&nbsp;</span>';
         $out .= "<div class='col-sm-4'><a href='join.php' class='btn btn btn-block btn-primary'>Anonymous Guest Access</a></div></div>";
 	    $out .= "</form>";
     }

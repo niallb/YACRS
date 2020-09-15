@@ -353,7 +353,7 @@ class addQuestion_form extends nbform
 		$out .= $this->formStart();
 		$out .= $this->hiddenInput('addQuestion_form_code', $this->form_magic_id);
 		$out .= $this->hiddenInput('sessionID', $this->sessionID);
-		$options = array(0 => "Define new question");
+		$options = array(0 => "Define a new or modified question");
         $options += $this->extraQuOpts;
 		$out .= $this->selectListInput('Add a question', 'qu', $options, $this->qu, false, $this->validateMessages);
 		$out .= $this->submitInput('submit', "Add");
@@ -375,6 +375,96 @@ class addQuestion_form extends nbform
 
 }
 
+//New Select question type form generated with FormWizard3 and quickFormPlus 1.1 template,
+//OOP wrapper has been missed out as overkill for this form.
+
+/*
+form selectQuestionType_form
+{
+ajaxaction = "ajax/editQuestion.php";
+hidden sessionID '';
+select qu "Select Question type" {options=qutypes;
+hint="Select either a basic question type to create, or an existing question to modify.";
+}
+
+okcancel "Select & Edit" "Cancel";
+}
+ */
+
+if(!defined('FORM_NOTSUBMITTED'))
+{
+    define('FORM_NOTSUBMITTED',0);
+    define('FORM_SUBMITTED_VALID', 1);
+    define('FORM_SUBMITTED_INVALID', 2);
+    define('FORM_CANCELED',3);
+}
+
+define('selectQuestionType_form_magic', md5('selectQuestionType_form'));
+
+// $qutypes
+function show_selectQuestionType_form($sessionID, $qu, $qutypes, $validateMessages=array())
+{
+    $out = '<form id="selectQuestionType_form" action="ajax/editQuestion.php" method="POST" class="form-horizontal" onsubmit="return false;">';
+    $out .= '<input type="hidden" name="selectQuestionType_form_code" value="'.selectQuestionType_form_magic.'"/>';
+
+    $out .= '<input type="hidden" name="sessionID" value="'.$sessionID.'"';
+    $out .= "/>\n";
+
+    $out .= '<div class="form-group row">';
+    $out .= '<label class="col-sm-4 control-label" for="qu">Select Question type';
+    $out .= ' <span class="btn btn-link p-0" role="button" data-container="body" data-toggle="popover" data-placement="right" data-content="Select either a basic question type to create, or an existing question to modify."
+                     data-html="true"><span aria-hidden="true" title="Help with Select Question type" aria-label="Help with Select Question type" class="icon fa fa-question-circle text-info fa-fw" ></span></span>';
+    if(isset($validateMessages['qu']))
+        $out .= '<br/><span style="color: Red;">'.$validateMessages['qu'].'</span>';
+    $out .= '</label>';
+    $qu_options = $qutypes;
+    $out .= '<br/><span class="forminput"><select  class="form-control" name="qu" id="qu">';
+    foreach($qu_options as $key => $val)
+    {
+        $out .= "<option";
+        if(trim($key)==trim($qu))
+            $out .= ' selected="1"';
+        $out .= " value='$key'>{$val}</option>\n";
+    }
+    $out .= "</select></span></div>\n";
+
+    $out .= '<div class="form-group row">';
+    $out .= '<span class="col-sm-4 control-label">&nbsp;</span>';
+    $out .= '<div class="col-sm-8">';
+    $out .= '<input class="submit btn btn-success" name="selectQuestionType_form_submit" type="submit" value="Select & Edit" onclick=\'submitForm("selectQuestionType_form", this);\' />';
+    $out .= '<input class="submit btn btn-secondary" name="selectQuestionType_form_cancel" type="submit" value="Cancel" onclick=\'submitForm("selectQuestionType_form", this);\' />';
+    $out .= "</div></div>";
+
+    $out .= '</form>';
+    return $out;
+}
+
+function selectQuestionType_form_submitted()
+{
+    if((isset($_REQUEST['selectQuestionType_form_code']))&&($_REQUEST['selectQuestionType_form_code']==selectQuestionType_form_magic))
+        return true;
+    else
+        return false;
+}
+
+function update_from_selectQuestionType_form(&$sessionID, &$qu)
+{
+    if((isset($_REQUEST['selectQuestionType_form_code']))&&($_REQUEST['selectQuestionType_form_code']==selectQuestionType_form_magic))
+    {
+        if(isset($_REQUEST['selectQuestionType_form_cancel']))
+            return false;
+        $sessionID = strval($_REQUEST['sessionID']);
+        $qu = strval($_REQUEST['qu']);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+/* Old FormWizard2 version
 class selectQuestionType_form extends nbform
 {
 	var $form_magic_id = '8acab4c527c7ff2adb0898459f63c1bd';
@@ -470,7 +560,7 @@ class selectQuestionType_form extends nbform
 	}
 
 }
-
+//*/
 
 function sessionCodeinput($target='vote.php', $sessionID=false)
 {

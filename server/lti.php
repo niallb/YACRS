@@ -23,9 +23,8 @@ if($consumer != false)
          if(is_array($user))
              $user = $user[0];
     }
-    if((strpos($userinfo->params['roles'], 'Instructor')!==false)||(strpos($userinfo->params['roles'], 'Administrator')!==false))
-        $sessionMemberUserID = md5($userinfo->params['resource_link_id'].$userinfo->params['oauth_consumer_key']);  // All LTI teachers are the same, and are a special user who owns the session but has no other existance
-    elseif($user == false)
+
+    if($user == false)
         $sessionMemberUserID = $userinfo->params['user_id'];
     else
         $sessionMemberUserID = $user->username;
@@ -59,6 +58,17 @@ if($consumer != false)
     {
         if((strpos($userinfo->params['roles'], 'Instructor')!==false)||(strpos($userinfo->params['roles'], 'Administrator')!==false))
         {
+            // Make sure this user is in the instructors list for this session
+            $thisSession = session::retrieve_session($session_id);
+            if($thisSession->ownerID != $sessionMemberUserID)
+            {
+                $sessionTeacherIDs = $thisSession->getExtraTeacherIDs();
+                if(!in_array($sessionMemberUserID, $sessionTeacherIDs))
+                {
+                    $sessionTeacherIDs[] = $sessionMemberUserID;
+                    $thisSession->updateExtraTeachers($sessionTeacherIDs);
+                }
+            }
             header("Location: runsession.php?sessionID={$session_id}\n");
         }
         else

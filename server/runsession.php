@@ -29,7 +29,8 @@ if(!checkPermission($uinfo, $thisSession))
 }
 else
 {
-    session_start();
+    session_start(array('name'=>'YACRSSESSION'));
+    $_SESSION['sessionID'] = $thisSession->id;
     CheckDaySelect();
 	//$template->pageData['mainBody'] = '<pre>'.print_r($uinfo,1).'</pre>';
     if(isset($_REQUEST['activate']))
@@ -63,6 +64,8 @@ else
 
     $reuseQus = question::getUserReuseList($uinfo['uname']);
     $reuseQus += question::getSessionReuseList($thisSession->id);
+    foreach($reuseQus as $id=>&$title)
+        $title = "Reuse ".$title;
     $reuseQus += question::getSystemReuseList($thisSession->id);
 
     $aqform = new addQuestion_form($thisSession->id, $reuseQus);
@@ -254,6 +257,8 @@ function updateRespCountsAndEndtime($quids, $exclude=array())
         $exclude = array();
     if(!is_array($exclude))         // if there's just one it's not an array
         $exclude = array($exclude);
+    if(is_array($quids))
+    {
     foreach($quids as $quid)
     {
     	if(!in_array($quid, $exclude))
@@ -264,6 +269,7 @@ function updateRespCountsAndEndtime($quids, $exclude=array())
 	        $cqi->responseCount = $count;
 	        $cqi->update();
         }
+    }
     }
 }
 

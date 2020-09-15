@@ -14,10 +14,11 @@ class confidenceQuestion extends questionBase
 
     var $responseValue;
 
-	function __construct($stem, $displayStem, $options)
+	function __construct($stem, $displayTitleAsStem, $options)
 	{
         $this->stem = $stem;
-        $this->displayStem = $displayStem;
+        $this->displayStem = (strlen($stem) > 0); // New version, display stem if it exists.
+        $this->displayTitle =  $displayTitleAsStem; // Prev displayStem param is now display (instance) title as stem.
         $optCount = 0;
         $cCount = 0;
         $tmpOpts = explode("\n",$options);
@@ -514,6 +515,45 @@ class confidenceQuestion extends questionBase
         return "chartWrap.php?qiID={$qiID}";
     }
 
+    function getModifiedCopyForm()
+    {
+        $form = $this::getEditForm();
+        $def = '';
+        if(is_array($this->correct))
+        {
+            for($n = 0; $n < sizeof($this->options); $n++)
+            {
+                if($this->correct[$n])
+                    $def .= "* {$this->options[$n]}\r\n";
+                else
+                    $def .= "* {$this->options[$n]}\r\n";
+            }
+        }
+        else
+        {
+            $prefix = ($this->quType == 'MRQ') ? '* ' : '';
+            foreach($this->options as $o)
+                $def .= "{$prefix}{$o}\r\n";
+        }
+        if(is_array($this->categories))
+        {
+            $def .= "\r\n";
+            foreach($this->categories as $cat)
+                $def .= "$cat\r\n";
+        }
+        $form->definition = $def;
+        if($this->displayTitle)
+            $form->displayStem = true;
+        elseif($this->displayStem)
+            $form->stem = $this->stem;
+        return $form;
+    }
+
+    static function questionTypeName() // Used for looking up classes and help files
+    {
+        return 'confidencequestion';
+    }
+
     static function getEditForm()
     {
     	$form = new editConfidenceQuestion_form();
@@ -521,36 +561,192 @@ class confidenceQuestion extends questionBase
     }
 }
 
-class editConfidenceQuestion_form extends nbform
+/*
+form editConfidenceQuestion_form
 {
-	var $form_magic_id = '56090c1dea408bff57a005fe239b550c';
+    ajaxaction = "ajax/editQuestion.php";
+    hidden sessionID '0';
+    hidden id '0';
+	static qutype "confidencequestion";
+    string[80] title "Title" {hint="The title is used to identify the question, and can optionally be displayed as the stem. The title can be edited for each question instance";}
+    boolean displayStem "Display title as stem to participants." {hint="Check this to display the title to students.";}
+    memo[70,4] stem "Stem, optional" {hint="The question stem should go here if the options are specific to this question.";}
+    memo[70,6] definition "Options:" {hint="See instructions below";}
+    boolean anonymous "This is a pseudo-anonymous question where the teacher will not see who gave each response.";
+    boolean multiuse "This is a generic question to be made available for reuse in all my sessions.";
+    okcancel "Create" "Cancel";
+}
+*/
+
+if(!defined('FORM_NOTSUBMITTED'))
+{
+    define('FORM_NOTSUBMITTED',0);
+    define('FORM_SUBMITTED_VALID', 1);
+    define('FORM_SUBMITTED_INVALID', 2);
+    define('FORM_CANCELED',3);
+}
+
+define('editConfidenceQuestion_form_magic', md5('editConfidenceQuestion_form'));
+
+//
+function show_editConfidenceQuestion_form($sessionID, $id, $title, $displayStem, $stem, $definition, $anonymous, $multiuse, $validateMessages=array())
+{
+    $out = '<form id="editConfidenceQuestion_form" action="ajax/editQuestion.php" method="POST" class="form-horizontal" onsubmit="return false;">';
+    $out .= '<input type="hidden" name="editConfidenceQuestion_form_code" value="'.editConfidenceQuestion_form_magic.'"/>';
+
+    $out .= '<input type="hidden" name="sessionID" value="'.$sessionID.'"';
+    $out .= "/>\n";
+
+    $out .= '<input type="hidden" name="id" value="'.$id.'"';
+    $out .= "/>\n";
+
+    $out .= '<input type="hidden" name="qutype" value="confidencequestion"';
+    $out .= "/>\n";
+
+    $out .= '<div class="form-group row">';
+    $out .= '<label class="col-sm-4 control-label" for="title">Title';
+    $out .= ' <span class="btn btn-link p-0" role="button" data-container="body" data-toggle="popover" data-placement="right" data-content="The title is used to identify the question, and can optionally be displayed as the stem. The title can be edited for each question instance"
+                     data-html="true"><span aria-hidden="true" title="Help with Title" aria-label="Help with Title" class="icon fa fa-question-circle text-info fa-fw" ></span></span>';
+    if(isset($validateMessages['title']))
+        $out .= '<br/><span style="color: Red;">'.$validateMessages['title'].'</span>';
+    $out .= '</label>';
+    $out .= '<div class="col-sm-8"><input class="form-control" type="text" name="title" id="title" value="'.$title.'" size="80"';
+    $out .= "/></div></div>\n";
+
+    $out .= '<div class="form-check row">';
+    $out .= '<div class="col-sm-8 offset-sm-4">';
+    $out .= '<input class="form-check-input" type="checkbox" name="displayStem" id="displayStem" value="1" onclick="disableInput(this.checked, \'stem\');"';
+    if($displayStem)
+        $out .= ' checked="1"';
+    $out .= '/>';
+    $out .= '<label for="displayStem">Display title as stem to participants.';
+    $out .= ' <span class="btn btn-link p-0" role="button" data-container="body" data-toggle="popover" data-placement="right" data-content="Check this to display the title to students."
+                     data-html="true"><span aria-hidden="true" title="Help with Display title as stem to participants." aria-label="Help with Display title as stem to participants." class="icon fa fa-question-circle text-info fa-fw" ></span></span>';
+    if(isset($validateMessages['displayStem']))
+        $out .= '<br/><span style="color: Red;">'.$validateMessages['displayStem'].'</span>';
+    $out .= '</label>';
+    $out .= "</div></div>\n";
+
+    $out .= '<div class="form-group row">';
+    $out .= '<label class="col-sm-4 control-label" for="stem">Stem, optional';
+    $out .= ' <span class="btn btn-link p-0" role="button" data-container="body" data-toggle="popover" data-placement="right" data-content="The question stem should go here if the options are specific to this question."
+                     data-html="true"><span aria-hidden="true" title="Help with Stem, optional" aria-label="Help with Stem, optional" class="icon fa fa-question-circle text-info fa-fw" ></span></span>';
+    if(isset($validateMessages['stem']))
+        $out .= '<br/><span style="color: Red;">'.$validateMessages['stem'].'</span>';
+    $out .= '</label>';
+    $out .= '<br/><span class="forminput"><textarea class="form-control" name="stem" id="stem" cols="70" rows="4"';
+    if($displayStem)
+        $out .= ' disabled="1"';
+    $out .= '>';
+    $out .= htmlentities($stem);
+    $out .= "</textarea></span></div>\n";
+
+    $out .= '<div class="form-group row">';
+    $out .= '<label class="col-sm-4 control-label" for="definition">Options:';
+    $out .= ' <span class="btn btn-link p-0" role="button" data-container="body" data-toggle="popover" data-placement="right" data-content="See instructions below"
+                     data-html="true"><span aria-hidden="true" title="Help with Options:" aria-label="Help with Options:" class="icon fa fa-question-circle text-info fa-fw" ></span></span>';
+    if(isset($validateMessages['definition']))
+        $out .= '<br/><span style="color: Red;">'.$validateMessages['definition'].'</span>';
+    $out .= '</label>';
+    $out .= '<br/><span class="forminput"><textarea class="form-control" name="definition" id="definition" cols="70" rows="6"/>';
+    $out .= htmlentities($definition);
+    $out .= "</textarea></span></div>\n";
+
+    $out .= '<div class="form-check row">';
+    $out .= '<div class="col-sm-8 offset-sm-4">';
+    $out .= '<input class="form-check-input" type="checkbox" name="anonymous" id="anonymous" value="1"';
+    if($anonymous)
+        $out .= ' checked="1"';
+    $out .= '/>';
+    $out .= '<label for="anonymous">This is a pseudo-anonymous question where the teacher will not see who gave each response.';
+    if(isset($validateMessages['anonymous']))
+        $out .= '<br/><span style="color: Red;">'.$validateMessages['anonymous'].'</span>';
+    $out .= '</label>';
+    $out .= "</div></div>\n";
+
+    $out .= '<div class="form-check row">';
+    $out .= '<div class="col-sm-8 offset-sm-4">';
+    $out .= '<input class="form-check-input" type="checkbox" name="multiuse" id="multiuse" value="1"';
+    if($multiuse)
+        $out .= ' checked="1"';
+    $out .= '/>';
+    $out .= '<label for="multiuse">This is a generic question to be made available for reuse in all my sessions.';
+    if(isset($validateMessages['multiuse']))
+        $out .= '<br/><span style="color: Red;">'.$validateMessages['multiuse'].'</span>';
+    $out .= '</label>';
+    $out .= "</div></div>\n";
+
+    $out .= '<div class="form-group row">';
+    $out .= '<span class="col-sm-4 control-label">&nbsp;</span>';
+    $out .= '<div class="col-sm-8">';
+   $out .= '<input class="submit btn btn-success" name="editConfidenceQuestion_form_submit" type="submit" value="Create" onclick=\'submitForm("editConfidenceQuestion_form", this);\' />';
+    $out .= '<input class="submit btn btn-secondary" name="editConfidenceQuestion_form_cancel" type="submit" value="Cancel" onclick=\'submitForm("editConfidenceQuestion_form", this);\' />';
+    $out .= "</div></div>";
+
+    $out .= '</form>';
+    return $out;
+}
+
+function editConfidenceQuestion_form_submitted()
+{
+    if((isset($_REQUEST['editConfidenceQuestion_form_code']))&&($_REQUEST['editConfidenceQuestion_form_code']==editConfidenceQuestion_form_magic))
+        return true;
+    else
+        return false;
+}
+
+function update_from_editConfidenceQuestion_form(&$sessionID, &$id, &$title, &$displayStem, &$stem, &$definition, &$anonymous, &$multiuse)
+{
+    if((isset($_REQUEST['editConfidenceQuestion_form_code']))&&($_REQUEST['editConfidenceQuestion_form_code']==editConfidenceQuestion_form_magic))
+    {
+        if(isset($_REQUEST['editConfidenceQuestion_form_cancel']))
+            return false;
+        $sessionID = strval($_REQUEST['sessionID']);
+        $id = strval($_REQUEST['id']);
+        $title = strval($_REQUEST['title']);
+        $displayStem = (isset($_REQUEST['displayStem'])&&(intval($_REQUEST['displayStem'])>0));
+        $stem = strval($_REQUEST['stem']);
+        $definition = strval($_REQUEST['definition']);
+        $anonymous = (isset($_REQUEST['anonymous'])&&(intval($_REQUEST['anonymous'])>0));
+        $multiuse = (isset($_REQUEST['multiuse'])&&(intval($_REQUEST['multiuse'])>0));
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//Wrapper class for editConfidenceQuestion_form QuickForm functions that emulates a form_lib2::nbform derived class.
+class editConfidenceQuestion_form
+{
 	var $sessionID; //hidden
 	var $id; //hidden
 	var $title; //string
 	var $displayStem; //boolean
-	var $definition; //memo
-	var $multiuse; //boolean
+    var $stem; //memo (multiline string)
+    var $definition; //memo (multiline string)
     var $anonymous; //boolean
+	var $multiuse; //boolean
 	var $validateMessages;
-    static $briefHelp = "<div class='alert alert-block alert-info'><h3>Instructions</h3><p>Add one option per line on the form. If you wish to define a 'correct' option precede it with with a *</p>
-            <p>If no options or more than one option are preceded with a * the question will be treated as having no correct or incorrect answer with a single selection available.</p>
-            <p>The options for confidence levels are defined following a blank line, also one per line.</p>
-            <p>if no confidence levels are defined a default set of four ranging from 'Very confident' to 'Guess' will be used.</p></div>";
-
 
 	function __construct($readform=true)
 	{
-		parent::__construct();
 		$this->validateMessages = array();
-		if($readform)
+		if(editConfidenceQuestion_form_submitted())
 		{
 			$this->readAndValidate();
 		}
         else
         {
-           $this->displayStem = true;
+   			$this->formStatus = FORM_NOTSUBMITTED;
         }
 	}
+
+    function getStatus()
+    {
+        return $this->formStatus;
+    }
 
 	function setData($data)
 	{
@@ -558,63 +754,77 @@ class editConfidenceQuestion_form extends nbform
 		$this->id = $data->id;
 		$this->title = $data->title;
 		$this->displayStem = $data->displayStem;
+        $this->stem = $data->stem;
 		$this->definition = $data->definition;
+        $this->anonymous = $data->anonymous;
 		$this->multiuse = $data->multiuse;
-		$this->anonymous = $data->anonymous;
 	}
 
 	function getData(&$data)
 	{
 		$data->sessionID = $this->sessionID;
 		$data->id = $this->id;
+        $data->qutype = "confidencequestion";
 		$data->title = $this->title;
 		$data->displayStem = $this->displayStem;
+        $data->stem = $this->stem;
 		$data->definition = $this->definition;
+        $data->anonymous = $this->anonymous;
 		$data->multiuse = $this->multiuse;
-		$data->anonymous = $this->anonymous;
 		return $data;
 	}
 
-	function readAndValidate()
+	private function readAndValidate()
 	{
-		$isCanceled=false;
-		if((isset($_REQUEST['editBasicQuestion_form_code']))&&($_REQUEST['editBasicQuestion_form_code'] == $this->form_magic_id))
+		if(update_from_editConfidenceQuestion_form($this->sessionID, $this->id, $this->title, $this->displayStem, $this->stem, $this->definition, $this->anonymous, $this->multiuse))
 		{
-			$this->sessionID = $_REQUEST['sessionID'];
-			$this->id = $_REQUEST['id'];
-			$this->title = stripslashes($_REQUEST['title']);
-			$this->displayStem = (isset($_REQUEST['displayStem'])&&($_REQUEST['displayStem']==1)) ? true : false;
-			$this->definition = stripslashes($_REQUEST['definition']);
-			$this->multiuse = (isset($_REQUEST['multiuse'])&&($_REQUEST['multiuse']==1)) ? true : false;
-			$this->anonymous = (isset($_REQUEST['anonymous'])&&($_REQUEST['anonymous']==1)) ? true : false;
-			if('Cancel' == $_REQUEST['submit'])
-				$isCanceled = true;
 			$isValid = $this->validate();
-			if($isCanceled)
-				$this->formStatus = FORM_CANCELED;
-			elseif($isValid)
+			if($isValid)
 				$this->formStatus = FORM_SUBMITTED_VALID;
 			else
 				$this->formStatus = FORM_SUBMITTED_INVALID;
 		}
 		else
-			$this->formStatus = FORM_NOTSUBMITTED;
+        {
+				$this->formStatus = FORM_CANCELED;
+        }
 	}
 
-	function validate()
+	private function validate()
 	{
 		$this->validateMessages = array();
-		// Put custom code to validate $this->sessionID here (to stop hackers using this as a way in.)
-		// Put custom code to validate $this->id here (to stop hackers using this as a way in.)
-		if(strlen($this->title)>80)
-		{
-		    $this->title = substr($this->title,0,80);
-		    $this->validateMessages['title'] = "This field was too long and has been truncated.";
-		}
-		// Put custom code to validate $this->title here. Error message in $this->validateMessages['title']
-		// Put custom code to validate $this->displayStem here. Put error message in $this->validateMessages['displayStem']
-		// Put custom code to validate $this->definition here. Put error message in $this->validateMessages['definition']
-		// Put custom code to validate $this->multiuse here. Put error message in $this->validateMessages['multiuse']
+		//USERCODE-SECTION-editConfidenceQuestion_form-sessionID-validation
+		// Put code here.
+		//ENDUSERCODE-SECTION-editConfidenceQuestion_form-sessionID-validation
+
+		//USERCODE-SECTION-editConfidenceQuestion_form-id-validation
+		// Put code here.
+		//ENDUSERCODE-SECTION-editConfidenceQuestion_form-id-validation
+
+		//USERCODE-SECTION-editConfidenceQuestion_form-title-validation
+		// Put code here.
+		//ENDUSERCODE-SECTION-editConfidenceQuestion_form-title-validation
+
+		//USERCODE-SECTION-editConfidenceQuestion_form-displayStem-validation
+		// Put code here.
+		//ENDUSERCODE-SECTION-editConfidenceQuestion_form-displayStem-validation
+
+		//USERCODE-SECTION-editConfidenceQuestion_form-stem-validation
+		// Put code here.
+		//ENDUSERCODE-SECTION-editConfidenceQuestion_form-stem-validation
+
+		//USERCODE-SECTION-editConfidenceQuestion_form-definition-validation
+		// Put code here.
+		//ENDUSERCODE-SECTION-editConfidenceQuestion_form-definition-validation
+
+		//USERCODE-SECTION-editConfidenceQuestion_form-anonymous-validation
+		// Put code here.
+		//ENDUSERCODE-SECTION-editConfidenceQuestion_form-anonymous-validation
+
+		//USERCODE-SECTION-editConfidenceQuestion_form-multiuse-validation
+		// Put code here.
+		//ENDUSERCODE-SECTION-editConfidenceQuestion_form-multiuse-validation
+
 		if(sizeof($this->validateMessages)==0)
 			return true;
 		else
@@ -623,41 +833,15 @@ class editConfidenceQuestion_form extends nbform
 
 	function getHtml()
 	{
-		$out = '';
-		$out .= $this->formStart();
-		$out .= $this->hiddenInput('editBasicQuestion_form_code', $this->form_magic_id);
-		$out .= $this->hiddenInput('sessionID', $this->sessionID);
-		$out .= $this->hiddenInput('id', $this->id);
-		$out .= $this->textInput('Title/Stem', 'title', $this->title, $this->validateMessages, 80);
-		$out .= $this->checkboxInput('Display stem to participants.', 'displayStem', $this->displayStem, $this->validateMessages);
-		$out .= $this->textareaInput('Options', 'definition', $this->definition, $this->validateMessages, 60 , 6);
-		$out .= $this->checkboxInput('This is a generic question to be made available in all my sessions.', 'multiuse', $this->multiuse, $this->validateMessages);
-		$out .= $this->checkboxInput('This is a pseudo-anonymous question where the teacher will not see who gave each response.', 'anonymous', $this->anonymous, $this->validateMessages);
-		$out .= $this->submitInput('submit', 'Create', 'Cancel');
-		$out .= $this->formEnd(false);
-        $out .= editConfidenceQuestion_form::$briefHelp;
+        $out = show_editConfidenceQuestion_form($this->sessionID, $this->id, $this->title, $this->displayStem, $this->stem, $this->definition, $this->anonymous, $this->multiuse, $this->validateMessages);
 		return $out;
-	}
-
-	function post_it()
-	{
-	    $http = new Http();
-	    $http->useCurl(false);
-	    $formdata=array('thanks_url'=>'none', 'mymode'=>'webform1.0', 'datafile'=>'editBasicQuestion_form', 'coderef'=>'nsb2x');
-	    $formdata['sessionID'] = $this->sessionID;
-	    $formdata['id'] = $this->id;
-	    $formdata['title'] = $this->title;
-	    $formdata['displayStem'] = $this->displayStem;
-	    $formdata['definition'] = $this->definition;
-	    $formdata['multiuse'] = $this->multiuse;
-
-	    $http->execute('http://culrain.cent.gla.ac.uk/cgi-bin/qh/qhc','','POST',$formdata);
-	    return ($http->error) ? $http->error : $http->result;
 	}
 
     function getNewQuestion()
     {
-        return new confidenceQuestion($this->title, $this->displayStem, $this->definition);
+        if($this->displayStem) // displayStem really means display (instance) title as stem now
+            $this->stem = '';
+        return new confidenceQuestion($this->stem, $this->displayStem, $this->definition);
     }
 }
 

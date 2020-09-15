@@ -23,7 +23,7 @@ require_once('lib/database.php');
 require_once('lib/forms.php');
 require_once('lib/shared_funcs.php');
  
-include_once('lib/lti_funcs.php');
+require_once('lib/lti_funcs.php');
 $template = new templateMerge($TEMPLATE);
 
 $loginError = '';

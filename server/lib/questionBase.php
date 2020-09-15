@@ -38,6 +38,17 @@ abstract class questionBase
         return "";
     }
 
+    function getModifiedCopyForm()
+    {
+        $form = $this::getEditForm();
+        return $form;
+    }
+
+    static function questionTypeName() // Used for looking up classes and help files
+    {
+        return '';
+    }
+
     static function getEditForm()
     {
         return false;
