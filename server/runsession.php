@@ -31,7 +31,7 @@ else
 {
     session_start(array('name'=>'YACRSSESSION'));
     $_SESSION['sessionID'] = $thisSession->id;
-    CheckDaySelect();
+    CheckDaySelect($thisSession->id);
 	//$template->pageData['mainBody'] = '<pre>'.print_r($uinfo,1).'</pre>';
     if(isset($_REQUEST['activate']))
     {
@@ -308,16 +308,22 @@ function getQuestionTableMultipleQu($thisSession, &$quTitles, $showday)
             $qu = $qudefs[$qi->theQuestion_id];//question::retrieve_question($qi->theQuestion_id);
             if($qu)
             {
+                $anoninfo = '';
+                $viewinfo = '';
+                if($qu->anonymous)
+                    $anoninfo .= "<i class='fa fa-user-secret' title='Anonymous question'></i> ";
+                if((isset($qu->definition->displayTitle))&&($qu->definition->displayTitle))
+                    $viewinfo .= " <i title='This title is shown to students'>&#x1f453;</i>";
                 if(in_array($qiID, $thisSession->extras[currentQuestions]))
                 {
-	                $out .= "\n<<tr class='question-active'><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;";
-                    $out .= "<a OnClick='EditTitle(\"{$qiID}\");' aria-label='Edit question title');'><i aria-hidden='true' class='fa fa-pencil'></i></a>";
+	                $out .= "\n<<tr class='question-active'><td>$qunum.</td><td id='title{$qiID}'>$anoninfo<span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;";
+                    $out .= "<a OnClick='EditTitle(\"{$qiID}\");' aria-label='Edit question title');'><i aria-hidden='true' class='fa fa-pencil'></i></a>$viewinfo";
                     $out .= "</td>";
                 }
                 else
                 {
-	                $out .= "\n<tr><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;";
-                    $out .= "<a OnClick='EditTitle(\"{$qiID}\");' aria-label='Edit question title');'><i aria-hidden='true' class='fa fa-pencil'></i></a>";
+	                $out .= "\n<tr><td>$qunum.</td><td id='title{$qiID}'>$anoninfo<span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;";
+                    $out .= "<a OnClick='EditTitle(\"{$qiID}\");' aria-label='Edit question title');'><i aria-hidden='true' class='fa fa-pencil'></i></a>$viewinfo";
                     $out .= "</td>";
                 }
                 if($qi->endtime > 0)
@@ -425,16 +431,22 @@ function getQuestionTableSingleQu($thisSession, &$quTitles, $showday)
             $qu = $qudefs[$qi->theQuestion_id];//question::retrieve_question($qi->theQuestion_id);
             if($qu)
             {
+                $anoninfo = '';
+                $viewinfo = '';
+                if($qu->anonymous)
+                    $anoninfo .= "<i class='fa fa-user-secret' title='Anonymous question'></i> ";
+                if((isset($qu->definition->displayTitle))&&($qu->definition->displayTitle))
+                    $viewinfo .= " <i title='This title is shown to students'>&#x1f453;</i>";
                 if($thisSession->currentQuestion == $qiID)
                 {
-	                $out .= "\n<<tr class='question-active'><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;";
-                    $out .= "<a OnClick='EditTitle(\"{$qiID}\");' aria-label='Edit question title');'><i aria-hidden='true' class='fa fa-pencil'></i></a>";
+	                $out .= "\n<<tr class='question-active'><td>$qunum.</td><td id='title{$qiID}'>$anoninfo<span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;";
+                    $out .= "<a OnClick='EditTitle(\"{$qiID}\");' aria-label='Edit question title');'><i aria-hidden='true' class='fa fa-pencil'></i></a>$viewinfo";
                     $out .= "</td>";
                 }
                 else
                 {
-	                $out .= "\n<tr><td>$qunum.</td><td id='title{$qiID}'><span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;";
-                    $out .= "<a OnClick='EditTitle(\"{$qiID}\");' aria-label='Edit question title');'><i aria-hidden='true' class='fa fa-pencil'></i></a>";
+	                $out .= "\n<tr><td>$qunum.</td><td id='title{$qiID}'>$anoninfo<span id='title{$qiID}_txt'>{$qi->title}</span>&nbsp;";
+                    $out .= "<a OnClick='EditTitle(\"{$qiID}\");' aria-label='Edit question title');'><i aria-hidden='true' class='fa fa-pencil'></i></a>$viewinfo";
                     $out .= "</td>";
                 }
                 if($qi->endtime > 0)
